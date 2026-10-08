@@ -83,6 +83,18 @@ export interface OnePager {
   mermaid: string
 }
 
+export interface InterviewLine {
+  who: 'recepcionista' | 'visitante'
+  text: string
+}
+
+export interface Interview {
+  active: boolean
+  lines: InterviewLine[]
+  agentLive: string
+  proposed: Record<string, string> | null
+}
+
 export interface StageState {
   connected: boolean
   mode: string
@@ -106,6 +118,7 @@ export interface StageState {
   prevCost: Cost | null
   onepager: OnePager | null
   blocked: { kind: 'jailbreak' | 'off_topic'; reply: string } | null
+  interview: Interview
   elapsed: number
   budget: number
 }

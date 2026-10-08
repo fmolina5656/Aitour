@@ -7,7 +7,7 @@ export function ChatLog({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: 
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), [s.turns.length, s.live?.text, s.phase])
 
-  if (s.phase === 'idle') {
+  if (s.phase === 'idle' && !s.interview.active && !s.interview.lines.length) {
     return (
       <aside className="chat">
         <div className="chat-head">Conversación</div>
@@ -24,7 +24,26 @@ export function ChatLog({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: 
     <aside className="chat">
       <div className="chat-head">Conversación</div>
       <div className="chat-list">
-        {s.turns.map((t, i) => (
+        {s.interview.lines.map((l, i) => (
+          <div
+            key={`iv-${i}`}
+            className={`msg ${s.phase === 'idle' && !s.interview.agentLive && i === s.interview.lines.length - 1 ? 'latest' : ''}`}
+            style={{ ['--c' as string]: l.who === 'recepcionista' ? 'var(--brand-green)' : 'var(--who-visitante)' }}
+          >
+            <div className="msg-head">{l.who === 'recepcionista' ? 'Recepcionista' : 'Visitante'}</div>
+            <div className="msg-text">{l.text}</div>
+          </div>
+        ))}
+        {s.interview.agentLive && (
+          <div className="msg latest" style={{ ['--c' as string]: 'var(--brand-green)' }}>
+            <div className="msg-head">
+              Recepcionista <span className="msg-action typing">hablando</span>
+            </div>
+            <div className="msg-text">{s.interview.agentLive}</div>
+          </div>
+        )}
+        {s.phase !== 'idle' && s.interview.lines.length > 0 && <div className="chat-sep">El equipo de agentes toma el caso</div>}
+        {s.phase !== 'idle' && s.turns.map((t, i) => (
           <Msg key={i} t={t} latest={i === latest} />
         ))}
         {s.live && (

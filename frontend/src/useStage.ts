@@ -24,6 +24,7 @@ export const initialState: StageState = {
   prevCost: null,
   onepager: null,
   blocked: null,
+  interview: { active: false, lines: [], agentLive: '', proposed: null },
   elapsed: 0,
   budget: 120,
 }
@@ -68,6 +69,7 @@ export function reducer(s: StageState, ev: Action): StageState {
         ...initialState,
         connected: s.connected,
         models: s.models,
+        interview: { ...s.interview, active: false, proposed: null, agentLive: '' },
         mode: d.mode ?? s.mode,
         sessionId: d.session_id,
         phase: 'swarm',
@@ -108,6 +110,20 @@ export function reducer(s: StageState, ev: Action): StageState {
     }
     case 'trace.span':
       return { ...s, spans: [d as Span, ...s.spans].slice(0, 30), sessionCost: d.session_cost_usd, subPulses: pulse(s, `model-${d.agent}`) }
+    case 'voice.started':
+      return { ...initialState, connected: s.connected, mode: s.mode, models: s.models, interview: { active: true, lines: [], agentLive: '', proposed: null } }
+    case 'voice.agent':
+      return d.final
+        ? { ...s, interview: { ...s.interview, agentLive: '', lines: [...s.interview.lines, { who: 'recepcionista', text: d.text }] } }
+        : { ...s, interview: { ...s.interview, agentLive: d.text } }
+    case 'voice.user':
+      return { ...s, interview: { ...s.interview, lines: [...s.interview.lines, { who: 'visitante', text: d.text }] } }
+    case 'brief.proposed':
+      return { ...s, interview: { ...s.interview, proposed: d.brief } }
+    case 'brief.confirmed':
+      return { ...s, interview: { ...s.interview, proposed: null } }
+    case 'voice.ended':
+      return { ...s, interview: { ...s.interview, active: false, proposed: null, agentLive: '' } }
     case 'guard.blocked':
       return { ...s, blocked: { kind: d.kind, reply: d.reply }, live: null }
     case 'governance.event':

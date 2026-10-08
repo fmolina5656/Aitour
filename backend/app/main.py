@@ -59,6 +59,19 @@ async def reset() -> dict:
     return {"ok": True}
 
 
+@app.websocket("/ws/voice")
+async def voice(ws: WebSocket) -> None:
+    """Micrófono del stand ⇄ recepcionista (Foundry voice agent o simulada)."""
+    await ws.accept()
+    await sessions.reset()
+    interview = sessions.new_interview()
+    try:
+        await interview.run(ws)
+    finally:
+        with contextlib.suppress(Exception):
+            await ws.close()
+
+
 @app.websocket("/ws/stage")
 async def stage(ws: WebSocket) -> None:
     await ws.accept()

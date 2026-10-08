@@ -22,6 +22,13 @@ EVENT_TYPES = {
     "trace.span",  # {agent, model, input_tokens, output_tokens, latency_ms, cost_usd, session_cost_usd}
     "governance.event",  # {kind, severity, title, detail}
     "guard.blocked",  # {kind: jailbreak|off_topic, reply}
+    "voice.started",  # {mode}
+    "voice.user",  # {text}  transcripción de lo que dijo el visitante
+    "voice.agent",  # {text, final}  lo que dice la recepcionista
+    "voice.state",  # {value}
+    "voice.ended",  # {confirmed}
+    "brief.proposed",  # {brief}  "esto entendí"
+    "brief.confirmed",  # {brief, via}
     "artifact.diagram",  # {mermaid, version}
     "artifact.cost",  # {items, total_usd, supuestos, disclaimer}
     "artifact.risk",  # {datos_sensibles, regulacion, mitigaciones}

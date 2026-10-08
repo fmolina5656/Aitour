@@ -25,6 +25,18 @@ class Settings(BaseSettings):
     model_guard: str = "gpt-5.4-nano"  # clasificador de tema (rápido y barato)
     reasoning_effort: Literal["none", "low", "medium", "high"] = "low"
 
+    # Voz: Microsoft Foundry voice agent (preview) que hace de recepcionista
+    voice_agent_name: str = "readymind-recepcionista"
+    voice_agent_version: str = ""  # vacío = versión activa
+    voice_model_type: Literal["managed", "self_deployed"] = "managed"
+    voice_model: str = "gpt-realtime-2.1"
+    voice_name: str = "es-MX-Ximena:DragonHDLatestNeural"  # respaldo: es-MX-DaliaNeural
+    voice_vad_threshold: float = 0.6  # más alto = menos falsos disparos por ruido de feria
+    voice_rai_policy: str = ""  # nombre del guardrail (RAI policy) para el voice agent
+    interview_soft_limit_s: float = 70.0  # a partir de aquí se le pide cerrar la entrevista
+    interview_hard_limit_s: float = 95.0  # corte duro: se arma el brief con lo transcrito
+    voice_goodbye_s: float = 3.0  # tiempo para la frase de despedida antes de cerrar la voz
+
     # Gobierno: Prompt Shields (Azure AI Content Safety). Con un recurso de Foundry (AIServices)
     # es el endpoint del recurso: https://<recurso>.cognitiveservices.azure.com
     content_safety_endpoint: str = ""

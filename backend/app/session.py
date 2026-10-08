@@ -12,6 +12,8 @@ from .events import EventBus
 from .guard import Guard
 from .recorder import Recorder, latest_curated, replay
 from .swarm.runner import SwarmRunner
+from .voice.backends import make_backend
+from .voice.interview import VoiceInterview
 from .swarm.schemas import Brief
 
 log = logging.getLogger(__name__)
@@ -26,6 +28,7 @@ class SessionManager:
         self.task: asyncio.Task | None = None
         self.state = "idle"
         self.session_id: str | None = None
+        self.interview: VoiceInterview | None = None
 
     @property
     def busy(self) -> bool:
@@ -84,7 +87,18 @@ class SessionManager:
             self.bus.publish("clock", elapsed_s=round(time.monotonic() - t0, 1), budget_s=self.settings.display_budget_s)
             await asyncio.sleep(1)
 
+    def new_interview(self) -> VoiceInterview:
+        """Entrevista por voz; al confirmarse el brief arranca la sesión del enjambre."""
+        if self.interview is not None:
+            self.interview.stop()
+        self.state = "interview"
+        self.interview = VoiceInterview(self.bus, self.settings, make_backend(self.settings), self.start)
+        return self.interview
+
     async def reset(self, announce: bool = True) -> None:
+        if announce and self.interview is not None:
+            self.interview.stop()
+            self.interview = None
         if self.busy:
             self.task.cancel()
             with contextlib.suppress(asyncio.CancelledError, Exception):

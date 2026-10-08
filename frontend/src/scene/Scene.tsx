@@ -40,10 +40,11 @@ export function Scene({ s }: { s: StageState }) {
   const done = s.status.onepager === 'done'
   const theme = useMemo(() => ({ bg: cssColor('--bg'), cell: cssColor('--grid-cell'), section: cssColor('--grid-section') }), [])
   const blocked = !!s.blocked
-  const coreTitle = blocked ? 'Solicitud bloqueada' : done ? 'One-pager listo' : s.brief ? 'Tu problema' : 'Esperando tu problema'
+  const listening = s.interview.active && s.phase === 'idle'
+  const coreTitle = blocked ? 'Solicitud bloqueada' : done ? 'One-pager listo' : s.brief ? 'Tu problema' : listening ? 'Te escucho' : 'Esperando tu problema'
   const coreSub = blocked
     ? s.blocked?.kind === 'jailbreak' ? 'Prompt Shields' : 'Fuera de alcance'
-    : done ? (s.cost ? `${money(s.cost.total_usd)}/mes estimado` : undefined) : s.brief?.industria
+    : done ? (s.cost ? `${money(s.cost.total_usd)}/mes estimado` : undefined) : s.brief?.industria ?? (listening ? 'Recepcionista · Foundry voice agent' : undefined)
 
   return (
     <Canvas className="scene" dpr={[1, 1.5]} camera={{ position: [3.6, 10, 19], fov: 40 }} gl={{ antialias: true, powerPreference: 'high-performance' }}>
@@ -69,7 +70,7 @@ export function Scene({ s }: { s: StageState }) {
         <AgentOrb key={a} id={a} status={s.status[a] ?? 'idle'} chip={s.chips[a]} satellites={sats[a]} />
       ))}
       {/* el núcleo va después de los orbes: su Html necesita el contenedor ya montado */}
-      <Core title={coreTitle} subtitle={coreSub} done={done} blocked={blocked} active={s.phase === 'swarm'} />
+      <Core title={coreTitle} subtitle={coreSub} done={done} blocked={blocked} active={s.phase === 'swarm' || listening} reactive={listening} />
       <Links handoffs={s.handoffs} />
       <CameraRig focus={focus} />
       {!low && (

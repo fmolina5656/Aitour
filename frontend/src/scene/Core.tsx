@@ -2,13 +2,14 @@ import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { MathUtils, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from 'three'
+import { audioLevel } from '../voice/audio'
 import { CORE, cssColor } from './layout'
 
 /**
  * Núcleo: el problema del visitante. Al terminar, se transforma en el one-pager (crece, cambia de color
  * y emite una onda expansiva).
  */
-export function Core({ title, subtitle, done, blocked, active }: { title: string; subtitle?: string; done: boolean; blocked: boolean; active: boolean }) {
+export function Core({ title, subtitle, done, blocked, active, reactive = false }: { title: string; subtitle?: string; done: boolean; blocked: boolean; active: boolean; reactive?: boolean }) {
   const accent = useMemo(() => cssColor('--core'), [])
   const finale = useMemo(() => cssColor('--core-done'), [])
   const alert = useMemo(() => cssColor('--alert'), [])
@@ -31,7 +32,9 @@ export function Core({ title, subtitle, done, blocked, active }: { title: string
       const target = blocked ? 1.2 + Math.sin(t * 6) * 0.6 : done ? 1.6 : 0.7 + Math.sin(t * 1.6) * 0.2
       m.emissiveIntensity = MathUtils.damp(m.emissiveIntensity, target, 3, dt)
     }
-    if (group.current) group.current.scale.setScalar(MathUtils.damp(group.current.scale.x, done ? 1.12 : 1, 2.5, dt))
+    // durante la entrevista el núcleo late con la voz (visitante y recepcionista)
+    const voice = reactive ? Math.max(audioLevel.mic, audioLevel.agent) * 0.35 : 0
+    if (group.current) group.current.scale.setScalar(MathUtils.damp(group.current.scale.x, (done ? 1.12 : 1) + voice, reactive ? 12 : 2.5, dt))
     // onda expansiva al convertirse en one-pager
     waveT.current = done ? Math.min(waveT.current + dt / 1.8, 1) : 0
     if (wave.current) {
