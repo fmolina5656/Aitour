@@ -13,27 +13,23 @@ function init() {
     themeVariables: {
       darkMode: true,
       background: 'transparent',
-      fontFamily: v('--rm-font'),
-      fontSize: '22px',
-      primaryColor: v('--rm-surface-2'),
-      primaryTextColor: v('--rm-text'),
-      primaryBorderColor: v('--rm-primary'),
-      lineColor: v('--rm-text-dim'),
-      edgeLabelBackground: v('--rm-bg-2'),
+      fontFamily: v('--font'),
+      fontSize: '16px',
+      primaryColor: v('--surface'),
+      primaryTextColor: v('--text'),
+      primaryBorderColor: v('--line-strong'),
+      lineColor: v('--text-3'),
+      edgeLabelBackground: v('--bg'),
     },
-    flowchart: { curve: 'basis', padding: 12, nodeSpacing: 30, rankSpacing: 50 },
+    flowchart: { curve: 'basis', padding: 8, nodeSpacing: 18, rankSpacing: 26, useMaxWidth: true },
   })
   initialized = true
 }
 
-const CLASS_DEFS = `
-  classDef ia fill:#1d2f6b,stroke:#2f6bff,stroke-width:2px,color:#fff
-  classDef datos fill:#173a3a,stroke:#2bd98a,stroke-width:2px,color:#fff
-  classDef comp fill:#2a2350,stroke:#7a5cff,stroke-width:2px,color:#fff
-  classDef integ fill:#3a2a1a,stroke:#ffb547,stroke-width:2px,color:#fff
-  classDef gob fill:#3a1a2a,stroke:#ff5470,stroke-width:2px,color:#fff`
+// El backend marca cada nodo con su categoría; aquí todas se ven neutras y sobrias.
+const CLASS_DEFS = ['ia', 'datos', 'comp', 'integ', 'gob'].map((c) => `\n  classDef ${c} fill:#15181d,stroke:#3a414c,stroke-width:1px,color:#eceef2`).join('')
 
-export function Diagram({ code, version, cambios }: { code: string | null; version?: number; cambios?: string | null }) {
+export function Diagram({ code, version }: { code: string | null; version?: number }) {
   const ref = useRef<HTMLDivElement>(null)
   const [error, setError] = useState(false)
   useEffect(() => {
@@ -41,7 +37,7 @@ export function Diagram({ code, version, cambios }: { code: string | null; versi
     init()
     let cancelled = false
     mermaid
-      .render(`mm-${Date.now()}`, code + CLASS_DEFS)
+      .render(`mm-${Date.now()}`, code.replace(/^flowchart LR/, 'flowchart TD') + CLASS_DEFS)
       .then(({ svg }) => {
         if (!cancelled && ref.current) {
           ref.current.innerHTML = svg
@@ -55,14 +51,14 @@ export function Diagram({ code, version, cambios }: { code: string | null; versi
   }, [code])
 
   return (
-    <section className="panel diagram">
-      <div className="panel-title">
-        Arquitectura propuesta {version ? <span className="badge">v{version}</span> : null}
+    <section className="block block-grow">
+      <div className="block-head">
+        <span>Arquitectura</span>
+        {version && <span className="muted">v{version}</span>}
       </div>
-      {cambios && <div className="cambios">↻ {cambios}</div>}
-      {!code && <div className="muted big">El Arquitecto dibujará la solución aquí…</div>}
-      {error && <div className="muted">No se pudo renderizar el diagrama.</div>}
-      <div ref={ref} className="diagram-svg" />
+      {!code && <div className="empty">Aparece cuando el Arquitecto proponga la solución.</div>}
+      {error && <div className="empty">No se pudo dibujar el diagrama.</div>}
+      <div ref={ref} className="diagram" />
     </section>
   )
 }

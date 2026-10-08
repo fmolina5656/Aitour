@@ -1,37 +1,30 @@
 /*
  * Tokens de marca Readymind. ÚNICO lugar donde se definen colores y tipografía.
  * TODO(marca): reemplazar con la paleta oficial de https://www.readymind.ms/es/
- * (el sitio no fue accesible desde el entorno de desarrollo; valores provisorios).
+ * (el sitio no fue accesible desde el entorno de desarrollo; valores provisorios y neutros).
  */
 :root {
-  /* Fondo y superficies (estética oscura para pantalla de stand) */
-  --rm-bg: #070b1a;
-  --rm-bg-2: #0d1430;
-  --rm-surface: #121a3a;
-  --rm-surface-2: #1a2450;
-  --rm-border: #2a3570;
+  --bg: #0e1013;
+  --surface: #15181d;
+  --line: #262b33;
+  --line-strong: #3a414c;
 
-  /* Marca */
-  --rm-primary: #2f6bff;
-  --rm-primary-2: #00c2ff;
-  --rm-accent: #7a5cff;
+  --text: #eceef2;
+  --text-2: #a3aab6;
+  --text-3: #6b7380;
 
-  /* Texto */
-  --rm-text: #f2f5ff;
-  --rm-text-dim: #9aa6d6;
+  /* Único color de acento (marca) */
+  --accent: #3b82f6;
+  /* Objeciones */
+  --alert: #f59e0b;
 
-  /* Estados */
-  --rm-ok: #2bd98a;
-  --rm-warn: #ffb547;
-  --rm-danger: #ff5470;
+  /* Marcadores de cada participante: apagados, solo para identificar el carril */
+  --who-visitante: #a3aab6;
+  --who-arquitecto: #60a5fa;
+  --who-financiero: #34d399;
+  --who-riesgo: #fbbf24;
+  --who-redactor: #c4b5fd;
 
-  /* Color de cada agente en el grafo */
-  --agent-arquitecto: #2f6bff;
-  --agent-financiero: #2bd98a;
-  --agent-riesgo: #ffb547;
-  --agent-redactor: #c58bff;
-  --agent-recepcionista: #00c2ff;
-
-  --rm-font: 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --rm-radius: 18px;
+  --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Cascadia Mono', 'Consolas', ui-monospace, monospace;
 }

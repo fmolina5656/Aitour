@@ -1,4 +1,5 @@
 export type AgentId = 'arquitecto' | 'financiero' | 'riesgo' | 'redactor'
+export type Lane = 'visitante' | AgentId
 
 export interface StageEvent<T = Record<string, unknown>> {
   type: string
@@ -7,11 +8,15 @@ export interface StageEvent<T = Record<string, unknown>> {
   t?: number
 }
 
-export interface Bubble {
-  agent: AgentId
+export type TurnKind = 'brief' | 'propose' | 'adjust' | 'object' | 'approve' | 'write'
+
+/** Un turno de la conversación: quién, qué hizo y qué produjo. */
+export interface Turn {
+  lane: Lane
+  kind: TurnKind
+  action: string
   text: string
-  final: boolean
-  objection?: boolean
+  chip?: string
 }
 
 export interface Span {
@@ -51,13 +56,6 @@ export interface Cost {
   version: number
 }
 
-export interface Objection {
-  de: AgentId
-  para: AgentId
-  motivo: string
-  propuesta: string
-}
-
 export interface OnePager {
   status: string
   onepager: {
@@ -78,17 +76,13 @@ export interface StageState {
   sessionId: string | null
   phase: 'idle' | 'swarm' | 'done'
   brief: Record<string, string> | null
-  thinking: AgentId | null
-  bubbles: Partial<Record<AgentId, Bubble>>
-  feed: Bubble[]
-  lastSpeaker: AgentId | null
-  objection: Objection | null
+  turns: Turn[]
+  live: { agent: AgentId; text: string } | null
   spans: Span[]
   sessionCost: number
   governance: GovEvent[]
-  diagram: { mermaid: string; version: number; cambios?: string | null } | null
+  diagram: { mermaid: string; version: number } | null
   cost: Cost | null
-  costHistory: number[]
   onepager: OnePager | null
   elapsed: number
   budget: number

@@ -55,12 +55,20 @@ cd frontend && npm install && npm run dev   # http://localhost:5173 (proxy a :80
 
 O sirviendo el build desde el backend: `cd frontend && npm run build` y abrir `http://localhost:8000`.
 
+### Pantalla
+
+Minimalista y legible de lejos. La izquierda muestra la **conversación en carriles**: una fila por participante, los
+turnos avanzan de izquierda a derecha y cada tarjeta dice qué hizo el agente (propone, objeta, ajusta, aprueba) y qué
+produjo (costo, versión, norma). Las objeciones son flechas punteadas. Debajo, el turno actual en letra grande. A la
+derecha, el resultado en construcción: arquitectura, costo y gobierno.
+
 ### Atajos de teclado (pantalla)
 
 | Tecla | Acción |
 |---|---|
 | `T` | Escribir el problema (fallback a teclado) |
 | `R` | Reset de la demo (< 1 s) |
+| `O` | Ver/ocultar el one-pager |
 | `F` | Pantalla completa |
 | `Esc` | Cerrar el formulario |
 

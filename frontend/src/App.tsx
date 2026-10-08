@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { AgentGraph } from './components/AgentGraph'
+import { Conversation } from './components/Conversation'
 import { CostPanel } from './components/CostPanel'
 import { Diagram } from './components/Diagram'
 import { GovernancePanel } from './components/GovernancePanel'
+import { NowCaption } from './components/NowCaption'
 import { OnePagerOverlay } from './components/OnePagerOverlay'
 import { TextInput } from './components/TextInput'
 import { api, useStage } from './useStage'
@@ -12,14 +13,17 @@ const LOGO_URL = import.meta.env.VITE_BRAND_LOGO_URL as string | undefined
 export default function App() {
   const s = useStage()
   const [showText, setShowText] = useState(false)
-  const [hideOnePager, setHideOnePager] = useState(false)
+  const [showOnePager, setShowOnePager] = useState(false)
 
-  useEffect(() => setHideOnePager(false), [s.sessionId])
+  useEffect(() => setShowOnePager(false), [s.sessionId])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const typing = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement
-      if (e.key === 'Escape') setShowText(false)
+      if (e.key === 'Escape') {
+        setShowText(false)
+        setShowOnePager(false)
+      }
       if (typing) return
       const k = e.key.toLowerCase()
       if (k === 'r') {
@@ -28,6 +32,8 @@ export default function App() {
       } else if (k === 't') {
         e.preventDefault()
         setShowText(true)
+      } else if (k === 'o') {
+        setShowOnePager((v) => !v)
       } else if (k === 'f') {
         if (document.fullscreenElement) document.exitFullscreen()
         else document.documentElement.requestFullscreen()
@@ -37,50 +43,46 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  const remaining = Math.max(0, s.budget - s.elapsed)
   return (
     <div className="stage">
       <header className="header">
         <div className="brand">
           {LOGO_URL ? <img src={LOGO_URL} alt="Readymind" className="logo" /> : <span className="logo-text">readymind</span>}
-          <span className="brand-sep" />
-          <span className="tagline">Cuéntame tu problema y en 3 minutos te armo la solución</span>
+          <span className="title">Cuéntame tu problema y en 3 minutos te armo la solución</span>
         </div>
-        <div className="header-right">
-          {s.mode === 'replay' && <span className="mode-pill replay">● Sesión grabada</span>}
-          {s.mode === 'mock' && <span className="mode-pill mock">● Modo simulado</span>}
-          {!s.connected && <span className="mode-pill offline">● Sin conexión</span>}
-          {s.phase === 'swarm' && (
-            <span className={`clock ${remaining < 20 ? 'clock-warn' : ''}`}>
-              ⏱ {Math.floor(s.elapsed)} s <span className="muted">/ {s.budget} s</span>
+        <div className="status">
+          {s.mode === 'replay' && <span>Sesión grabada</span>}
+          {s.mode === 'mock' && <span>Modo simulado</span>}
+          {!s.connected && <span className="alert">Sin conexión</span>}
+          {s.phase !== 'idle' && (
+            <span className="clock">
+              {Math.floor(s.elapsed)}s <span className="muted">/ {s.budget}s</span>
             </span>
           )}
-          <span className="powered">Microsoft Foundry</span>
-          <button className="btn ghost small" onClick={() => api.reset()} title="Reset (R)">
-            ↺ Reset
-          </button>
         </div>
       </header>
 
       <main className="main">
-        <section className="center">
-          <AgentGraph s={s} />
-          {s.phase === 'idle' && (
-            <button className="start-cta" onClick={() => setShowText(true)}>
-              Presiona <kbd>T</kbd> para escribir tu problema
-            </button>
-          )}
+        <section className="left">
+          <Conversation s={s} />
+          <NowCaption s={s} onOpenOnePager={() => setShowOnePager(true)} />
         </section>
-        <GovernancePanel s={s} />
+        <aside className="right">
+          <Diagram code={s.diagram?.mermaid ?? null} version={s.diagram?.version} />
+          <CostPanel s={s} />
+          <GovernancePanel s={s} />
+        </aside>
       </main>
 
-      <footer className="bottom">
-        <Diagram code={s.diagram?.mermaid ?? null} version={s.diagram?.version} cambios={s.diagram?.cambios} />
-        <CostPanel s={s} />
+      <footer className="footer">
+        <span>Microsoft Foundry · Microsoft Agent Framework</span>
+        <span className="keys">
+          <kbd>T</kbd> escribir <kbd>O</kbd> one-pager <kbd>R</kbd> reiniciar <kbd>F</kbd> pantalla completa
+        </span>
       </footer>
 
       {showText && <TextInput onClose={() => setShowText(false)} />}
-      {s.onepager && s.phase === 'done' && !hideOnePager && <OnePagerOverlay op={s.onepager} onClose={() => setHideOnePager(true)} />}
+      {s.onepager && showOnePager && <OnePagerOverlay op={s.onepager} onClose={() => setShowOnePager(false)} />}
     </div>
   )
 }

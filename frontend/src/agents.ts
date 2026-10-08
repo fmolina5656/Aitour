@@ -1,16 +1,19 @@
-import type { AgentId } from './types'
+import type { Lane } from './types'
 
-export const AGENTS: Record<AgentId, { label: string; role: string; icon: string; x: number; y: number }> = {
-  // posiciones en % del área del grafo
-  arquitecto: { label: 'Arquitecto', role: 'Diseña en Azure / Foundry', icon: '◆', x: 9, y: 30 },
-  financiero: { label: 'Financiero', role: 'Estima el costo mensual', icon: '$', x: 91, y: 30 },
-  riesgo: { label: 'Riesgo', role: 'LFPDPPP y seguridad', icon: '⛨', x: 9, y: 80 },
-  redactor: { label: 'Redactor', role: 'One-pager ejecutivo', icon: '✎', x: 91, y: 80 },
+export const LANES: Lane[] = ['visitante', 'arquitecto', 'financiero', 'riesgo', 'redactor']
+
+export const LANE_META: Record<Lane, { label: string; role: string; thinking: string }> = {
+  visitante: { label: 'Visitante', role: 'Cuenta el problema', thinking: '' },
+  arquitecto: { label: 'Arquitecto', role: 'Diseña en Azure', thinking: 'está diseñando la solución' },
+  financiero: { label: 'Financiero', role: 'Estima el costo', thinking: 'está revisando el costo' },
+  riesgo: { label: 'Riesgo', role: 'Datos y regulación', thinking: 'está revisando datos y regulación' },
+  redactor: { label: 'Redactor', role: 'Escribe el resumen', thinking: 'está escribiendo el one-pager' },
 }
 
-export const AGENT_ORDER: AgentId[] = ['arquitecto', 'financiero', 'riesgo', 'redactor']
+export const laneColor = (l: Lane) => `var(--who-${l})`
 
-export const agentColor = (a: AgentId) => `var(--agent-${a})`
+export const usd = (n: number) =>
+  n.toLocaleString('es-MX', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
-export const usd = (n: number, digits = 0) =>
-  n.toLocaleString('es-MX', { style: 'currency', currency: 'USD', minimumFractionDigits: digits, maximumFractionDigits: digits })
+/** Formato corto para las tarjetas: $4,972 */
+export const money = (n: number) => `$${Math.round(n).toLocaleString('es-MX')}`

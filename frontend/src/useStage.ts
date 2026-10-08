@@ -1,5 +1,6 @@
 import { useEffect, useReducer } from 'react'
-import type { AgentId, Cost, GovEvent, OnePager, Span, StageEvent, StageState } from './types'
+import { money } from './agents'
+import type { AgentId, Cost, GovEvent, OnePager, Span, StageEvent, StageState, Turn } from './types'
 
 export const initialState: StageState = {
   connected: false,
@@ -7,23 +8,37 @@ export const initialState: StageState = {
   sessionId: null,
   phase: 'idle',
   brief: null,
-  thinking: null,
-  bubbles: {},
-  feed: [],
-  lastSpeaker: null,
-  objection: null,
+  turns: [],
+  live: null,
   spans: [],
   sessionCost: 0,
   governance: [],
   diagram: null,
   cost: null,
-  costHistory: [],
   onepager: null,
   elapsed: 0,
   budget: 120,
 }
 
 type Action = StageEvent | { type: '__connected'; data: { value: boolean } }
+
+/** Traduce el mensaje de un agente a un turno: qué hizo y qué produjo. */
+function toTurn(s: StageState, agent: AgentId, text: string, d: Record<string, any>): Turn {
+  const objected = !!d?.objecion
+  switch (agent) {
+    case 'arquitecto': {
+      const first = !s.turns.some((t) => t.lane === 'arquitecto')
+      const n = d?.componentes?.length
+      return { lane: agent, kind: first ? 'propose' : 'adjust', action: first ? 'Propone arquitectura' : 'Ajusta la arquitectura', text, chip: n ? `${n} servicios` : undefined }
+    }
+    case 'financiero':
+      return { lane: agent, kind: objected ? 'object' : 'approve', action: objected ? 'Objeta el costo' : 'Aprueba el costo', text, chip: s.cost ? `${money(s.cost.total_usd)}/mes` : undefined }
+    case 'riesgo':
+      return { lane: agent, kind: objected ? 'object' : 'approve', action: objected ? 'Señala un riesgo' : 'Valida cumplimiento', text, chip: d?.regulacion?.[0]?.norma?.split(' (')[0] }
+    default:
+      return { lane: agent, kind: 'write', action: 'Redacta el one-pager', text, chip: 'Resumen listo' }
+  }
+}
 
 export function reducer(s: StageState, ev: Action): StageState {
   const d = ev.data as Record<string, any>
@@ -32,39 +47,38 @@ export function reducer(s: StageState, ev: Action): StageState {
       return { ...s, connected: d.value }
     case 'hello':
       return { ...s, mode: d.mode }
-    case 'session.started':
-      return { ...initialState, connected: s.connected, mode: d.mode ?? s.mode, sessionId: d.session_id, phase: 'swarm', brief: d.brief }
+    case 'session.started': {
+      const brief = d.brief ?? {}
+      const turns: Turn[] = [{ lane: 'visitante', kind: 'brief', action: 'Cuenta su problema', text: brief.problema ?? '', chip: brief.industria }]
+      return { ...initialState, connected: s.connected, mode: d.mode ?? s.mode, sessionId: d.session_id, phase: 'swarm', brief, turns }
+    }
     case 'session.reset':
       return { ...initialState, connected: s.connected, mode: s.mode }
     case 'session.ended':
-      return { ...s, phase: 'done', thinking: null }
+      return { ...s, phase: 'done', live: null }
     case 'agent.thinking':
-      return { ...s, thinking: d.agent as AgentId }
-    case 'agent.delta': {
-      const agent = d.agent as AgentId
-      return { ...s, bubbles: { ...s.bubbles, [agent]: { agent, text: d.burbuja, final: false } } }
-    }
-    case 'agent.message': {
-      const agent = d.agent as AgentId
-      const objection = !!d.detalle?.objecion
-      return {
-        ...s,
-        lastSpeaker: agent,
-        bubbles: { ...s.bubbles, [agent]: { agent, text: d.burbuja, final: true, objection } },
-        feed: [{ agent, text: d.burbuja, final: true, objection }, ...s.feed].slice(0, 4),
-        objection: objection ? s.objection : agent === 'arquitecto' ? null : s.objection,
-      }
-    }
-    case 'agent.objection':
-      return { ...s, objection: d as StageState['objection'] }
+      return { ...s, live: { agent: d.agent, text: '' } }
+    case 'agent.delta':
+      return { ...s, live: { agent: d.agent, text: d.burbuja } }
+    case 'agent.message':
+      return { ...s, live: null, turns: [...s.turns, toTurn(s, d.agent, d.burbuja, d.detalle ?? {})] }
     case 'trace.span':
       return { ...s, spans: [d as Span, ...s.spans].slice(0, 30), sessionCost: d.session_cost_usd }
     case 'governance.event':
       return { ...s, governance: [d as GovEvent, ...s.governance].slice(0, 12) }
     case 'artifact.diagram':
-      return { ...s, diagram: { mermaid: d.mermaid, version: d.version, cambios: d.cambios } }
-    case 'artifact.cost':
-      return { ...s, cost: d as Cost, costHistory: [...s.costHistory, d.total_usd] }
+      return { ...s, diagram: { mermaid: d.mermaid, version: d.version } }
+    case 'artifact.cost': {
+      // el costo llega justo después del turno del Arquitecto: se suma a su tarjeta
+      const turns = [...s.turns]
+      const last = turns[turns.length - 1]
+      if (last?.lane === 'arquitecto') {
+        const delta = s.cost ? d.total_usd - s.cost.total_usd : 0
+        const chip = delta ? `${delta < 0 ? '−' : '+'}${money(Math.abs(delta))}/mes` : last.chip
+        turns[turns.length - 1] = { ...last, chip: `v${d.version} · ${chip}` }
+      }
+      return { ...s, cost: d as Cost, turns }
+    }
     case 'artifact.onepager':
       return { ...s, onepager: d as OnePager }
     case 'clock':
