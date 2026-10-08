@@ -1,5 +1,7 @@
 export type AgentId = 'arquitecto' | 'financiero' | 'riesgo' | 'redactor'
-export type Lane = 'visitante' | AgentId
+export type Actor = 'visitante' | AgentId
+export type FlowNodeId = Actor | 'onepager'
+export type ToolId = 'calc' | 'normas' | 'catalogo'
 
 export interface StageEvent<T = Record<string, unknown>> {
   type: string
@@ -10,13 +12,23 @@ export interface StageEvent<T = Record<string, unknown>> {
 
 export type TurnKind = 'brief' | 'propose' | 'adjust' | 'object' | 'approve' | 'write'
 
-/** Un turno de la conversación: quién, qué hizo y qué produjo. */
+/** Un mensaje de la conversación: quién, qué hizo y qué produjo. */
 export interface Turn {
-  lane: Lane
+  actor: Actor
   kind: TurnKind
   action: string
   text: string
   chip?: string
+}
+
+export type NodeStatus = 'idle' | 'running' | 'done' | 'objected'
+
+/** Un traspaso entre nodos: genera (o reutiliza) un cable y lanza una partícula. */
+export interface Handoff {
+  from: FlowNodeId
+  to: FlowNodeId
+  objection: boolean
+  seq: number
 }
 
 export interface Span {
@@ -38,6 +50,7 @@ export interface GovEvent {
 
 export interface CostItem {
   id: string
+  servicio: string
   nombre: string
   categoria: string
   cantidad: number
@@ -73,16 +86,24 @@ export interface OnePager {
 export interface StageState {
   connected: boolean
   mode: string
+  models: Partial<Record<AgentId, string>>
   sessionId: string | null
   phase: 'idle' | 'swarm' | 'done'
   brief: Record<string, string> | null
   turns: Turn[]
   live: { agent: AgentId; text: string } | null
+  lastActor: Actor | null
+  status: Partial<Record<FlowNodeId, NodeStatus>>
+  chips: Partial<Record<FlowNodeId, string>>
+  handoffs: Handoff[]
+  /** contador de llamadas por sub-nodo (modelo de cada agente o herramienta) para hacerlos "latir" */
+  subPulses: Record<string, number>
   spans: Span[]
   sessionCost: number
   governance: GovEvent[]
   diagram: { mermaid: string; version: number } | null
   cost: Cost | null
+  prevCost: Cost | null
   onepager: OnePager | null
   elapsed: number
   budget: number

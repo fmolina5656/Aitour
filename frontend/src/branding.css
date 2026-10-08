@@ -1,29 +1,33 @@
 /*
  * Tokens de marca Readymind. ÚNICO lugar donde se definen colores y tipografía.
  * TODO(marca): reemplazar con la paleta oficial de https://www.readymind.ms/es/
- * (el sitio no fue accesible desde el entorno de desarrollo; valores provisorios y neutros).
+ * (el sitio no fue accesible desde el entorno de desarrollo; valores provisorios).
  */
 :root {
-  --bg: #0e1013;
+  --bg: #0d0f12;
   --surface: #15181d;
-  --line: #262b33;
-  --line-strong: #3a414c;
+  --node-bg: #1b1f26;
+  --node-border: #2c323c;
+  --line: #232830;
+  --line-strong: #353c47;
+  --grid-dot: #262b33;
 
-  --text: #eceef2;
-  --text-2: #a3aab6;
-  --text-3: #6b7380;
+  --text: #eef0f4;
+  --text-2: #b4bac5;
+  --text-3: #6f7784;
 
-  /* Único color de acento (marca) */
-  --accent: #3b82f6;
-  /* Objeciones */
-  --alert: #f59e0b;
+  /* Acento de marca: cables activos y partículas */
+  --accent: #4f8cff;
+  --alert: #f5a524;
+  --ok: #22c55e;
 
-  /* Marcadores de cada participante: apagados, solo para identificar el carril */
-  --who-visitante: #a3aab6;
-  --who-arquitecto: #60a5fa;
-  --who-financiero: #34d399;
-  --who-riesgo: #fbbf24;
-  --who-redactor: #c4b5fd;
+  /* Color de cada nodo */
+  --who-visitante: #b4bac5;
+  --who-arquitecto: #4f8cff;
+  --who-financiero: #2fd391;
+  --who-riesgo: #f5c044;
+  --who-redactor: #b794ff;
+  --who-onepager: #eef0f4;
 
   --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --mono: 'Cascadia Mono', 'Consolas', ui-monospace, monospace;

@@ -1,0 +1,62 @@
+import { useEffect, useRef } from 'react'
+import { ACTOR_META, nodeColor } from '../agents'
+import type { StageState, Turn } from '../types'
+
+/** La charla entre agentes, en orden. El mensaje más reciente se ve más grande. */
+export function ChatLog({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: () => void }) {
+  const end = useRef<HTMLDivElement>(null)
+  useEffect(() => end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), [s.turns.length, s.live?.text, s.phase])
+
+  if (s.phase === 'idle') {
+    return (
+      <aside className="chat">
+        <div className="chat-head">Conversación</div>
+        <div className="chat-empty">
+          <div className="chat-empty-title">Cuéntanos un problema real de tu empresa</div>
+          <div className="muted">Un equipo de agentes de IA en Microsoft Foundry diseñará la solución, discutirá el costo y los riesgos, y te entregará un resumen ejecutivo.</div>
+        </div>
+      </aside>
+    )
+  }
+
+  const latest = s.live ? -1 : s.turns.length - 1
+  return (
+    <aside className="chat">
+      <div className="chat-head">Conversación</div>
+      <div className="chat-list">
+        {s.turns.map((t, i) => (
+          <Msg key={i} t={t} latest={i === latest} />
+        ))}
+        {s.live && (
+          <div className="msg latest" style={{ ['--c' as string]: nodeColor(s.live.agent) }}>
+            <div className="msg-head">
+              <span className="msg-dot" />
+              {ACTOR_META[s.live.agent].label}
+              <span className="msg-action typing">{ACTOR_META[s.live.agent].thinking}</span>
+            </div>
+            <div className="msg-text">{s.live.text || <span className="dots" />}</div>
+          </div>
+        )}
+        {s.phase === 'done' && s.onepager && (
+          <button className="btn primary chat-cta" onClick={onOpenOnePager}>
+            Ver one-pager <kbd>O</kbd>
+          </button>
+        )}
+        <div ref={end} />
+      </div>
+    </aside>
+  )
+}
+
+function Msg({ t, latest }: { t: Turn; latest: boolean }) {
+  return (
+    <div className={`msg ${latest ? 'latest' : ''} ${t.kind === 'object' ? 'objection' : ''}`} style={{ ['--c' as string]: nodeColor(t.actor) }}>
+      <div className="msg-head">
+        <span className="msg-dot" />
+        {ACTOR_META[t.actor].label}
+        <span className="msg-action">{t.action}</span>
+      </div>
+      <div className="msg-text">{t.text}</div>
+    </div>
+  )
+}

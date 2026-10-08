@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Conversation } from './components/Conversation'
+import { ChatLog } from './components/ChatLog'
 import { CostPanel } from './components/CostPanel'
-import { Diagram } from './components/Diagram'
+import { ArchitecturePanel } from './components/ArchitecturePanel'
+import { FlowCanvas } from './components/flow/FlowCanvas'
 import { GovernancePanel } from './components/GovernancePanel'
-import { NowCaption } from './components/NowCaption'
 import { OnePagerOverlay } from './components/OnePagerOverlay'
 import { TextInput } from './components/TextInput'
 import { api, useStage } from './useStage'
@@ -63,15 +63,20 @@ export default function App() {
       </header>
 
       <main className="main">
-        <section className="left">
-          <Conversation s={s} />
-          <NowCaption s={s} onOpenOnePager={() => setShowOnePager(true)} />
+        <section className="canvas">
+          <FlowCanvas s={s} />
+          {s.phase === 'idle' && (
+            <button className="canvas-cta" onClick={() => setShowText(true)}>
+              Presiona <kbd>T</kbd> para contar tu problema
+            </button>
+          )}
         </section>
-        <aside className="right">
-          <Diagram code={s.diagram?.mermaid ?? null} version={s.diagram?.version} />
+        <ChatLog s={s} onOpenOnePager={() => setShowOnePager(true)} />
+        <section className="results">
+          <ArchitecturePanel s={s} />
           <CostPanel s={s} />
           <GovernancePanel s={s} />
-        </aside>
+        </section>
       </main>
 
       <footer className="footer">

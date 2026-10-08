@@ -62,7 +62,8 @@ async def stage(ws: WebSocket) -> None:
     await ws.accept()
     q = bus.subscribe()
     try:
-        await ws.send_json({"type": "hello", "data": {"mode": settings.demo_mode, "state": sessions.state}})
+        models = {a: getattr(settings, f"model_{a}") for a in ("arquitecto", "financiero", "riesgo", "redactor")}
+        await ws.send_json({"type": "hello", "data": {"mode": settings.demo_mode, "state": sessions.state, "models": models}})
         for ev in list(bus.history):  # estado actual para clientes que se conectan tarde
             await ws.send_text(ev.model_dump_json())
         while True:

@@ -57,10 +57,16 @@ O sirviendo el build desde el backend: `cd frontend && npm run build` y abrir `h
 
 ### Pantalla
 
-Minimalista y legible de lejos. La izquierda muestra la **conversación en carriles**: una fila por participante, los
-turnos avanzan de izquierda a derecha y cada tarjeta dice qué hizo el agente (propone, objeta, ajusta, aprueba) y qué
-produjo (costo, versión, norma). Las objeciones son flechas punteadas. Debajo, el turno actual en letra grande. A la
-derecha, el resultado en construcción: arquitectura, costo y gobierno.
+Canvas de nodos estilo n8n (React Flow). Muestra el flujo Visitante → Arquitecto → Financiero → Riesgo → Redactor →
+One-pager.
+
+- Cada agente tiene colgados sus sub-nodos: su modelo en Foundry y su herramienta (catálogo, calculador, normas MX).
+  Se encienden con cada llamada.
+- En cada traspaso una partícula recorre el cable. Las objeciones aparecen como un cable en arco que vuelve hacia atrás,
+  en ámbar.
+- Cada nodo muestra su estado (girando mientras trabaja, ✓ al terminar, ⚠ si objetó) y lo que produjo.
+- A la derecha, la conversación entre agentes; el mensaje más reciente se ve en grande.
+- Abajo: arquitectura por capas (marca qué es nuevo o cambió en cada versión), costo y gobierno.
 
 ### Atajos de teclado (pantalla)
 

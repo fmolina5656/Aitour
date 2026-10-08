@@ -1,4 +1,4 @@
-import { LANE_META } from '../agents'
+import { ACTOR_META } from '../agents'
 import type { StageState } from '../types'
 
 export function GovernancePanel({ s }: { s: StageState }) {
@@ -23,7 +23,7 @@ export function GovernancePanel({ s }: { s: StageState }) {
         <tbody>
           {s.spans.slice(0, 5).map((sp, i) => (
             <tr key={s.spans.length - i}>
-              <td>{LANE_META[sp.agent]?.label}</td>
+              <td>{ACTOR_META[sp.agent]?.label}</td>
               <td className="muted">{sp.model}</td>
               <td className="num">{(sp.latency_ms / 1000).toFixed(1)}s</td>
               <td className="num">{sp.input_tokens + sp.output_tokens}</td>
