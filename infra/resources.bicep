@@ -24,7 +24,7 @@ var guardrailName = 'readymind-stand'
 // Roles (IDs integrados de Azure)
 var roleAzureAIUser = '53ca6127-db72-4b80-b1b0-d745d6d5456d' // Azure AI User (Foundry User): proyecto, agentes, modelos
 var roleCognitiveServicesUser = 'a97b65f3-24c7-4388-baec-2e87135dc908' // Content Safety (Prompt Shields)
-var roleAcrPull = '7f951dfd-4ace-4c3c-9a7c-9b3d1fd7d6aa'
+var roleAcrPull = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
 
 // ---------------------------------------------------------------- Observabilidad
 resource logs 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -76,9 +76,12 @@ resource project 'Microsoft.CognitiveServices/accounts/projects@2025-06-01' = {
 }
 
 // Guardrail del stand: filtros de contenido + Prompt Shields (ataques directos e indirectos) bloqueando.
+// Las operaciones sobre la cuenta van en serie (proyecto → guardrail → deployments → conexión): en paralelo ARM
+// responde RequestConflict ("Another operation is in progress").
 resource guardrail 'Microsoft.CognitiveServices/accounts/raiPolicies@2025-06-01' = {
   parent: foundry
   name: guardrailName
+  dependsOn: [project]
   properties: {
     basePolicyName: 'Microsoft.DefaultV2'
     mode: 'Blocking'
@@ -120,6 +123,7 @@ resource deployments 'Microsoft.CognitiveServices/accounts/deployments@2025-06-0
 resource appInsightsConnection 'Microsoft.CognitiveServices/accounts/connections@2025-06-01' = {
   parent: foundry
   name: 'appinsights'
+  dependsOn: [deployments]
   properties: {
     category: 'AppInsights'
     target: appInsights.id
@@ -299,7 +303,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'MODEL_RIESGO', value: modelRiesgo }
             { name: 'MODEL_REDACTOR', value: modelRedactor }
             { name: 'MODEL_GUARD', value: modelGuard }
-            { name: 'VOICE_RAI_POLICY', value: guardrailName }
+            { name: 'VOICE_RAI_POLICY', value: guardrail.id } // el voice agent exige el ID ARM completo
             { name: 'PUBLIC_BASE_URL', value: publicUrl }
             { name: 'LEAD_SECRET', secretRef: 'lead-secret' }
             { name: 'POWER_AUTOMATE_URL', secretRef: 'power-automate-url' }
@@ -321,4 +325,4 @@ output projectEndpoint string = projectEndpoint
 output accountEndpoint string = accountEndpoint
 output appInsightsConnectionString string = appInsights.properties.ConnectionString
 output publicUrl string = publicUrl
-output guardrailName string = guardrailName
+output guardrailId string = guardrail.id

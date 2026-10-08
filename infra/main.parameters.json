@@ -6,6 +6,12 @@
     "location": { "value": "${AZURE_LOCATION=eastus2}" },
     "principalId": { "value": "${AZURE_PRINCIPAL_ID}" },
     "powerAutomateUrl": { "value": "${POWER_AUTOMATE_URL=}" },
-    "modelDeployments": { "value": [] }
+    "modelDeployments": {
+      "value": [
+        { "name": "gpt-5.4", "model": "gpt-5.4", "version": "2026-03-05", "sku": "GlobalStandard", "capacity": 100 },
+        { "name": "gpt-5.4-mini", "model": "gpt-5.4-mini", "version": "2026-03-17", "sku": "GlobalStandard", "capacity": 200 },
+        { "name": "gpt-5.4-nano", "model": "gpt-5.4-nano", "version": "2026-03-17", "sku": "GlobalStandard", "capacity": 100 }
+      ]
+    }
   }
 }

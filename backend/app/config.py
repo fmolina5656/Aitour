@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     voice_model: str = "gpt-realtime-2.1"
     voice_name: str = "es-MX-Ximena:DragonHDLatestNeural"  # respaldo: es-MX-DaliaNeural
     voice_vad_threshold: float = 0.6  # más alto = menos falsos disparos por ruido de feria
-    voice_rai_policy: str = ""  # nombre del guardrail (RAI policy) para el voice agent
+    voice_rai_policy: str = ""  # ID ARM completo del guardrail (RAI policy) para el voice agent: /subscriptions/.../raiPolicies/<nombre>
     interview_soft_limit_s: float = 70.0  # a partir de aquí se le pide cerrar la entrevista
     interview_hard_limit_s: float = 95.0  # corte duro: se arma el brief con lo transcrito
     voice_goodbye_s: float = 3.0  # tiempo para la frase de despedida antes de cerrar la voz

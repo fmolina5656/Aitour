@@ -63,4 +63,4 @@ output FOUNDRY_PROJECT_ENDPOINT string = resources.outputs.projectEndpoint
 output CONTENT_SAFETY_ENDPOINT string = resources.outputs.accountEndpoint
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = resources.outputs.appInsightsConnectionString
 output PUBLIC_BASE_URL string = resources.outputs.publicUrl
-output VOICE_RAI_POLICY string = resources.outputs.guardrailName
+output VOICE_RAI_POLICY string = resources.outputs.guardrailId
