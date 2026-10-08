@@ -8,7 +8,7 @@ import { AgentOrb } from './AgentOrb'
 import { CameraRig } from './CameraRig'
 import { Links } from './Comets'
 import { Core } from './Core'
-import { AGENT_POS, cssColor } from './layout'
+import { agentPos, cssColor } from './layout'
 import type { SatelliteSpec } from './Satellites'
 
 // Calidad: ?quality=high|low en la URL la fuerza; si no, VITE_QUALITY=low o degradación automática por FPS.
@@ -25,7 +25,7 @@ const TOOLS: Partial<Record<AgentId, { id: string; label: string }>> = {
 export function Scene({ s, tablet = false }: { s: StageState; tablet?: boolean }) {
   // Si la laptop del stand no sostiene los FPS, se apagan bloom y estrellas automáticamente.
   const [low, setLow] = useState(LOW)
-  const focus = s.live ? AGENT_POS[s.live.agent] : null
+  const focus = s.live ? agentPos(s.live.agent, tablet) : null
   const sats = useMemo(() => {
     const out = {} as Record<AgentId, SatelliteSpec[]>
     for (const a of AGENTS) {
@@ -51,7 +51,8 @@ export function Scene({ s, tablet = false }: { s: StageState; tablet?: boolean }
     <Canvas className="scene" dpr={[1, 1.5]} camera={{ position: [3.6, 10, 19], fov: 40 }} gl={{ antialias: true, powerPreference: 'high-performance' }}>
       {!FORCED && <PerformanceMonitor onDecline={() => setLow(true)} onFallback={() => setLow(true)} flipflops={3} />}
       <color attach="background" args={[theme.bg]} />
-      <fog attach="fog" args={[theme.bg, 20, 42]} />
+      {/* en tablet la cámara va más lejos: la niebla también, para que el de atrás no se apague */}
+      <fog attach="fog" args={tablet ? [theme.bg, 24, 50] : [theme.bg, 20, 42]} />
       <ambientLight intensity={0.25} />
       <directionalLight position={[4, 10, 6]} intensity={0.6} />
       {!low && <Stars radius={70} depth={40} count={2600} factor={3.2} saturation={0} fade speed={0.4} />}
@@ -75,6 +76,7 @@ export function Scene({ s, tablet = false }: { s: StageState; tablet?: boolean }
           chip={s.chips[a]}
           satellites={sats[a]}
           spotlight={thinking ? (thinking === a ? 'me' : 'other') : 'none'}
+          tablet={tablet}
         />
       ))}
       {/* el núcleo va después de los orbes: su Html necesita el contenedor ya montado */}
@@ -87,7 +89,7 @@ export function Scene({ s, tablet = false }: { s: StageState; tablet?: boolean }
         reactive={listening}
         yielding={!!thinking}
       />
-      <Links handoffs={s.handoffs} />
+      <Links handoffs={s.handoffs} tablet={tablet} />
       <CameraRig focus={focus} tablet={tablet} />
       {!low && (
         <EffectComposer multisampling={0}>

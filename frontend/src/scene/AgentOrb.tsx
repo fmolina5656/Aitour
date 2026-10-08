@@ -5,7 +5,7 @@ import { Color, MathUtils, type Group, type Mesh, type MeshBasicMaterial, type M
 import { ACTOR_META } from '../agents'
 import type { AgentId, NodeStatus } from '../types'
 import { GLITCH_BLINK, GLITCH_OPEN, tintedGlitch } from './glitchTextures'
-import { AGENT_POS, agentColor, cssColor } from './layout'
+import { agentColor, agentPos, cssColor } from './layout'
 import { Satellites, type SatelliteSpec } from './Satellites'
 
 const SIZE = 1.55
@@ -21,7 +21,8 @@ const SPOT_DIM: Record<Spotlight, number> = { me: 1, other: 0.6, none: 1 }
  * Mini-Glitch de un agente, con el color del agente: tenue en espera; mientras piensa se enciende, se mece,
  * parpadea más y le salen puntitos de "pensando…"; al terminar pone cara feliz; si objeta, destello ámbar.
  */
-export function AgentOrb({ id, status, chip, satellites, spotlight = 'none' }: { id: AgentId; status: NodeStatus; chip?: string; satellites: SatelliteSpec[]; spotlight?: Spotlight }) {
+export function AgentOrb({ id, status, chip, satellites, spotlight = 'none', tablet = false }: { id: AgentId; status: NodeStatus; chip?: string; satellites: SatelliteSpec[]; spotlight?: Spotlight; tablet?: boolean }) {
+  const pos = agentPos(id, tablet)
   const color = useMemo(() => agentColor(id), [id])
   const alert = useMemo(() => cssColor('--alert'), [])
   const tex = useMemo(() => ({ open: tintedGlitch(GLITCH_OPEN, color), blink: tintedGlitch(GLITCH_BLINK, color) }), [color])
@@ -69,7 +70,7 @@ export function AgentOrb({ id, status, chip, satellites, spotlight = 'none' }: {
     }
 
     if (group.current) {
-      group.current.position.y = Math.sin(t * 0.8 + AGENT_POS[id].x) * 0.12
+      group.current.position.y = Math.sin(t * 0.8 + pos.x) * 0.12
       // transición suave (≈0.5 s) para que el cambio de protagonista se lea como un movimiento, no un salto
       const s = MathUtils.damp(group.current.scale.x, SPOT_SCALE[spotlight], 4, dt)
       group.current.scale.setScalar(s)
@@ -100,7 +101,7 @@ export function AgentOrb({ id, status, chip, satellites, spotlight = 'none' }: {
 
   const meta = ACTOR_META[id]
   return (
-    <group position={AGENT_POS[id]}>
+    <group position={pos}>
       <group ref={group}>
         <Billboard>
           <group ref={body}>
@@ -130,7 +131,7 @@ export function AgentOrb({ id, status, chip, satellites, spotlight = 'none' }: {
       </group>
       <Satellites agent={id} specs={satellites} color={color} />
       {/* etiqueta con margen para cuando el mini-Glitch crece por el protagonismo (×1.5) */}
-      <Html position={AGENT_POS[id].z < -2 ? [0, 1.6, 0] : [0, -1.75, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
+      <Html position={pos.z < -2 ? [0, 1.6, 0] : [0, -1.75, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
         <div className={`orb-label st-${status}`} style={{ ['--c' as string]: `#${color.getHexString()}` }}>
           <div className="orb-name">
             {meta.label}

@@ -7,7 +7,7 @@ import { CORE } from './layout'
 const FRAMES = {
   stage: { pos: new Vector3(3.6, 10, 19), look: new Vector3(4.1, -2.4, -2.2) },
   // modo tablet: sin paneles, el universo va centrado y un poco más lejos para entrar en pantallas 4:3
-  tablet: { pos: new Vector3(0, 10, 21), look: new Vector3(0, -1.2, -2.6) },
+  tablet: { pos: new Vector3(0, 11, 24), look: new Vector3(0, -1.2, -3) },
 }
 
 /** Cámara cinematográfica: se acerca suave al agente que habla y vuelve; balanceo lento en reposo. */

@@ -7,7 +7,7 @@ import { arcBetween, cssColor } from './layout'
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
 /** Cables persistentes (un arco por cada par que conversó) + cometas por cada traspaso reciente. */
-export function Links({ handoffs }: { handoffs: Handoff[] }) {
+export function Links({ handoffs, tablet = false }: { handoffs: Handoff[]; tablet?: boolean }) {
   const accent = useMemo(() => cssColor('--accent'), [])
   const alert = useMemo(() => cssColor('--alert'), [])
   const green = useMemo(() => cssColor('--brand-green'), [])
@@ -28,17 +28,17 @@ export function Links({ handoffs }: { handoffs: Handoff[] }) {
   return (
     <>
       {pairs.map((p) => (
-        <Cable key={`${p.from}->${p.to}`} h={p} color={p.objection ? alert : accent} fresh={p.last === lastSeq} />
+        <Cable key={`${p.from}->${p.to}`} h={p} color={p.objection ? alert : accent} fresh={p.last === lastSeq} tablet={tablet} />
       ))}
       {recent.map((h) => (
-        <Comet key={h.seq} h={h} head={h.objection ? alert : accent} tail={h.objection ? alert : green} />
+        <Comet key={h.seq} h={h} head={h.objection ? alert : accent} tail={h.objection ? alert : green} tablet={tablet} />
       ))}
     </>
   )
 }
 
-function Cable({ h, color, fresh }: { h: Handoff; color: Color; fresh: boolean }) {
-  const geo = useMemo(() => new TubeGeometry(arcBetween(h.from, h.to, h.objection), 80, h.objection ? 0.035 : 0.025, 8, false), [h.from, h.to, h.objection])
+function Cable({ h, color, fresh, tablet }: { h: Handoff; color: Color; fresh: boolean; tablet: boolean }) {
+  const geo = useMemo(() => new TubeGeometry(arcBetween(h.from, h.to, h.objection, tablet), 80, h.objection ? 0.035 : 0.025, 8, false), [h.from, h.to, h.objection, tablet])
   const mat = useRef<MeshBasicMaterial>(null)
   const grow = useRef(0)
   useFrame((_, dt) => {
@@ -59,8 +59,8 @@ const dummy = new Object3D()
  * Cometa: cabeza brillante + cola de partículas muestreadas sobre la MISMA curva (sin artefactos).
  * Un solo InstancedMesh por cometa.
  */
-function Comet({ h, head, tail }: { h: Handoff; head: Color; tail: Color }) {
-  const curve = useMemo(() => arcBetween(h.from, h.to, h.objection), [h.from, h.to, h.objection])
+function Comet({ h, head, tail, tablet }: { h: Handoff; head: Color; tail: Color; tablet: boolean }) {
+  const curve = useMemo(() => arcBetween(h.from, h.to, h.objection, tablet), [h.from, h.to, h.objection, tablet])
   const mesh = useRef<InstancedMesh>(null)
   const t = useRef(0)
   const size = h.objection ? 0.2 : 0.15
