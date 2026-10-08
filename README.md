@@ -55,18 +55,23 @@ cd frontend && npm install && npm run dev   # http://localhost:5173 (proxy a :80
 
 O sirviendo el build desde el backend: `cd frontend && npm run build` y abrir `http://localhost:8000`.
 
-### Pantalla
+### Pantalla (Three.js)
 
-Canvas de nodos estilo n8n (React Flow). Muestra el flujo Visitante → Arquitecto → Financiero → Riesgo → Redactor →
-One-pager.
+Escena 3D a pantalla completa (React Three Fiber + drei + postprocessing) con un HUD translúcido encima.
 
-- Cada agente tiene colgados sus sub-nodos: su modelo en Foundry y su herramienta (catálogo, calculador, normas MX).
-  Se encienden con cada llamada.
-- En cada traspaso una partícula recorre el cable. Las objeciones aparecen como un cable en arco que vuelve hacia atrás,
-  en ámbar.
-- Cada nodo muestra su estado (girando mientras trabaja, ✓ al terminar, ⚠ si objetó) y lo que produjo.
-- A la derecha, la conversación entre agentes; el mensaje más reciente se ve en grande.
-- Abajo: arquitectura por capas (marca qué es nuevo o cambió en cada versión), costo y gobierno.
+- El problema del visitante es un **núcleo** en el centro. Los 4 agentes son **orbes** a su alrededor, con anillos que
+  giran mientras trabajan.
+- Cada traspaso es un **cometa con estela** que viaja en arco. Las **objeciones** son cometas ámbar que vuelan más alto
+  y vuelven hacia atrás; el orbe que objeta destella en ámbar.
+- Los **satélites** de cada agente (su modelo en Foundry y su herramienta) lo orbitan. Se encienden con un haz y muestran
+  su nombre en cada llamada.
+- La **cámara** se acerca suave al agente que habla. Al final todos disparan hacia el núcleo, que se convierte en el
+  one-pager con una onda expansiva.
+- Las etiquetas son HTML (drei `Html`), nítidas a cualquier distancia. A la derecha va la conversación; abajo,
+  arquitectura por capas, costo y gobierno.
+
+**Calidad gráfica.** Si la laptop no sostiene los FPS, la escena apaga bloom y estrellas automáticamente
+(`PerformanceMonitor`). Para forzarla: `?quality=high` o `?quality=low` en la URL, o `VITE_QUALITY=low` al compilar.
 
 ### Atajos de teclado (pantalla)
 

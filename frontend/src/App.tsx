@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { ChatLog } from './components/ChatLog'
 import { CostPanel } from './components/CostPanel'
 import { ArchitecturePanel } from './components/ArchitecturePanel'
-import { FlowCanvas } from './components/flow/FlowCanvas'
 import { GovernancePanel } from './components/GovernancePanel'
 import { OnePagerOverlay } from './components/OnePagerOverlay'
 import { TextInput } from './components/TextInput'
+import { Scene } from './scene/Scene'
 import { api, useStage } from './useStage'
 
 const LOGO_URL = import.meta.env.VITE_BRAND_LOGO_URL as string | undefined
@@ -44,6 +44,8 @@ export default function App() {
   }, [])
 
   return (
+    <>
+    <Scene s={s} />
     <div className="stage">
       <header className="header">
         <div className="brand">
@@ -62,22 +64,17 @@ export default function App() {
         </div>
       </header>
 
-      <main className="main">
-        <section className="canvas">
-          <FlowCanvas s={s} />
-          {s.phase === 'idle' && (
-            <button className="canvas-cta" onClick={() => setShowText(true)}>
-              Presiona <kbd>T</kbd> para contar tu problema
-            </button>
-          )}
-        </section>
-        <ChatLog s={s} onOpenOnePager={() => setShowOnePager(true)} />
-        <section className="results">
-          <ArchitecturePanel s={s} />
-          <CostPanel s={s} />
-          <GovernancePanel s={s} />
-        </section>
-      </main>
+      {s.phase === 'idle' && (
+        <button className="scene-cta" onClick={() => setShowText(true)}>
+          Presiona <kbd>T</kbd> para contar tu problema
+        </button>
+      )}
+      <ChatLog s={s} onOpenOnePager={() => setShowOnePager(true)} />
+      <section className="results">
+        <ArchitecturePanel s={s} />
+        <CostPanel s={s} />
+        <GovernancePanel s={s} />
+      </section>
 
       <footer className="footer">
         <span>Microsoft Foundry · Microsoft Agent Framework</span>
@@ -89,5 +86,6 @@ export default function App() {
       {showText && <TextInput onClose={() => setShowText(false)} />}
       {s.onepager && showOnePager && <OnePagerOverlay op={s.onepager} onClose={() => setShowOnePager(false)} />}
     </div>
+    </>
   )
 }

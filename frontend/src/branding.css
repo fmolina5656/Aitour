@@ -11,6 +11,8 @@
   --line: #232830;
   --line-strong: #353c47;
   --grid-dot: #262b33;
+  --glass: rgba(10, 13, 19, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.08);
 
   --text: #eef0f4;
   --text-2: #b4bac5;
@@ -25,7 +27,7 @@
   --who-visitante: #b4bac5;
   --who-arquitecto: #4f8cff;
   --who-financiero: #2fd391;
-  --who-riesgo: #f5c044;
+  --who-riesgo: #ff6b8a;
   --who-redactor: #b794ff;
   --who-onepager: #eef0f4;
 
