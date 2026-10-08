@@ -126,6 +126,8 @@ export function reducer(s: StageState, ev: Action): StageState {
       return { ...s, interview: { ...s.interview, proposed: null } }
     case 'voice.ended':
       return { ...s, interview: { ...s.interview, active: false, proposed: null, agentLive: '' } }
+    case 'mode.changed':
+      return { ...s, mode: d.mode }
     case 'share.ready':
       return { ...s, share: { qrUrl: d.qr_url } }
     case 'lead.received':
@@ -188,6 +190,7 @@ export function useStage() {
 
 export const api = {
   reset: () => fetch('/api/reset', { method: 'POST' }),
+  replay: () => fetch('/api/replay', { method: 'POST' }),
   startText: (body: Record<string, string>) =>
     fetch('/api/session/text', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
 }

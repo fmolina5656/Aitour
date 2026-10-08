@@ -1,0 +1,8 @@
+{
+  "_nota": "Copiar a main.parameters.json → parameters.modelDeployments.value. Verificar nombre/versión/cuota en el catálogo de modelos de Foundry de la región ANTES de azd up (las versiones de abajo son ejemplos, no están validadas).",
+  "modelDeployments": [
+    { "name": "gpt-5.4", "model": "gpt-5.4", "version": "<VERSION>", "sku": "GlobalStandard", "capacity": 100 },
+    { "name": "gpt-5.4-mini", "model": "gpt-5.4-mini", "version": "<VERSION>", "sku": "GlobalStandard", "capacity": 200 },
+    { "name": "gpt-5.4-nano", "model": "gpt-5.4-nano", "version": "<VERSION>", "sku": "GlobalStandard", "capacity": 100 }
+  ]
+}

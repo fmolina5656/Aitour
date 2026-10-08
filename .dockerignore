@@ -1,0 +1,12 @@
+.git
+.env
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+frontend/dist
+recordings
+data
+leads
+.azure
+backend/tests

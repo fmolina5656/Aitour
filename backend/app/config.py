@@ -72,6 +72,9 @@ class Settings(BaseSettings):
     # Mock: multiplicador de latencias simuladas (0 = instantáneo, útil en tests)
     mock_speed: float = 1.0
 
+    # Si Foundry falla antes de que hable algún agente, se reproduce una sesión grabada (modo live)
+    auto_failover: bool = True
+
     # Grabaciones
     recordings_dir: Path = REPO_DIR / "recordings"
     replay_file: str = ""  # vacío = la grabación curada más reciente

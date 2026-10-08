@@ -48,6 +48,10 @@ export default function App() {
         e.preventDefault()
         if (interviewing) setFocusText((n) => n + 1)
         else setShowText(true)
+      } else if (k === 'p') {
+        // operador: si se cae la red, reproduce ya una sesión grabada real
+        void voice.stop()
+        api.replay()
       } else if (k === 'o') {
         setShowOnePager((v) => !v)
       } else if (k === 'f') {

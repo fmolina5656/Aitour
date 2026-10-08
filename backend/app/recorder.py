@@ -57,9 +57,15 @@ class Recorder:
         self._fh = None
 
 
-def latest_curated(directory: Path) -> Path | None:
+SEED = Path(__file__).resolve().parent.parent / "seed" / "sesion-semilla.jsonl"
+
+
+def latest_curated(directory: Path, allow_seed: bool = True) -> Path | None:
+    """La sesión curada más reciente; si todavía no hay ninguna, la semilla incluida en el repo."""
     files = sorted((directory / "curated").glob("*.jsonl"), key=lambda p: p.stat().st_mtime)
-    return files[-1] if files else None
+    if files:
+        return files[-1]
+    return SEED if allow_seed and SEED.exists() else None
 
 
 def load_recording(path: Path) -> list[Event]:

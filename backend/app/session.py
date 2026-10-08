@@ -65,9 +65,31 @@ class SessionManager:
             finally:
                 clock.cancel()
             span.set_attribute("demo.status", status)
+            if self._should_failover(status, state.arquitectura is None):
+                span.set_attribute("demo.failover", True)
+                self.bus.publish("governance.event", kind="failover", severity="warning",
+                                 title="Foundry no respondió", detail="Se reproduce una sesión grabada real para no detener la demo.")
+                self.bus.publish("session.ended", status="failover", swarm_s=round(time.monotonic() - t0, 1), duration_s=round(time.monotonic() - t0, 1))
+                await asyncio.sleep(2.5)  # que se alcance a leer el aviso
+                await self._run_replay()
+                return
         self.state = "done"
         swarm_s = round(time.monotonic() - t0, 1)
         self.bus.publish("session.ended", status=status, swarm_s=swarm_s, duration_s=swarm_s)
+
+    def _should_failover(self, status: str, nothing_produced: bool) -> bool:
+        return (
+            self.settings.auto_failover
+            and self.settings.demo_mode == "live"
+            and status in ("error", "timeout")
+            and nothing_produced
+            and latest_curated(self.settings.recordings_dir) is not None  # siempre hay al menos la semilla
+        )
+
+    async def start_replay(self) -> None:
+        """Atajo del operador (tecla P): reproduce ya la sesión curada más reciente."""
+        await self.reset(announce=False)
+        self.task = asyncio.create_task(self._run_replay())
 
     async def _run_replay(self) -> None:
         path = self.settings.recordings_dir / self.settings.replay_file if self.settings.replay_file else latest_curated(self.settings.recordings_dir)

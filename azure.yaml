@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+name: readymind-aitour
+metadata:
+  template: readymind-aitour@0.1.0
+infra:
+  provider: bicep
+  path: infra
+services:
+  web:
+    project: .
+    host: containerapp
+    language: docker
+    docker:
+      path: ./Dockerfile
+      context: .
+      remoteBuild: true # se construye en Azure Container Registry (no hace falta Docker local)
+hooks:
+  postprovision:
+    # Crea/versiona el voice agent recepcionista en el proyecto recién creado.
+    posix:
+      shell: sh
+      run: |
+        cd backend
+        FOUNDRY_PROJECT_ENDPOINT="$FOUNDRY_PROJECT_ENDPOINT" VOICE_RAI_POLICY="$VOICE_RAI_POLICY" python -m scripts.create_voice_agent || echo "AVISO: no se pudo crear el voice agent; correr luego: cd backend && python -m scripts.create_voice_agent"
+      continueOnError: true
+    windows:
+      shell: pwsh
+      run: |
+        cd backend
+        python -m scripts.create_voice_agent
+        if ($LASTEXITCODE -ne 0) { Write-Host "AVISO: correr luego: cd backend; python -m scripts.create_voice_agent" }
+      continueOnError: true

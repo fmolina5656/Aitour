@@ -82,16 +82,17 @@ class SwarmRunner:
     async def run(self, brief: Brief) -> SwarmState:
         state = SwarmState(brief=brief)
         director = Director(state, self.bus, self.settings)
-        workflow = GroupChatBuilder(
-            participants=build_agents(director, self.settings),
-            selection_func=director.select,
-            termination_condition=director.is_done,
-            max_rounds=self.settings.swarm_max_rounds,
-            intermediate_output_from="all_other",
-        ).build()
-
         status = "ok"
         try:
+            # construir los clientes también va protegido: un endpoint o credencial mal configurados
+            # no deben tumbar la sesión (dispara el failover a replay)
+            workflow = GroupChatBuilder(
+                participants=build_agents(director, self.settings),
+                selection_func=director.select,
+                termination_condition=director.is_done,
+                max_rounds=self.settings.swarm_max_rounds,
+                intermediate_output_from="all_other",
+            ).build()
             async with asyncio.timeout(self.settings.swarm_timeout_s):
                 await self._consume(workflow.run(brief.as_prompt(), stream=True))
         except TimeoutError:

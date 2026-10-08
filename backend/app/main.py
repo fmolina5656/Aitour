@@ -3,6 +3,7 @@
 import asyncio
 import contextlib
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
@@ -72,9 +73,39 @@ class TextSessionRequest(BaseModel):
     datos: str = "no especificados"
 
 
+def _rss_mb() -> float:
+    try:
+        pages = int(open("/proc/self/statm").read().split()[1])
+        return round(pages * os.sysconf("SC_PAGE_SIZE") / 1e6, 1)
+    except Exception:  # noqa: BLE001 — no-Linux
+        return 0.0
+
+
 @app.get("/api/health")
 async def health() -> dict:
-    return {"ok": True, "mode": settings.demo_mode, "state": sessions.state, "session_id": sessions.session_id}
+    return {"ok": True, "mode": settings.demo_mode, "state": sessions.state, "session_id": sessions.session_id, "rss_mb": _rss_mb()}
+
+
+class ModeRequest(BaseModel):
+    mode: str
+
+
+@app.post("/api/mode")
+async def set_mode(req: ModeRequest) -> dict:
+    """Cambia el modo en caliente (operador del stand): live | mock | replay."""
+    if req.mode not in ("live", "mock", "replay"):
+        raise HTTPException(422, "Modo inválido")
+    await sessions.reset()
+    settings.demo_mode = req.mode
+    bus.publish("mode.changed", mode=req.mode)
+    return {"ok": True, "mode": req.mode}
+
+
+@app.post("/api/replay")
+async def play_recorded() -> dict:
+    """Tecla P: reproduce de inmediato la sesión grabada más reciente (si se cae la red)."""
+    await sessions.start_replay()
+    return {"ok": True}
 
 
 @app.post("/api/session/text")
