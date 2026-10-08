@@ -2,7 +2,7 @@ import { Grid, PerformanceMonitor, Stars } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing'
 import { useMemo, useState } from 'react'
-import { money } from '../agents'
+import { AGENTS, money } from '../agents'
 import type { AgentId, StageState } from '../types'
 import { AgentOrb } from './AgentOrb'
 import { CameraRig } from './CameraRig'
@@ -19,9 +19,8 @@ const TOOLS: Partial<Record<AgentId, { id: string; label: string }>> = {
   arquitecto: { id: 'tool-catalogo', label: 'Catálogo Azure' },
   financiero: { id: 'tool-calc', label: 'Calculador' },
   riesgo: { id: 'tool-normas', label: 'Normas MX' },
+  diagramador: { id: 'tool-diagrama', label: 'Diagrama Azure' },
 }
-
-const AGENTS: AgentId[] = ['arquitecto', 'financiero', 'riesgo', 'redactor']
 
 export function Scene({ s }: { s: StageState }) {
   // Si la laptop del stand no sostiene los FPS, se apagan bloom y estrellas automáticamente.
@@ -37,6 +36,8 @@ export function Scene({ s }: { s: StageState }) {
     return out
   }, [s.models, s.subPulses])
 
+  // el agente que está pensando se lleva el protagonismo (los turnos son de a uno)
+  const thinking = AGENTS.find((a) => s.status[a] === 'running') ?? null
   const done = s.status.onepager === 'done'
   const theme = useMemo(() => ({ bg: cssColor('--bg'), cell: cssColor('--grid-cell'), section: cssColor('--grid-section') }), [])
   const blocked = !!s.blocked
@@ -67,10 +68,25 @@ export function Scene({ s }: { s: StageState }) {
         fadeStrength={1.6}
       />
       {AGENTS.map((a) => (
-        <AgentOrb key={a} id={a} status={s.status[a] ?? 'idle'} chip={s.chips[a]} satellites={sats[a]} />
+        <AgentOrb
+          key={a}
+          id={a}
+          status={s.status[a] ?? 'idle'}
+          chip={s.chips[a]}
+          satellites={sats[a]}
+          spotlight={thinking ? (thinking === a ? 'me' : 'other') : 'none'}
+        />
       ))}
       {/* el núcleo va después de los orbes: su Html necesita el contenedor ya montado */}
-      <Core title={coreTitle} subtitle={coreSub} done={done} blocked={blocked} active={s.phase === 'swarm' || listening} reactive={listening} />
+      <Core
+        title={coreTitle}
+        subtitle={coreSub}
+        done={done}
+        blocked={blocked}
+        active={s.phase === 'swarm' || listening}
+        reactive={listening}
+        yielding={!!thinking}
+      />
       <Links handoffs={s.handoffs} />
       <CameraRig focus={focus} />
       {!low && (

@@ -73,6 +73,25 @@ class RiesgoOut(_Strict):
     objecion: Objecion | None
 
 
+class Zona(_Strict):
+    nombre: str = Field(description="nombre corto de la zona, p. ej. 'Ingesta', 'Inteligencia', 'Entrega'")
+    componentes: list[str] = Field(description="ids de componentes de la arquitectura final, en orden")
+
+
+class Flujo(_Strict):
+    de: str
+    a: str
+    etiqueta: str = Field(description="máx. 3 palabras: qué viaja por la flecha")
+
+
+class DiagramadorOut(_Strict):
+    burbuja: str
+    titulo: str = Field(description="título del diagrama, máx. 60 caracteres")
+    zonas: list[Zona] = Field(description="3 o 4 zonas de izquierda a derecha, en el orden del flujo")
+    flujo: list[Flujo] = Field(description="flechas numeradas en el orden en que ocurre el proceso")
+    pasos: list[str] = Field(description="3 a 5 frases cortas que explican el flujo a un director, en orden")
+
+
 class RedactorOut(_Strict):
     burbuja: str
     titulo: str
@@ -87,5 +106,6 @@ OUTPUT_MODELS: dict[str, type[_Strict]] = {
     "arquitecto": ArquitectoOut,
     "financiero": FinancieroOut,
     "riesgo": RiesgoOut,
+    "diagramador": DiagramadorOut,
     "redactor": RedactorOut,
 }

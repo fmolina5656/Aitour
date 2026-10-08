@@ -4,11 +4,13 @@ import type { AgentId, FlowNodeId } from '../types'
 /** El problema del visitante vive en el núcleo; el equipo de agentes lo rodea. */
 export const CORE = new Vector3(0, 0, -1.2)
 
+// En arco alrededor del núcleo, en el orden en que hablan (izquierda → derecha)
 export const AGENT_POS: Record<AgentId, Vector3> = {
-  arquitecto: new Vector3(-5.6, 0, 0.9),
-  financiero: new Vector3(-2.5, 0, -4.9),
-  riesgo: new Vector3(2.5, 0, -4.9),
-  redactor: new Vector3(5.6, 0, 0.9),
+  arquitecto: new Vector3(-6.2, 0, -0.8),
+  financiero: new Vector3(-3.9, 0, -4.3),
+  riesgo: new Vector3(0, 0, -8.2), // más al fondo: así asoma por encima de Glitch en vez de quedar detrás
+  diagramador: new Vector3(3.9, 0, -4.3),
+  redactor: new Vector3(6.2, 0, -0.8),
 }
 
 /** Visitante y one-pager son el mismo lugar: el problema entra y la solución sale del núcleo. */

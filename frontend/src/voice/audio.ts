@@ -22,17 +22,30 @@ class Capture extends AudioWorkletProcessor {
     return true;
   }
 }
+// Colchón anti-trabas: el audio llega por red a ritmo irregular (se midieron huecos de ~0.5 s dentro de una
+// frase). No arranca hasta tener PREBUFFER de audio, o hasta que deje de llegar (frase corta). Si se vacía a
+// mitad de frase, hace una pausa limpia y vuelve a juntar colchón en vez de entrecortarse.
+const PREBUFFER = 0.3 * sampleRate;
+const FLUSH_AFTER = 0.25; // s sin chunks nuevos: es el final de la frase, se reproduce lo que haya
 class Player extends AudioWorkletProcessor {
   constructor() {
-    super(); this.q = []; this.cur = null; this.pos = 0;
-    this.port.onmessage = (e) => { if (e.data === 'clear') { this.q = []; this.cur = null; } else this.q.push(new Int16Array(e.data)); };
+    super(); this.q = []; this.cur = null; this.pos = 0; this.queued = 0; this.playing = false; this.lastChunk = 0;
+    this.port.onmessage = (e) => {
+      if (e.data === 'clear') { this.q = []; this.cur = null; this.queued = 0; this.playing = false; return; }
+      const c = new Int16Array(e.data); this.q.push(c); this.queued += c.length; this.lastChunk = currentTime;
+    };
   }
   process(_, outputs) {
     const out = outputs[0][0];
+    if (!this.playing && this.queued > 0 && (this.queued >= PREBUFFER || currentTime - this.lastChunk > FLUSH_AFTER)) this.playing = true;
     let level = 0;
     for (let i = 0; i < out.length; i++) {
-      if (!this.cur || this.pos >= this.cur.length) { this.cur = this.q.shift() || null; this.pos = 0; }
-      const v = this.cur ? this.cur[this.pos++] / 0x8000 : 0;
+      if (this.playing && (!this.cur || this.pos >= this.cur.length)) {
+        this.cur = this.q.shift() || null; this.pos = 0;
+        if (!this.cur) this.playing = false; // se vació: a juntar colchón otra vez
+      }
+      let v = 0;
+      if (this.playing && this.cur) { v = this.cur[this.pos++] / 0x8000; this.queued--; }
       out[i] = v; level += v * v;
     }
     this.port.postMessage(Math.sqrt(level / out.length));

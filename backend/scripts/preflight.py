@@ -66,7 +66,7 @@ async def main() -> int:
 
     if s.demo_mode == "live":
         await check("Credencial de Azure (Entra ID)", _credential)
-        for agent in ("arquitecto", "financiero", "riesgo", "redactor"):
+        for agent in ("arquitecto", "financiero", "riesgo", "diagramador", "redactor"):
             await check(f"Modelo del {agent}: {getattr(s, f'model_{agent}')}", _model(getattr(s, f"model_{agent}")))
         await check(f"Modelo de la guardia: {s.model_guard}", _model(s.model_guard), critical=False)
         await check("Prompt Shields (Content Safety)", _shields, critical=False)

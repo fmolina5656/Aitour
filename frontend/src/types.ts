@@ -1,4 +1,4 @@
-export type AgentId = 'arquitecto' | 'financiero' | 'riesgo' | 'redactor'
+export type AgentId = 'arquitecto' | 'financiero' | 'riesgo' | 'diagramador' | 'redactor'
 export type Actor = 'visitante' | AgentId
 export type FlowNodeId = Actor | 'onepager'
 export type ToolId = 'calc' | 'normas' | 'catalogo'
@@ -10,7 +10,7 @@ export interface StageEvent<T = Record<string, unknown>> {
   t?: number
 }
 
-export type TurnKind = 'brief' | 'propose' | 'adjust' | 'object' | 'approve' | 'write'
+export type TurnKind = 'brief' | 'propose' | 'adjust' | 'object' | 'approve' | 'draw' | 'write'
 
 /** Un mensaje de la conversación: quién, qué hizo y qué produjo. */
 export interface Turn {
@@ -113,7 +113,8 @@ export interface StageState {
   spans: Span[]
   sessionCost: number
   governance: GovEvent[]
-  diagram: { mermaid: string; version: number } | null
+  /** diagrama en SVG (layout del backend): automático en cada versión del Arquitecto; al final, el del Diagramador */
+  diagram: { svg: string; version: number; por: 'arquitecto' | 'diagramador'; titulo?: string; pasos?: string[] } | null
   cost: Cost | null
   prevCost: Cost | null
   onepager: OnePager | null

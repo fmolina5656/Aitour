@@ -1,7 +1,7 @@
 """Director determinista del group chat.
 
 Decide quién habla según el guion flexible:
-  Arquitecto → Financiero ⇄ Arquitecto (objeciones, máx. N rondas) → Riesgo [→ Arquitecto] → Redactor
+  Arquitecto → Financiero ⇄ Arquitecto (objeciones, máx. N rondas) → Riesgo [→ Arquitecto] → Diagramador → Redactor
 Las objeciones son reales: las dispara el calculador (umbral de costo) o el agente de Riesgo.
 Además parsea cada turno, actualiza el estado compartido y publica los artefactos en el bus.
 """
@@ -18,12 +18,12 @@ from agent_framework_orchestrations import GroupChatState
 from .. import pricing
 from ..config import Settings
 from ..events import EventBus
-from . import mermaid
+from . import diagram, mermaid
 from .schemas import OUTPUT_MODELS, Brief
 
 log = logging.getLogger(__name__)
 
-AGENTS = ["arquitecto", "financiero", "riesgo", "redactor"]
+AGENTS = ["arquitecto", "financiero", "riesgo", "diagramador", "redactor"]
 
 
 def parse_json(text: str) -> dict[str, Any] | None:
@@ -49,6 +49,7 @@ class SwarmState:
     arquitectura_version: int = 0
     costo: dict | None = None
     riesgo: dict | None = None
+    diagrama: dict | None = None  # zonas, flujo y pasos del Diagramador
     onepager: dict | None = None
     debate_rounds: int = 0
     riesgo_done: bool = False
@@ -102,20 +103,27 @@ class Director:
             return "redactor"
         if speaker is None:
             return "arquitecto"
+
+        def closing() -> str:
+            # la arquitectura ya es final: la diagrama el Diagramador (si queda una ronda libre) y cierra el Redactor
+            if s.diagrama is None and speaker != "diagramador" and round_idx < self.settings.swarm_max_rounds - 2:
+                return "diagramador"
+            return "redactor"
+
         if speaker == "arquitecto":
             replying_to, s.pending_reply_to = s.pending_reply_to, None
             if replying_to == "riesgo":
-                return "redactor"
+                return closing()
             if not s.financiero_validated:
                 return "financiero"
-            return "riesgo" if not s.riesgo_done else "redactor"
+            return "riesgo" if not s.riesgo_done else closing()
         if speaker == "financiero":
             if s.pending_reply_to == "financiero":
                 return "arquitecto"
             s.financiero_validated = True
             return "riesgo"
         if speaker == "riesgo":
-            return "arquitecto" if s.pending_reply_to == "riesgo" else "redactor"
+            return "arquitecto" if s.pending_reply_to == "riesgo" else closing()
         return "redactor"
 
     # --- ingesta de cada turno ----------------------------------------------------------------
@@ -143,19 +151,38 @@ class Director:
 
     def _on_arquitecto(self, data: dict) -> None:
         s = self.state
+        prev_ids = {c.get("id") for c in (s.arquitectura or {}).get("componentes", [])}
         s.arquitectura = data
         s.arquitectura_version += 1
         if s.pending_reply_to == "financiero":
             s.financiero_validated = False  # el financiero vuelve a revisar el ajuste
         s.costo = pricing.estimate(data.get("componentes", []))
+        comps, conns = data.get("componentes", []), data.get("conexiones", [])
         cats = {i["id"]: i["categoria"] for i in s.costo["items"]}
+        # lo que agregó el ajuste se marca en el diagrama: así se ve cómo responde a la objeción
+        nuevos = {c.get("id") for c in comps} - prev_ids if prev_ids else set()
         self.bus.publish(
             "artifact.diagram",
-            mermaid=mermaid.build(data.get("componentes", []), data.get("conexiones", []), cats),
+            mermaid=mermaid.build(comps, conns, cats),
+            svg=diagram.build(comps, conns, s.costo["items"], nuevos=nuevos),
             version=s.arquitectura_version,
             cambios=data.get("cambios"),
+            por="arquitecto",
         )
         self.bus.publish("artifact.cost", **s.costo, version=s.arquitectura_version)
+
+    def _on_diagramador(self, data: dict) -> None:
+        s = self.state
+        s.diagrama = data
+        arq = s.arquitectura or {}
+        self.bus.publish(
+            "artifact.diagram",
+            svg=diagram.build(arq.get("componentes", []), arq.get("conexiones", []), (s.costo or {}).get("items", []), spec=data),
+            version=s.arquitectura_version,
+            titulo=data.get("titulo"),
+            pasos=data.get("pasos", []),
+            por="diagramador",
+        )
 
     def _on_financiero(self, data: dict) -> None:
         self._maybe_objection("financiero", data)
@@ -191,6 +218,18 @@ class Director:
             )
         if agent == "riesgo" and s.debate_rounds > self.settings.max_debate_rounds:
             return "[SISTEMA] Ya no hay tiempo para más ajustes: objecion = null."
+        if agent == "diagramador" and s.arquitectura:
+            items = {i["id"]: i for i in (s.costo or {}).get("items", [])}
+            comps = [
+                {"id": c["id"], "nombre": c.get("nombre"), "servicio": items.get(c["id"], {}).get("nombre", c.get("servicio")),
+                 "capa": items.get(c["id"], {}).get("categoria")}
+                for c in s.arquitectura.get("componentes", [])
+            ]
+            return (
+                f"[SISTEMA · arquitectura final v{s.arquitectura_version}]\n"
+                f"componentes: {json.dumps(comps, ensure_ascii=False)}\n"
+                f"conexiones: {json.dumps(s.arquitectura.get('conexiones', []), ensure_ascii=False)}"
+            )
         if agent == "redactor" and s.arquitectura:
             comps = ", ".join(c["nombre"] for c in s.arquitectura.get("componentes", []))
             total = s.costo["total_usd"] if s.costo else 0

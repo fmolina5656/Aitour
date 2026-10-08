@@ -4,6 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
@@ -21,6 +22,7 @@ class Settings(BaseSettings):
     model_arquitecto: str = "gpt-5.4"
     model_financiero: str = "gpt-5.4-mini"
     model_riesgo: str = "gpt-5.4-mini"
+    model_diagramador: str = "gpt-5.4-mini"
     model_redactor: str = "gpt-5.4-mini"
     model_guard: str = "gpt-5.4-nano"  # clasificador de tema (rápido y barato)
     reasoning_effort: Literal["none", "low", "medium", "high"] = "low"
@@ -30,7 +32,12 @@ class Settings(BaseSettings):
     voice_agent_version: str = ""  # vacío = versión activa
     voice_model_type: Literal["managed", "self_deployed"] = "managed"
     voice_model: str = "gpt-realtime-2.1"
-    voice_name: str = "es-MX-Ximena:DragonHDLatestNeural"  # respaldo: es-MX-DaliaNeural
+    # azure-standard = Azure TTS. MAI-Voice-2.1-Flash: expresiva, baja latencia y acento MX real
+    #   (es-MX-Valeria, es-MX-Alejo). Ojo: "es-MX-Ximena" no existe (Ximena es es-ES).
+    # openai = voz nativa del modelo (marin, cedar…): acento neutro, sin saludo fijo ni frases de espera.
+    voice_type: Literal["openai", "azure-standard", "azure-realtime-native"] = "azure-standard"
+    voice_name: str = "es-MX-Valeria:MAI-Voice-2.1-Flash"
+    voice_style: str = ""  # estilo de MAI/HD (happy, joyful, excited…); vacío = el modelo decide
     voice_vad_threshold: float = 0.6  # más alto = menos falsos disparos por ruido de feria
     voice_rai_policy: str = ""  # ID ARM completo del guardrail (RAI policy) para el voice agent: /subscriptions/.../raiPolicies/<nombre>
     interview_soft_limit_s: float = 70.0  # a partir de aquí se le pide cerrar la entrevista
@@ -45,6 +52,13 @@ class Settings(BaseSettings):
     # Envío por mail con Power Automate (disparador HTTP "When an HTTP request is received")
     power_automate_url: str = ""  # vacío = no se envía; los leads quedan en la bandeja de salida
     power_automate_timeout_s: float = 15.0
+
+    @field_validator("power_automate_url")
+    @classmethod
+    def _sin_power_automate(cls, v: str) -> str:
+        # Container Apps no admite secretos vacíos: el Bicep guarda 'none' cuando no hay flujo configurado
+        return "" if v.strip().lower() == "none" else v
+
     max_leads_per_session: int = 3
     # Aviso de privacidad (PENDIENTE: validar con el área legal de Readymind)
     privacy_responsable: str = "Readymind (razón social y domicilio pendientes de validar por el área legal)"
@@ -62,7 +76,7 @@ class Settings(BaseSettings):
     swarm_timeout_s: float = 110.0  # corte interno, con margen
     display_budget_s: int = 120  # lo que ve el público
     turn_idle_timeout_s: float = 25.0
-    swarm_max_rounds: int = 9
+    swarm_max_rounds: int = 10  # debate completo (7 turnos) + Diagramador + Redactor, con una de margen
     max_debate_rounds: int = 2
 
     # Reglas que disparan la objeción del Financiero

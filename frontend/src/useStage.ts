@@ -46,6 +46,10 @@ function toTurn(s: StageState, agent: AgentId, text: string, d: Record<string, a
       return { actor: agent, kind: objected ? 'object' : 'approve', action: objected ? 'Objeta el costo' : 'Aprueba el costo', text, chip: s.cost ? `${money(s.cost.total_usd)}/mes` : undefined }
     case 'riesgo':
       return { actor: agent, kind: objected ? 'object' : 'approve', action: objected ? 'Señala un riesgo' : 'Valida cumplimiento', text, chip: d?.regulacion?.[0]?.norma?.split(' (')[0] }
+    case 'diagramador': {
+      const pasos = d?.pasos?.length
+      return { actor: agent, kind: 'draw', action: 'Diagrama la arquitectura', text, chip: pasos ? `${pasos} pasos` : 'Diagrama' }
+    }
     default:
       return { actor: agent, kind: 'write', action: 'Redacta el one-pager', text, chip: 'Listo' }
   }
@@ -136,8 +140,15 @@ export function reducer(s: StageState, ev: Action): StageState {
       return { ...s, blocked: { kind: d.kind, reply: d.reply }, live: null }
     case 'governance.event':
       return { ...s, governance: [d as GovEvent, ...s.governance].slice(0, 12) }
-    case 'artifact.diagram':
-      return { ...s, diagram: { mermaid: d.mermaid, version: d.version }, subPulses: pulse(s, 'tool-catalogo') }
+    case 'artifact.diagram': {
+      if (!d.svg) return s // grabaciones viejas (solo Mermaid): el panel sigue con lo que tenía
+      const por = d.por === 'diagramador' ? 'diagramador' : 'arquitecto'
+      return {
+        ...s,
+        diagram: { svg: d.svg, version: d.version, por, titulo: d.titulo, pasos: d.pasos },
+        subPulses: pulse(s, por === 'diagramador' ? 'tool-diagrama' : 'tool-catalogo'),
+      }
+    }
     case 'artifact.cost': {
       // el costo llega justo después del turno del Arquitecto: se resume en su nodo
       const delta = s.cost ? d.total_usd - s.cost.total_usd : 0

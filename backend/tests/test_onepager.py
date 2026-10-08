@@ -11,7 +11,26 @@ from app.onepager import leads as lead_mod
 from app.onepager.render import render_html, render_pdf
 from app.onepager.sample import PAYLOAD
 
-CHROMIUM = os.getenv("CHROMIUM_PATH", "/opt/pw-browsers/chromium")
+def _chromium() -> str:
+    """Chromium para el PDF: CHROMIUM_PATH si está, si no el que trae Playwright.
+
+    Devuelve "" si no hay ninguno, y entonces los tests de PDF se saltan. Hay que resolverlo
+    igual que en producción (`render_pdf` usa el de Playwright cuando chromium_path está vacío);
+    una ruta fija aquí se saltaría los tests en cualquier plataforma donde no exista.
+    """
+    if env := os.getenv("CHROMIUM_PATH", ""):
+        return env if Path(env).exists() else ""
+    try:
+        from playwright.sync_api import sync_playwright
+
+        with sync_playwright() as p:
+            path = p.chromium.executable_path
+    except Exception:  # Playwright sin navegadores instalados
+        return ""
+    return path if Path(path).exists() else ""
+
+
+CHROMIUM = _chromium()
 
 
 
@@ -20,10 +39,12 @@ def test_html_has_brand_and_content():
     assert "Agente inteligente para Manufactura" in html
     assert "USD 1,397" in html and "LFPDPPP" in html
     assert "#66de7f" in html and "data:image/png;base64," in html
-    assert "<span class=\"chip ia\">GPT-5.4 mini</span>" in html  # nombres cortos en las capas
+    assert "<svg" in html and "GPT-5.4 mini" in html  # diagrama de arquitectura con nombres cortos
+    assert "Del documento al resultado" in html and "Content Safety enmascara" in html  # título y pasos del Diagramador
+    assert "&lt; USD 1" in html and "USD 0<" not in html  # servicios de consumo bajo, no "gratis"
 
 
-@pytest.mark.skipif(not Path(CHROMIUM).exists(), reason="Chromium no disponible")
+@pytest.mark.skipif(not CHROMIUM, reason="Chromium no disponible")
 async def test_pdf_is_one_letter_page(tmp_path):
     out = await render_pdf(PAYLOAD, tmp_path / "op.pdf", Settings(chromium_path=CHROMIUM))
     data = out.read_bytes()
@@ -66,7 +87,7 @@ def test_consent_is_mandatory(app_client):
     assert client.post(f"/api/lead/abc123?t={tok}", json=lead(correo="no-es-correo")).status_code == 422
 
 
-@pytest.mark.skipif(not Path(CHROMIUM).exists(), reason="Chromium no disponible")
+@pytest.mark.skipif(not CHROMIUM, reason="Chromium no disponible")
 def test_lead_without_power_automate_goes_to_outbox(app_client):
     client, tok, tmp, _ = app_client
     r = client.post(f"/api/lead/abc123?t={tok}", json=lead())
@@ -80,7 +101,7 @@ def test_lead_without_power_automate_goes_to_outbox(app_client):
     assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
 
 
-@pytest.mark.skipif(not Path(CHROMIUM).exists(), reason="Chromium no disponible")
+@pytest.mark.skipif(not CHROMIUM, reason="Chromium no disponible")
 def test_lead_is_sent_to_power_automate_with_pdf(app_client, monkeypatch):
     client, tok, tmp, s = app_client
     sent = {}
@@ -99,7 +120,7 @@ def test_lead_is_sent_to_power_automate_with_pdf(app_client, monkeypatch):
     assert not (tmp / "leads" / "outbox.jsonl").exists()
 
 
-@pytest.mark.skipif(not Path(CHROMIUM).exists(), reason="Chromium no disponible")
+@pytest.mark.skipif(not CHROMIUM, reason="Chromium no disponible")
 def test_rate_limit_per_session(app_client):
     client, tok, _, s = app_client
     for _ in range(s.max_leads_per_session):

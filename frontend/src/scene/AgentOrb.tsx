@@ -1,52 +1,100 @@
-import { Html } from '@react-three/drei'
+import { Billboard, Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
-import { MathUtils, type Group, type Mesh, type MeshStandardMaterial } from 'three'
+import { Color, MathUtils, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from 'three'
 import { ACTOR_META } from '../agents'
 import type { AgentId, NodeStatus } from '../types'
+import { GLITCH_BLINK, GLITCH_OPEN, tintedGlitch } from './glitchTextures'
 import { AGENT_POS, agentColor, cssColor } from './layout'
 import { Satellites, type SatelliteSpec } from './Satellites'
 
-const TARGET_GLOW: Record<NodeStatus, number> = { idle: 0.12, running: 1.8, done: 0.55, objected: 1.1 }
+const SIZE = 1.55
+// Brillo del mini-Glitch por estado: apagado en espera, encendido mientras piensa
+const TARGET_BRIGHT: Record<NodeStatus, number> = { idle: 0.42, running: 0.95, done: 0.8, objected: 0.9 }
+const HAPPY_S = 1.6 // cara feliz al terminar
+// Protagonismo: el agente que piensa crece y los demás se achican y se apagan un poco
+export type Spotlight = 'me' | 'other' | 'none'
+const SPOT_SCALE: Record<Spotlight, number> = { me: 1.5, other: 0.72, none: 1 }
+const SPOT_DIM: Record<Spotlight, number> = { me: 1, other: 0.6, none: 1 }
 
-/** Orbe de luz de un agente: brilla mientras piensa, queda encendido al terminar, destella en ámbar si objeta. */
-export function AgentOrb({ id, status, chip, satellites }: { id: AgentId; status: NodeStatus; chip?: string; satellites: SatelliteSpec[] }) {
+/**
+ * Mini-Glitch de un agente, con el color del agente: tenue en espera; mientras piensa se enciende, se mece,
+ * parpadea más y le salen puntitos de "pensando…"; al terminar pone cara feliz; si objeta, destello ámbar.
+ */
+export function AgentOrb({ id, status, chip, satellites, spotlight = 'none' }: { id: AgentId; status: NodeStatus; chip?: string; satellites: SatelliteSpec[]; spotlight?: Spotlight }) {
   const color = useMemo(() => agentColor(id), [id])
   const alert = useMemo(() => cssColor('--alert'), [])
+  const tex = useMemo(() => ({ open: tintedGlitch(GLITCH_OPEN, color), blink: tintedGlitch(GLITCH_BLINK, color) }), [color])
+  const tint = useMemo(() => new Color(), [])
   const group = useRef<Group>(null)
-  const core = useRef<Mesh>(null)
+  const body = useRef<Group>(null)
+  const face = useRef<Mesh>(null)
   const ring = useRef<Mesh>(null)
   const ring2 = useRef<Mesh>(null)
-  const glow = useRef(TARGET_GLOW.idle)
+  const dots = useRef<Group>(null)
+  const bright = useRef(TARGET_BRIGHT.idle)
   const flash = useRef(0)
+  const happyUntil = useRef(0)
+  const nextBlink = useRef(1 + Math.random() * 3)
+  const blinkUntil = useRef(0)
   const prevStatus = useRef(status)
+  const pendingStatus = useRef<NodeStatus | null>(null)
   if (prevStatus.current !== status) {
-    if (status === 'objected') flash.current = 1
+    pendingStatus.current = status
     prevStatus.current = status
   }
 
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime
     const running = status === 'running'
-    glow.current = MathUtils.damp(glow.current, TARGET_GLOW[status] + (running ? Math.sin(t * 5) * 0.45 : 0), 4, dt)
-    const mat = core.current?.material as MeshStandardMaterial | undefined
-    if (mat) {
-      mat.emissiveIntensity = glow.current
-      // al objetar: destello ámbar breve y vuelve a su color (el orbe nunca pierde su identidad)
-      flash.current = MathUtils.damp(flash.current, 0, 1.2, dt)
-      mat.emissive.copy(color).lerp(alert, flash.current)
+    if (pendingStatus.current) {
+      if (pendingStatus.current === 'objected') flash.current = 1
+      if (pendingStatus.current === 'done') happyUntil.current = t + HAPPY_S
+      pendingStatus.current = null
     }
+    flash.current = MathUtils.damp(flash.current, 0, 1.2, dt)
+
+    // parpadeo: más seguido mientras piensa
+    if (t > nextBlink.current) {
+      blinkUntil.current = t + 0.12
+      nextBlink.current = t + (running ? 0.8 + Math.random() * 1.2 : 2.5 + Math.random() * 3.5)
+    }
+    const m = face.current?.material as MeshBasicMaterial | undefined
+    if (m) {
+      const map = t < blinkUntil.current || t < happyUntil.current ? tex.blink : tex.open
+      if (m.map !== map) m.map = map
+      bright.current = MathUtils.damp(bright.current, TARGET_BRIGHT[status] * SPOT_DIM[spotlight] + (running ? Math.sin(t * 5) * 0.08 : 0), 4, dt)
+      tint.setScalar(bright.current).lerp(alert, flash.current * 0.7)
+      m.color.copy(tint)
+    }
+
     if (group.current) {
       group.current.position.y = Math.sin(t * 0.8 + AGENT_POS[id].x) * 0.12
-      const s = MathUtils.damp(group.current.scale.x, running ? 1.15 : 1, 5, dt)
+      // transición suave (≈0.5 s) para que el cambio de protagonista se lea como un movimiento, no un salto
+      const s = MathUtils.damp(group.current.scale.x, SPOT_SCALE[spotlight], 4, dt)
       group.current.scale.setScalar(s)
     }
+    if (body.current) {
+      // pensando: se mece de lado a lado y sube y baja un poco, como cavilando; al objetar, un sacudón
+      const ponder = running ? Math.sin(t * 2.2) * 0.14 : Math.sin(t * 0.6 + id.length) * 0.04
+      body.current.rotation.z = MathUtils.damp(body.current.rotation.z, ponder + Math.sin(t * 40) * flash.current * 0.12, 6, dt)
+      body.current.position.y = running ? Math.abs(Math.sin(t * 4.4)) * 0.08 : 0
+    }
+
+    // "pensando…": tres puntitos que saltan en secuencia sobre la cabeza
+    if (dots.current) {
+      dots.current.visible = running
+      dots.current.children.forEach((d, i) => {
+        d.position.y = SIZE * 0.62 + Math.max(0, Math.sin(t * 6 - i * 0.9)) * 0.16
+      })
+    }
+
     for (const [r, speed] of [[ring, 1.4], [ring2, -0.9]] as const) {
       if (!r.current) continue
       r.current.rotation.z += dt * speed * (running ? 2.2 : 0.4)
-      const m = r.current.material as MeshStandardMaterial
-      m.emissive.copy(status === 'objected' ? alert : color)
-      m.opacity = MathUtils.damp(m.opacity, running ? 0.95 : status === 'idle' ? 0.08 : 0.35, 4, dt)
+      const rm = r.current.material as MeshStandardMaterial
+      rm.emissive.copy(status === 'objected' ? alert : color)
+      rm.opacity = MathUtils.damp(rm.opacity, running ? 0.95 : status === 'idle' ? 0.08 : 0.35, 4, dt)
     }
   })
 
@@ -54,15 +102,22 @@ export function AgentOrb({ id, status, chip, satellites }: { id: AgentId; status
   return (
     <group position={AGENT_POS[id]}>
       <group ref={group}>
-        <mesh ref={core}>
-          <icosahedronGeometry args={[0.62, 6]} />
-          <meshStandardMaterial color="#0b0e14" emissive={color} emissiveIntensity={0.2} roughness={0.35} metalness={0.2} toneMapped={false} />
-        </mesh>
-        {/* halo */}
-        <mesh scale={1.3}>
-          <sphereGeometry args={[0.62, 32, 32]} />
-          <meshBasicMaterial color={color} transparent opacity={0.04} depthWrite={false} />
-        </mesh>
+        <Billboard>
+          <group ref={body}>
+            <mesh ref={face}>
+              <planeGeometry args={[SIZE, SIZE]} />
+              <meshBasicMaterial map={tex.open} transparent alphaTest={0.05} depthWrite={false} toneMapped={false} />
+            </mesh>
+          </group>
+          <group ref={dots} visible={false}>
+            {[-0.26, 0, 0.26].map((x) => (
+              <mesh key={x} position={[x, SIZE * 0.62, 0.05]}>
+                <circleGeometry args={[0.085, 20]} />
+                <meshBasicMaterial color={color} toneMapped={false} />
+              </mesh>
+            ))}
+          </group>
+        </Billboard>
         <mesh ref={ring} rotation={[Math.PI / 2.3, 0, 0]}>
           <torusGeometry args={[1.05, 0.02, 8, 96, Math.PI * 1.4]} />
           <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2.5} transparent opacity={0.1} toneMapped={false} />
@@ -73,7 +128,8 @@ export function AgentOrb({ id, status, chip, satellites }: { id: AgentId; status
         </mesh>
       </group>
       <Satellites agent={id} specs={satellites} color={color} />
-      <Html position={AGENT_POS[id].z < -2 ? [0, 1.5, 0] : [0, -1.35, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
+      {/* etiqueta con margen para cuando el mini-Glitch crece por el protagonismo (×1.5) */}
+      <Html position={AGENT_POS[id].z < -2 ? [0, 1.6, 0] : [0, -1.75, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
         <div className={`orb-label st-${status}`} style={{ ['--c' as string]: `#${color.getHexString()}` }}>
           <div className="orb-name">
             {meta.label}

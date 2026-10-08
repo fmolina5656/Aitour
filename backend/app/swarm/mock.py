@@ -93,6 +93,32 @@ def _riesgo(ctx: str, n_prev: int) -> dict:
     }
 
 
+def _diagramador(ctx: str, n_prev: int) -> dict:
+    m = re.search(r"componentes: (\[.*\])", ctx)
+    ids = {c["id"] for c in json.loads(m.group(1))} if m else set()
+    entrada = [i for i in ("ingesta", "extraccion") if i in ids]
+    inteligencia = [i for i in ("seguridad", "busqueda", "agente") if i in ids]
+    entrega = [i for i in ("app",) if i in ids]
+    flujo = [
+        ("ingesta", "extraccion", "facturas"), ("extraccion", "seguridad", "campos"), ("seguridad", "agente", "datos limpios"),
+        ("busqueda", "agente", "contexto"), ("agente", "app", "resultado"),
+    ]
+    if "seguridad" not in ids:
+        flujo = [("ingesta", "extraccion", "facturas"), ("extraccion", "agente", "campos"), ("busqueda", "agente", "contexto"), ("agente", "app", "resultado")]
+    return {
+        "burbuja": "Así queda en Azure: de la factura al resultado en cuatro pasos. Lo dejo en el one-pager.",
+        "titulo": "Del documento al resultado en Azure",
+        "zonas": [{"nombre": "Ingesta", "componentes": entrada}, {"nombre": "Inteligencia", "componentes": inteligencia}, {"nombre": "Entrega", "componentes": entrega}],
+        "flujo": [{"de": a, "a": b, "etiqueta": t} for a, b, t in flujo if a in ids and b in ids],
+        "pasos": [
+            "Los documentos llegan a Blob Storage y Document Intelligence extrae los campos.",
+            "Content Safety enmascara los datos personales antes de que los vea el modelo.",
+            "El agente en Foundry valida y clasifica, con contexto de AI Search.",
+            "La API en Container Apps entrega el resultado a los sistemas del cliente.",
+        ],
+    }
+
+
 def _redactor(ctx: str, n_prev: int) -> dict:
     industria = _brief_field(ctx, "Industria", "la empresa")
     problema = _brief_field(ctx, "Problema", "un proceso manual")
@@ -107,8 +133,8 @@ def _redactor(ctx: str, n_prev: int) -> dict:
     }
 
 
-SCRIPTS = {"arquitecto": _arquitecto, "financiero": _financiero, "riesgo": _riesgo, "redactor": _redactor}
-FAKE_LATENCY_S = {"arquitecto": 4.0, "financiero": 2.5, "riesgo": 3.0, "redactor": 3.5}
+SCRIPTS = {"arquitecto": _arquitecto, "financiero": _financiero, "riesgo": _riesgo, "diagramador": _diagramador, "redactor": _redactor}
+FAKE_LATENCY_S = {"arquitecto": 4.0, "financiero": 2.5, "riesgo": 3.0, "diagramador": 2.5, "redactor": 3.5}
 
 
 class MockChatClient(BaseChatClient):

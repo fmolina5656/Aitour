@@ -14,7 +14,14 @@ def test_voice_agent_definition_is_valid():
     assert d["kind"] == "voice"
     assert d["audio"]["input"]["turn_detection"]["type"] == "azure_semantic_vad_multilingual"
     assert d["audio"]["input"]["transcription"]["language"] == "es-MX"
-    assert d["audio"]["output"]["voice"].startswith("es-MX-")
+    assert d["audio"]["output"]["voice"].startswith("es-MX-")  # acento mexicano real (no es-ES)
+    assert d["audio"]["output"]["voice_locale"] == "es-MX"
+    assert d["greeting"]["type"] == "template"
+    assert d["max_output_tokens"] >= 1024  # con 220 cortaba las respuestas a la mitad
+    native = build_definition(Settings(voice_type="openai", voice_name="marin")).as_dict()
+    assert "voice_locale" not in native["audio"]["output"]  # solo aplica a Azure TTS
+    assert native["greeting"]["type"] == "llm_generated"  # el saludo fijo exige voz de Azure TTS
+    assert "interim_response" not in native
     assert {t.get("name") for t in d["tools"]} >= {"registrar_brief", "confirmar_brief"}
     assert d["rai_config"]["rai_policy_name"] == "readymind-stand"
 

@@ -31,16 +31,37 @@ async def test_swarm_debate_flow(tmp_path):
     state = await SwarmRunner(bus, fast_settings(tmp_path)).run(BRIEF)
 
     assert state.status == "ok"
-    assert state.turns == ["arquitecto", "financiero", "arquitecto", "financiero", "riesgo", "arquitecto", "redactor"]
+    assert state.turns == ["arquitecto", "financiero", "arquitecto", "financiero", "riesgo", "arquitecto", "diagramador", "redactor"]
     objections = [e.data["de"] for e in events if e.type == "agent.objection"]
     assert objections == ["financiero", "riesgo"]
     costs = [e.data["total_usd"] for e in events if e.type == "artifact.cost"]
     assert costs[0] > costs[1]  # el ajuste del arquitecto baja el costo
     spans = [e for e in events if e.type == "trace.span"]
-    assert len(spans) == 7 and spans[-1].data["session_cost_usd"] > 0
+    assert len(spans) == 8 and spans[-1].data["session_cost_usd"] > 0
+    # el diagrama está desde la primera propuesta y la última versión es la del Diagramador
+    diagrams = [e.data for e in events if e.type == "artifact.diagram"]
+    assert [d["por"] for d in diagrams] == ["arquitecto"] * 3 + ["diagramador"]
+    assert all(d["svg"].startswith("<svg") for d in diagrams)
+    assert "NUEVO" in diagrams[2]["svg"]  # lo que agregó el ajuste por la objeción de Riesgo
+    assert diagrams[-1]["pasos"] and "INGESTA" in diagrams[-1]["svg"]
     onepager = next(e for e in events if e.type == "artifact.onepager")
     assert onepager.data["onepager"]["titulo"]
     assert onepager.data["mermaid"].startswith("flowchart LR")
+    assert onepager.data["diagrama"]["zonas"] and onepager.data["arquitectura"]["componentes"]
+
+
+def test_diagram_survives_invented_ids_and_puts_governance_in_band():
+    from app.swarm import diagram
+
+    comps = [{"id": "a", "nombre": "Ingesta", "servicio": "Azure Blob Storage · Hot"},
+             {"id": "b", "nombre": "Agente", "servicio": "Foundry · GPT-5.4 mini"},
+             {"id": "kv", "nombre": "Llaves", "servicio": "Azure Key Vault"}]
+    cats = {"a": "Datos", "b": "IA", "kv": "Gobierno"}
+    spec = {"zonas": [{"nombre": "X", "componentes": ["zzz"]}], "flujo": [{"de": "zzz", "a": "b", "etiqueta": "?"}]}
+    svg = diagram.build_svg(comps, [{"de": "a", "a": "b", "etiqueta": "<datos>"}], cats, spec=spec)
+    assert svg.startswith("<svg") and "zzz" not in svg
+    assert "&lt;datos&gt;" in svg  # texto del modelo escapado
+    assert "SEGURIDAD Y GOBIERNO" in svg and "Key Vault" in svg  # Key Vault va en la banda transversal
 
 
 async def test_swarm_timeout_degrades_gracefully(tmp_path):

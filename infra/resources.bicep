@@ -12,6 +12,7 @@ param powerAutomateUrl string
 param modelArquitecto string
 param modelFinanciero string
 param modelRiesgo string
+param modelDiagramador string
 param modelRedactor string
 param modelGuard string
 
@@ -301,6 +302,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'MODEL_ARQUITECTO', value: modelArquitecto }
             { name: 'MODEL_FINANCIERO', value: modelFinanciero }
             { name: 'MODEL_RIESGO', value: modelRiesgo }
+            { name: 'MODEL_DIAGRAMADOR', value: modelDiagramador }
             { name: 'MODEL_REDACTOR', value: modelRedactor }
             { name: 'MODEL_GUARD', value: modelGuard }
             { name: 'VOICE_RAI_POLICY', value: guardrail.id } // el voice agent exige el ID ARM completo

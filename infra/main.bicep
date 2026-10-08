@@ -30,6 +30,7 @@ param powerAutomateUrl string = ''
 param modelArquitecto string = 'gpt-5.4'
 param modelFinanciero string = 'gpt-5.4-mini'
 param modelRiesgo string = 'gpt-5.4-mini'
+param modelDiagramador string = 'gpt-5.4-mini'
 param modelRedactor string = 'gpt-5.4-mini'
 param modelGuard string = 'gpt-5.4-nano'
 
@@ -55,6 +56,7 @@ module resources 'resources.bicep' = {
     modelArquitecto: modelArquitecto
     modelFinanciero: modelFinanciero
     modelRiesgo: modelRiesgo
+    modelDiagramador: modelDiagramador
     modelRedactor: modelRedactor
     modelGuard: modelGuard
   }

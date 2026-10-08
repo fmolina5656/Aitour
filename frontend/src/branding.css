@@ -37,12 +37,14 @@
   --alert: #ffb547;
   --ok: #66de7f;
 
-  /* Agentes: los tres tonos del degradado de marca + su continuación natural */
+  /* Agentes: tonos bien separados en el círculo cromático para distinguirlos de lejos. Ninguno es verde
+     (es Glitch, la recepcionista y "terminado") ni ámbar (objeciones). */
   --who-visitante: #b7c2d2;
-  --who-arquitecto: #397ef6;
-  --who-financiero: #66de7f;
-  --who-riesgo: #53b6ad;
-  --who-redactor: #8f8cf7;
+  --who-arquitecto: #3b82f6; /* azul */
+  --who-financiero: #ec4899; /* rosa */
+  --who-riesgo: #fb6a3c; /* coral */
+  --who-diagramador: #facc15; /* amarillo */
+  --who-redactor: #a855f7; /* violeta */
   --who-onepager: #f3f6fa;
 
   /* Núcleo: neutro mientras es "tu problema", verde de marca al convertirse en solución */

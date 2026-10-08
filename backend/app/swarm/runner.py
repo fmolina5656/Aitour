@@ -24,7 +24,7 @@ from .schemas import OUTPUT_MODELS, Brief
 log = logging.getLogger(__name__)
 
 BUBBLE_RE = re.compile(r'"burbuja"\s*:\s*"((?:[^"\\]|\\.)*)')
-AGENT_MAX_TOKENS = {"arquitecto": 1800, "financiero": 600, "riesgo": 900, "redactor": 1200}
+AGENT_MAX_TOKENS = {"arquitecto": 1800, "financiero": 600, "riesgo": 900, "diagramador": 900, "redactor": 1200}
 
 
 class ContextInjector(AgentMiddleware):
@@ -202,6 +202,8 @@ def build_onepager_payload(state: SwarmState) -> dict:
         "brief": state.brief.model_dump(),
         "onepager": state.onepager,
         "mermaid": mermaid.build(arq.get("componentes", []), arq.get("conexiones", []), cats),
+        "arquitectura": {"componentes": arq.get("componentes", []), "conexiones": arq.get("conexiones", [])},
+        "diagrama": state.diagrama,  # zonas, flujo y pasos del Diagramador (None si no llegó a tiempo)
         "costo": state.costo,
         "riesgo": state.riesgo,
         "objeciones": state.objeciones,

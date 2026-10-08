@@ -10,7 +10,7 @@ export function GovernancePanel({ s }: { s: StageState }) {
     <section className="block gov">
       <div className="block-head">
         <span>Gobierno</span>
-        <span>OpenTelemetry · Foundry</span>
+        <span>Foundry</span>
       </div>
       <div className="stats">
         <div><b>{s.spans.length}</b><span>llamadas</span></div>

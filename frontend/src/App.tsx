@@ -117,7 +117,9 @@ export default function App() {
       </footer>
 
       {showText && <TextInput onClose={() => setShowText(false)} />}
-      {s.onepager && showOnePager && <OnePagerOverlay op={s.onepager} qrUrl={s.share?.qrUrl} onClose={() => setShowOnePager(false)} />}
+      {s.onepager && showOnePager && (
+        <OnePagerOverlay op={s.onepager} qrUrl={s.share?.qrUrl} diagramSvg={s.diagram?.svg} onClose={() => setShowOnePager(false)} />
+      )}
     </div>
     </>
   )

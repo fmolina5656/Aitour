@@ -2,13 +2,14 @@ import { usd } from '../agents'
 import type { OnePager } from '../types'
 
 /** Cierre de la sesión: el one-pager y el QR para dejar los datos y recibir el PDF. */
-export function OnePagerOverlay({ op, qrUrl, onClose }: { op: OnePager; qrUrl?: string; onClose: () => void }) {
+export function OnePagerOverlay({ op, qrUrl, diagramSvg, onClose }: { op: OnePager; qrUrl?: string; diagramSvg?: string; onClose: () => void }) {
   const o = op.onepager
   return (
     <div className="overlay" onClick={onClose}>
       <article className="onepager" onClick={(e) => e.stopPropagation()}>
         <div className="op-kicker">One-pager ejecutivo</div>
         <h1>{o.titulo}</h1>
+        {diagramSvg && <div className="op-diagram" dangerouslySetInnerHTML={{ __html: diagramSvg }} />}
         <div className="op-grid">
           <div>
             <h3>Problema</h3>

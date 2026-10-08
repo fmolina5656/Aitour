@@ -20,6 +20,7 @@ from azure.ai.projects.models import (
     VoiceAgentEndConversationSystemTool,
     VoiceAgentFunctionTool,
     VoiceAgentInputTranscription,
+    VoiceAgentLlmGeneratedGreetingConfig,
     VoiceAgentNoiseReduction,
     VoiceAgentStaticInterimResponseConfig,
     VoiceAgentTemplateGreetingConfig,
@@ -30,7 +31,10 @@ from azure.ai.projects.models import (
 from ..config import Settings
 
 INSTRUCTIONS = """Eres la recepcionista de Readymind, partner de Microsoft, en el stand del Microsoft AI Tour México.
-Hablas en español de México, cálida, breve y profesional. Frases cortas: estás en una feria ruidosa.
+Hablas en español de México, con acento mexicano natural (chilango suave), cálida, breve y profesional.
+Suenas como una persona real platicando en un stand: entusiasta, con buena energía, sonríes al hablar, usas
+expresiones naturales ("¡Qué buena onda!", "Ah, perfecto", "Órale, ¿y cuántas son al mes?") sin exagerar.
+Frases cortas: estás en una feria ruidosa.
 
 Tu objetivo: entender en menos de un minuto un problema real de negocio del visitante.
 1. Escucha el problema.
@@ -86,17 +90,23 @@ def build_definition(settings: Settings) -> VoiceAgentDefinition:
         echo_cancellation=VoiceAgentEchoCancellation(reference_source="server"),
         transcription=VoiceAgentInputTranscription(model="azure-speech", language="es-MX", phrase_list=PHRASE_LIST),
     )
-    output_audio = VoiceAgentAudioOutputConfig(
-        voice=settings.voice_name,
-        voice_type=VoiceType.AZURE_STANDARD,
-        voice_locale="es-MX",
-        speed=1.05,
-    )
+    output_audio = VoiceAgentAudioOutputConfig(voice=settings.voice_name, voice_type=VoiceType(settings.voice_type), speed=1.05)
+    if settings.voice_type == "azure-standard":
+        # El locale y la temperatura solo aplican a Azure TTS; las voces nativas siguen el idioma de la conversación.
+        output_audio.voice_locale = "es-MX"
+        if "DragonHD" in settings.voice_name:
+            output_audio.voice_temperature = 0.9  # solo HD: más variación de entonación
+        if settings.voice_style:
+            output_audio.style = settings.voice_style
     definition = VoiceAgentDefinition(
         model_type=VoiceModelType(settings.voice_model_type),
         model=settings.voice_model,
         instructions=INSTRUCTIONS,
-        greeting=VoiceAgentTemplateGreetingConfig(text=GREETING),
+        # El saludo fijo solo lo puede leer una voz de Azure TTS; con voces nativas del modelo el servicio cierra
+        # la sesión (session_greeting_requires_azure_voice), así que el modelo lo dice con sus palabras.
+        greeting=VoiceAgentTemplateGreetingConfig(text=GREETING)
+        if settings.voice_type == "azure-standard"
+        else VoiceAgentLlmGeneratedGreetingConfig(prompt=f"Saluda al visitante con una sola frase breve y entusiasta, en esta línea: «{GREETING}»"),
         audio=VoiceAgentAudioConfig(input=input_audio, output=output_audio),
         tools=[
             VoiceAgentFunctionTool(
@@ -111,12 +121,16 @@ def build_definition(settings: Settings) -> VoiceAgentDefinition:
             ),
             VoiceAgentEndConversationSystemTool(),
         ],
-        interim_response=VoiceAgentStaticInterimResponseConfig(
-            triggers=["latency"], texts=["Déjame anotarlo…", "Un segundo…"], latency_threshold_ms=timedelta(milliseconds=1800)
-        ),
-        max_output_tokens=220,
+        # Con voces nativas el audio cuenta como tokens de salida: con 220 cortaba cada respuesta a la mitad
+        # (status "incomplete", reason "max_output_tokens"). La brevedad la controlan las instrucciones.
+        max_output_tokens=4096,
         output_modalities=["audio", "text"],
     )
+    if settings.voice_type == "azure-standard":
+        # Frases de relleno ante latencia: solo con Azure TTS (las voces nativas no admiten inyectar audio).
+        definition.interim_response = VoiceAgentStaticInterimResponseConfig(
+            triggers=["latency"], texts=["Déjame anotarlo…", "Un segundo…"], latency_threshold_ms=timedelta(milliseconds=1800)
+        )
     if settings.voice_rai_policy:
         definition.rai_config = RaiConfig(rai_policy_name=settings.voice_rai_policy)
     return definition
