@@ -23,6 +23,7 @@ export const initialState: StageState = {
   cost: null,
   prevCost: null,
   onepager: null,
+  blocked: null,
   elapsed: 0,
   budget: 120,
 }
@@ -107,6 +108,8 @@ export function reducer(s: StageState, ev: Action): StageState {
     }
     case 'trace.span':
       return { ...s, spans: [d as Span, ...s.spans].slice(0, 30), sessionCost: d.session_cost_usd, subPulses: pulse(s, `model-${d.agent}`) }
+    case 'guard.blocked':
+      return { ...s, blocked: { kind: d.kind, reply: d.reply }, live: null }
     case 'governance.event':
       return { ...s, governance: [d as GovEvent, ...s.governance].slice(0, 12) }
     case 'artifact.diagram':

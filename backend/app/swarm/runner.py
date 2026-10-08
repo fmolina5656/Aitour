@@ -98,9 +98,15 @@ class SwarmRunner:
             status = "timeout"
             self.bus.publish("governance.event", kind="timeout", severity="warning", title="Presupuesto de tiempo agotado", detail="El enjambre se cortó a tiempo; el one-pager usa la última versión disponible.")
         except Exception as exc:  # noqa: BLE001 — en el stand nunca se cae la sesión
-            status = "error"
-            log.exception("Error en el enjambre")
-            self.bus.publish("governance.event", kind="error", severity="error", title="Error en el enjambre", detail=str(exc)[:200])
+            if is_content_filter(exc):
+                status = "filtered"
+                self.bus.publish("governance.event", kind="content_filter", severity="error",
+                                 title="Guardrail de Foundry: contenido bloqueado",
+                                 detail="El filtro de contenido del deployment detuvo una respuesta; el one-pager usa la última versión segura.")
+            else:
+                status = "error"
+                log.exception("Error en el enjambre")
+                self.bus.publish("governance.event", kind="error", severity="error", title="Error en el enjambre", detail=str(exc)[:200])
 
         if state.onepager is None:
             state.onepager = fallback_onepager(state)
@@ -158,6 +164,19 @@ class SwarmRunner:
             cost_usd=cost,
             session_cost_usd=round(self.session_cost, 6),
         )
+
+
+def is_content_filter(exc: BaseException) -> bool:
+    """Los guardrails de Foundry rechazan con code=content_filter (o ResponsibleAIPolicyViolation)."""
+    seen: set[int] = set()
+    e: BaseException | None = exc
+    while e is not None and id(e) not in seen:
+        seen.add(id(e))
+        text = f"{type(e).__name__} {e} {getattr(e, 'code', '')}"
+        if "content_filter" in text or "ResponsibleAIPolicyViolation" in text or "content management policy" in text:
+            return True
+        e = e.__cause__ or e.__context__
+    return False
 
 
 def fallback_onepager(state: SwarmState) -> dict:

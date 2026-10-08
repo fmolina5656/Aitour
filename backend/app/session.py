@@ -6,8 +6,10 @@ import logging
 import time
 import uuid
 
+from . import telemetry
 from .config import Settings
 from .events import EventBus
+from .guard import Guard
 from .recorder import Recorder, latest_curated, replay
 from .swarm.runner import SwarmRunner
 from .swarm.schemas import Brief
@@ -20,6 +22,7 @@ class SessionManager:
         self.bus = bus
         self.settings = settings
         self.recorder = Recorder(bus, settings.recordings_dir)
+        self.guard = Guard(bus, settings)
         self.task: asyncio.Task | None = None
         self.state = "idle"
         self.session_id: str | None = None
@@ -43,12 +46,22 @@ class SessionManager:
     async def _run_swarm(self, brief: Brief) -> None:
         self.state = "swarm"
         t0 = time.monotonic()
-        clock = asyncio.create_task(self._clock(t0))
-        try:
-            state = await SwarmRunner(self.bus, self.settings).run(brief)
-            status = state.status
-        finally:
-            clock.cancel()
+        with telemetry.session_span(self.session_id or "", self.settings.demo_mode, brief.industria) as span:
+            # Gobierno primero: Prompt Shields + tema. Un bloqueo también es parte del show.
+            verdict = await self.guard.check(f"{brief.problema}\n{brief.datos}")
+            if not verdict.allowed:
+                span.set_attribute("demo.blocked", verdict.kind)
+                self.state = "done"
+                self.bus.publish("guard.blocked", kind=verdict.kind, reply=verdict.reply)
+                self.bus.publish("session.ended", status="blocked", swarm_s=0, duration_s=round(time.monotonic() - t0, 1))
+                return
+            clock = asyncio.create_task(self._clock(t0))
+            try:
+                state = await SwarmRunner(self.bus, self.settings).run(brief)
+                status = state.status
+            finally:
+                clock.cancel()
+            span.set_attribute("demo.status", status)
         self.state = "done"
         swarm_s = round(time.monotonic() - t0, 1)
         self.bus.publish("session.ended", status=status, swarm_s=swarm_s, duration_s=swarm_s)

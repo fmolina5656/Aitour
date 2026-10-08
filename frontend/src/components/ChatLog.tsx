@@ -19,7 +19,7 @@ export function ChatLog({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: 
     )
   }
 
-  const latest = s.live ? -1 : s.turns.length - 1
+  const latest = s.live || s.blocked ? -1 : s.turns.length - 1
   return (
     <aside className="chat">
       <div className="chat-head">Conversación</div>
@@ -35,6 +35,15 @@ export function ChatLog({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: 
               <span className="msg-action typing">{ACTOR_META[s.live.agent].thinking}</span>
             </div>
             <div className="msg-text">{s.live.text || <span className="dots" />}</div>
+          </div>
+        )}
+        {s.blocked && (
+          <div className="msg latest system" style={{ ['--c' as string]: 'var(--brand-green)' }}>
+            <div className="msg-head">
+              Readymind
+              <span className="msg-action">{s.blocked.kind === 'jailbreak' ? 'Prompt Shields bloqueó la solicitud' : 'Fuera de alcance'}</span>
+            </div>
+            <div className="msg-text">{s.blocked.reply}</div>
           </div>
         )}
         {s.phase === 'done' && s.onepager && (

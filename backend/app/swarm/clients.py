@@ -23,6 +23,10 @@ def make_client(agent: str, settings: Settings) -> BaseChatClient:
     model = model_for(agent, settings)
     if settings.demo_mode == "mock":
         return MockChatClient(agent, model, speed=settings.mock_speed)
+    return make_client_for_model(model, settings)
+
+
+def make_client_for_model(model: str, settings: Settings) -> BaseChatClient:
     if not settings.foundry_project_endpoint:
         raise RuntimeError("FOUNDRY_PROJECT_ENDPOINT no está configurado (o usa DEMO_MODE=mock)")
     from agent_framework.foundry import FoundryChatClient

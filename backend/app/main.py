@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from . import telemetry
 from .config import get_settings
 from .events import EventBus
 from .session import SessionManager
@@ -18,6 +19,7 @@ from .swarm.schemas import Brief
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 settings = get_settings()
+telemetry.setup(settings)
 bus = EventBus()
 sessions = SessionManager(bus, settings)
 

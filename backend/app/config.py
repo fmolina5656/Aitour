@@ -22,7 +22,15 @@ class Settings(BaseSettings):
     model_financiero: str = "gpt-5.4-mini"
     model_riesgo: str = "gpt-5.4-mini"
     model_redactor: str = "gpt-5.4-mini"
+    model_guard: str = "gpt-5.4-nano"  # clasificador de tema (rápido y barato)
     reasoning_effort: Literal["none", "low", "medium", "high"] = "low"
+
+    # Gobierno: Prompt Shields (Azure AI Content Safety). Con un recurso de Foundry (AIServices)
+    # es el endpoint del recurso: https://<recurso>.cognitiveservices.azure.com
+    content_safety_endpoint: str = ""
+    guard_timeout_s: float = 4.0
+    applicationinsights_connection_string: str = ""
+    otel_sensitive_data: bool = False  # no exportar prompts/respuestas de visitantes
 
     # Presupuestos del enjambre (requisito: < 120 s)
     swarm_timeout_s: float = 110.0  # corte interno, con margen

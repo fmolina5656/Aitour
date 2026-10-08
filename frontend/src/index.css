@@ -82,8 +82,15 @@ kbd { font-family: var(--mono); font-size: 13px; border: 1px solid var(--line-st
 .stats div { display: flex; flex-direction: column; }
 .stats b { font-family: var(--mono); font-size: 22px; font-weight: 500; }
 .stats span { font-size: 12px; color: var(--text-3); }
-.gov-event { font-size: 13px; color: var(--text-2); border-left: 2px solid var(--alert); padding-left: 8px; margin-top: 6px; }
-.gov-event.sev-error { border-color: #ef4444; }
+.gov-list { display: flex; flex-direction: column; gap: 4px; margin: 6px 0 2px; }
+.gov-event { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2); animation: rise .4s ease-out; }
+.gov-icon { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 800; color: var(--brand-navy); background: var(--ok); flex: none; }
+.gov-event.sev-warning .gov-icon { background: var(--alert); }
+.gov-event.sev-error .gov-icon { background: #ff5d5d; color: #fff; }
+.gov-event.sev-error .gov-title { color: #ff8a8a; font-weight: 700; }
+.gov-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.core-label.blocked .core-title, .core-label.blocked .core-sub { color: var(--alert); }
+.msg.system .msg-text { color: var(--text); }
 
 /* ---------- Overlays ---------- */
 .overlay { position: fixed; inset: 0; background: rgba(8, 9, 11, .86); display: grid; place-items: center; z-index: 50; }

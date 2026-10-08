@@ -105,6 +105,7 @@ export interface StageState {
   cost: Cost | null
   prevCost: Cost | null
   onepager: OnePager | null
+  blocked: { kind: 'jailbreak' | 'off_topic'; reply: string } | null
   elapsed: number
   budget: number
 }

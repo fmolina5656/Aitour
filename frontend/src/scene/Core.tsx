@@ -8,9 +8,10 @@ import { CORE, cssColor } from './layout'
  * Núcleo: el problema del visitante. Al terminar, se transforma en el one-pager (crece, cambia de color
  * y emite una onda expansiva).
  */
-export function Core({ title, subtitle, done, active }: { title: string; subtitle?: string; done: boolean; active: boolean }) {
+export function Core({ title, subtitle, done, blocked, active }: { title: string; subtitle?: string; done: boolean; blocked: boolean; active: boolean }) {
   const accent = useMemo(() => cssColor('--core'), [])
   const finale = useMemo(() => cssColor('--core-done'), [])
+  const alert = useMemo(() => cssColor('--alert'), [])
   const shell = useRef<Mesh>(null)
   const inner = useRef<Mesh>(null)
   const group = useRef<Group>(null)
@@ -25,8 +26,10 @@ export function Core({ title, subtitle, done, active }: { title: string; subtitl
     }
     const m = inner.current?.material as MeshStandardMaterial | undefined
     if (m) {
-      m.emissive.lerp(done ? finale : accent, 1 - Math.exp(-2 * dt))
-      m.emissiveIntensity = MathUtils.damp(m.emissiveIntensity, done ? 1.6 : 0.7 + Math.sin(t * 1.6) * 0.2, 3, dt)
+      m.emissive.lerp(blocked ? alert : done ? finale : accent, 1 - Math.exp(-3 * dt))
+      // bloqueado: late como alarma; terminado: brillo pleno
+      const target = blocked ? 1.2 + Math.sin(t * 6) * 0.6 : done ? 1.6 : 0.7 + Math.sin(t * 1.6) * 0.2
+      m.emissiveIntensity = MathUtils.damp(m.emissiveIntensity, target, 3, dt)
     }
     if (group.current) group.current.scale.setScalar(MathUtils.damp(group.current.scale.x, done ? 1.12 : 1, 2.5, dt))
     // onda expansiva al convertirse en one-pager
@@ -46,7 +49,7 @@ export function Core({ title, subtitle, done, active }: { title: string; subtitl
         </mesh>
         <mesh ref={shell}>
           <icosahedronGeometry args={[1.0, 1]} />
-          <meshBasicMaterial color={done ? finale : accent} wireframe transparent opacity={0.35} />
+          <meshBasicMaterial color={blocked ? alert : done ? finale : accent} wireframe transparent opacity={0.35} />
         </mesh>
       </group>
       <mesh ref={wave} rotation={[-Math.PI / 2, 0, 0]}>
@@ -54,7 +57,7 @@ export function Core({ title, subtitle, done, active }: { title: string; subtitl
         <meshBasicMaterial color={finale} transparent opacity={0} depthWrite={false} toneMapped={false} />
       </mesh>
       <Html position={[0, -1.95, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`core-label ${done ? 'done' : ''}`}>
+        <div className={`core-label ${done ? 'done' : ''} ${blocked ? 'blocked' : ''}`}>
           <div className="core-title">{title}</div>
           {subtitle && <div className="core-sub">{subtitle}</div>}
         </div>
