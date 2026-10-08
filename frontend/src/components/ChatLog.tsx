@@ -68,21 +68,27 @@ export function ChatLog({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: 
             <div className="msg-text">{s.blocked.reply}</div>
           </div>
         )}
-        {s.phase === 'done' && s.onepager && (
-          <div className="share">
-            {s.share ? <img className="share-qr" src={s.share.qrUrl} alt="QR para recibir el one-pager" /> : null}
-            <div className="share-text">
-              <div className="share-title">{s.leadReceived ? '✓ ¡Recibido! Va en camino a tu correo' : 'Escanea y recibe tu one-pager en PDF'}</div>
-              <div className="muted">{s.leadReceived ? 'Gracias por visitarnos.' : s.share ? 'Deja tu nombre, empresa y correo.' : 'Pídeselo a nuestro equipo en el stand.'}</div>
-              <button className="btn" onClick={onOpenOnePager}>
-                Ver one-pager <kbd>O</kbd>
-              </button>
-            </div>
-          </div>
-        )}
+        <ShareCard s={s} onOpenOnePager={onOpenOnePager} />
         <div ref={end} />
       </div>
     </aside>
+  )
+}
+
+/** Cierre: QR para dejar los datos y recibir el one-pager en PDF. */
+export function ShareCard({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: () => void }) {
+  if (s.phase !== 'done' || !s.onepager) return null
+  return (
+    <div className="share">
+      {s.share ? <img className="share-qr" src={s.share.qrUrl} alt="QR para recibir el one-pager" /> : null}
+      <div className="share-text">
+        <div className="share-title">{s.leadReceived ? '✓ ¡Recibido! Va en camino a tu correo' : 'Escanea y recibe tu one-pager en PDF'}</div>
+        <div className="muted">{s.leadReceived ? 'Gracias por visitarnos.' : s.share ? 'Deja tu nombre, empresa y correo.' : 'Pídeselo a nuestro equipo en el stand.'}</div>
+        <button className="btn" onClick={onOpenOnePager}>
+          Ver one-pager <kbd>O</kbd>
+        </button>
+      </div>
+    </div>
   )
 }
 

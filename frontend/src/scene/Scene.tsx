@@ -22,7 +22,7 @@ const TOOLS: Partial<Record<AgentId, { id: string; label: string }>> = {
   diagramador: { id: 'tool-diagrama', label: 'Diagrama Azure' },
 }
 
-export function Scene({ s }: { s: StageState }) {
+export function Scene({ s, tablet = false }: { s: StageState; tablet?: boolean }) {
   // Si la laptop del stand no sostiene los FPS, se apagan bloom y estrellas automáticamente.
   const [low, setLow] = useState(LOW)
   const focus = s.live ? AGENT_POS[s.live.agent] : null
@@ -88,7 +88,7 @@ export function Scene({ s }: { s: StageState }) {
         yielding={!!thinking}
       />
       <Links handoffs={s.handoffs} />
-      <CameraRig focus={focus} />
+      <CameraRig focus={focus} tablet={tablet} />
       {!low && (
         <EffectComposer multisampling={0}>
           <Bloom mipmapBlur intensity={0.9} luminanceThreshold={0.35} luminanceSmoothing={0.2} radius={0.6} />

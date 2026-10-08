@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChatLog } from './components/ChatLog'
+import { ChatLog, ShareCard } from './components/ChatLog'
 import { CostPanel } from './components/CostPanel'
 import { ArchitecturePanel } from './components/ArchitecturePanel'
 import { GovernancePanel } from './components/GovernancePanel'
 import { OnePagerOverlay } from './components/OnePagerOverlay'
+import { Subtitle } from './components/Subtitle'
 import { TextInput } from './components/TextInput'
 import { BriefCard, VoiceBar } from './components/VoiceUI'
 import { Scene } from './scene/Scene'
@@ -13,8 +14,19 @@ import { useVoice } from './voice/useVoice'
 // Versión del logo para fondo oscuro (la palabra "Ready" en blanco); se puede reemplazar por VITE_BRAND_LOGO_URL.
 const LOGO_URL = (import.meta.env.VITE_BRAND_LOGO_URL as string | undefined) ?? '/brand/readymind-logo-dark.png'
 
+// Modo tablet (tecla M): solo el universo y un subtítulo. Se recuerda entre recargas.
+const TABLET_KEY = 'aitour.tablet'
+function readTablet() {
+  try {
+    return localStorage.getItem(TABLET_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
 export default function App() {
   const s = useStage()
+  const [tablet, setTablet] = useState(readTablet)
   const [showText, setShowText] = useState(false)
   const [showOnePager, setShowOnePager] = useState(false)
   const [focusText, setFocusText] = useState(0)
@@ -27,6 +39,14 @@ export default function App() {
   useEffect(() => {
     setShowOnePager(false)
   }, [s.sessionId])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(TABLET_KEY, tablet ? '1' : '0')
+    } catch {
+      // sin almacenamiento: el modo vale solo para esta carga
+    }
+  }, [tablet])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -56,6 +76,8 @@ export default function App() {
         api.replay()
       } else if (k === 'o') {
         setShowOnePager((v) => !v)
+      } else if (k === 'm') {
+        setTablet((v) => !v)
       } else if (k === 'f') {
         if (document.fullscreenElement) document.exitFullscreen()
         else document.documentElement.requestFullscreen()
@@ -67,7 +89,37 @@ export default function App() {
 
   return (
     <>
-    <Scene s={s} />
+    <Scene s={s} tablet={tablet} />
+    {tablet ? (
+      <div className="stage tablet">
+        {s.phase === 'idle' && !interviewing && (
+          // en el stand hay ruido: escribir es lo principal y la voz queda como alternativa
+          <div className="scene-cta">
+            <button className="btn primary big" onClick={() => setShowText(true)}>
+              ✍️ Escribe tu problema
+            </button>
+            <button className="btn big" onClick={() => void voice.start()}>
+              🎙 Prefiero hablar
+            </button>
+          </div>
+        )}
+        {/* sin micrófono hace falta la entrada de texto; con micrófono basta el núcleo que escucha */}
+        {interviewing && s.phase === 'idle' && voice.status === 'text-only' && (
+          <VoiceBar s={s} status={voice.status} onText={voice.sendText} focusText={focusText} />
+        )}
+        {s.interview.proposed && (
+          <BriefCard brief={s.interview.proposed} onConfirm={voice.confirm} onCorrect={() => setFocusText((n) => n + 1)} />
+        )}
+        <div className="tablet-bottom">
+          <ShareCard s={s} onOpenOnePager={() => setShowOnePager(true)} />
+          <Subtitle s={s} />
+        </div>
+        {showText && <TextInput onClose={() => setShowText(false)} />}
+        {s.onepager && showOnePager && (
+          <OnePagerOverlay op={s.onepager} qrUrl={s.share?.qrUrl} diagramSvg={s.diagram?.svg} onClose={() => setShowOnePager(false)} />
+        )}
+      </div>
+    ) : (
     <div className="stage">
       <header className="header">
         <div className="brand">
@@ -112,7 +164,7 @@ export default function App() {
       <footer className="footer">
         <span>Microsoft Foundry · Microsoft Agent Framework</span>
         <span className="keys">
-          <kbd>V</kbd> hablar <kbd>T</kbd> escribir <kbd>O</kbd> one-pager <kbd>R</kbd> reiniciar <kbd>F</kbd> pantalla completa
+          <kbd>V</kbd> hablar <kbd>T</kbd> escribir <kbd>O</kbd> one-pager <kbd>R</kbd> reiniciar <kbd>M</kbd> modo tablet <kbd>F</kbd> pantalla completa
         </span>
       </footer>
 
@@ -121,6 +173,7 @@ export default function App() {
         <OnePagerOverlay op={s.onepager} qrUrl={s.share?.qrUrl} diagramSvg={s.diagram?.svg} onClose={() => setShowOnePager(false)} />
       )}
     </div>
+    )}
     </>
   )
 }

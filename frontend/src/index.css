@@ -157,4 +157,26 @@ kbd { font-family: var(--mono); font-size: 13px; border: 1px solid var(--line-st
 .share-qr { width: 150px; height: 150px; border-radius: 10px; background: #fff; padding: 4px; flex: none; }
 .share-text { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .share-title { font-size: 20px; font-weight: 700; line-height: 1.2; }
+/* ---------- Modo tablet (tecla M): solo el universo y el subtítulo ---------- */
+.stage.tablet { display: block; padding: 0; }
+.stage.tablet .scene-cta, .stage.tablet .voice-bar, .stage.tablet .brief-card { left: 50%; }
+.stage.tablet .scene-cta { bottom: 18vh; }
+.stage.tablet .voice-bar { bottom: auto; top: 24px; width: min(760px, calc(100vw - 32px)); }
+.stage.tablet .brief-card { width: min(900px, calc(100vw - 32px)); }
+.stage.tablet .btn { min-height: 48px; }
+.stage.tablet kbd { display: none; }
+/* el teclado en pantalla tapa la mitad de abajo: el formulario va arriba y a lo ancho */
+.stage.tablet .overlay { place-items: start center; padding: 16px; overflow-y: auto; }
+.stage.tablet .modal { width: min(1000px, 100%); }
+@media (max-width: 900px) { .stage.tablet .row3 { grid-template-columns: 1fr; } }
+.tablet-bottom { position: fixed !important; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 16px 28px; pointer-events: none; }
+.tablet-bottom > * { pointer-events: auto; }
+.tablet-bottom .share { max-width: 640px; background: rgba(7, 14, 26, .85); backdrop-filter: blur(14px); }
+.subtitle { width: min(1100px, 100%); text-align: center; text-shadow: 0 2px 14px #000, 0 0 4px #000; animation: rise .4s ease-out; }
+.subtitle-who { font-size: 18px; font-weight: 700; color: var(--c); letter-spacing: .3px; }
+.subtitle-action { font-weight: 400; color: var(--text-2); }
+.subtitle-action::before { content: ' · '; }
+/* el texto llega en streaming: se ven siempre las últimas tres líneas, las de arriba se recortan */
+.subtitle-text { margin-top: 6px; max-height: calc(3 * 1.3em); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; font-size: clamp(22px, 3.2vw, 32px); line-height: 1.3; font-weight: 500; color: var(--text); }
+
 .op-qr { width: 200px; height: 200px; background: #fff; border-radius: 10px; padding: 6px; margin-top: 18px; }

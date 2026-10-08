@@ -104,16 +104,17 @@ export function AgentOrb({ id, status, chip, satellites, spotlight = 'none' }: {
       <group ref={group}>
         <Billboard>
           <group ref={body}>
-            <mesh ref={face}>
+            {/* como el Glitch central: se dibuja después de cables y cometas, que pasan por detrás */}
+            <mesh ref={face} renderOrder={9}>
               <planeGeometry args={[SIZE, SIZE]} />
-              <meshBasicMaterial map={tex.open} transparent alphaTest={0.05} depthWrite={false} toneMapped={false} />
+              <meshBasicMaterial map={tex.open} transparent alphaTest={0.05} depthWrite={false} depthTest={false} toneMapped={false} />
             </mesh>
           </group>
           <group ref={dots} visible={false}>
             {[-0.26, 0, 0.26].map((x) => (
-              <mesh key={x} position={[x, SIZE * 0.62, 0.05]}>
+              <mesh key={x} position={[x, SIZE * 0.62, 0.05]} renderOrder={9}>
                 <circleGeometry args={[0.085, 20]} />
-                <meshBasicMaterial color={color} toneMapped={false} />
+                <meshBasicMaterial color={color} transparent depthTest={false} toneMapped={false} />
               </mesh>
             ))}
           </group>
