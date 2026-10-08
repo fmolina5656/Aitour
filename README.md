@@ -1,123 +1,177 @@
 # Readymind · Microsoft AI Tour México — "Cuéntame tu problema y en 3 minutos te armo la solución"
 
-Demo de stand: un visitante cuenta un problema de negocio y un **equipo de agentes de IA** (Microsoft Agent Framework +
-Microsoft Foundry) diseña en vivo la solución, la cuestiona entre sí (costo, riesgo regulatorio) y entrega un one-pager
-ejecutivo. Pantalla pensada para 1920×1080, vista de lejos.
+Demo de stand. El visitante le cuenta **por voz** un problema de negocio a una recepcionista de IA (Microsoft Foundry
+voice agent). Después, un **equipo de 4 agentes** (Microsoft Agent Framework + Microsoft Foundry) diseña la solución en
+vivo y la discute entre sí: el Financiero objeta el costo y Riesgo objeta por datos personales y LFPDPPP. Al final
+entrega un one-pager ejecutivo que el visitante recibe en PDF escaneando un QR.
 
-> **Estado: Fase 1 lista** (orquestación multiagente por texto + UI del grafo, con modo mock y replay básicos).
-> Ver [Roadmap](#roadmap).
+Todo se ve en una escena 3D (Three.js) pensada para una pantalla de 1920×1080 vista de lejos.
+
+> **Estado:** Fases 1 a 5 implementadas y probadas en modo simulado. Lo que necesita a Readymind o recursos de Azure
+> reales está en **[PENDIENTES.md](PENDIENTES.md)**.
+>
+> - Operación del stand: [docs/CHECKLIST_EVENTO.md](docs/CHECKLIST_EVENTO.md)
+> - Guion de 5 minutos: [docs/GUION_STAND.md](docs/GUION_STAND.md)
+> - Correo con Power Automate: [docs/POWER_AUTOMATE.md](docs/POWER_AUTOMATE.md)
+
+## Flujo de una sesión (meta: < 4 minutos)
+
+| Tiempo | Qué pasa | Dónde vive |
+|---|---|---|
+| 0:00 | Pantalla en espera. El visitante presiona **V** (o el botón) | `frontend/src/App.tsx` |
+| 0:00–1:15 | Entrevista por voz: máximo 3 preguntas, transcripción en el chat, núcleo 3D que late con la voz | `backend/app/voice/` |
+| 1:15 | Tarjeta **"Esto entendí"**: confirma con la voz, con el botón o con Enter | `VoiceUI.tsx` |
+| 1:15 | **Gobierno**: Prompt Shields + validación de tema. Un ataque se bloquea en pantalla antes de llegar a un modelo | `backend/app/guard.py` |
+| 1:20–3:00 | **Enjambre**: Arquitecto → Financiero (objeta) → Arquitecto ajusta → Financiero aprueba → Riesgo (objeta) → Arquitecto ajusta → Redactor | `backend/app/swarm/` |
+| 3:00 | Núcleo → one-pager con onda expansiva; **QR** en pantalla | `backend/app/onepager/` |
+| 3:00–4:00 | El visitante escanea, deja sus datos con consentimiento y recibe el PDF | `/lead/{sesión}` |
 
 ## Arquitectura
 
 ```
-Pantalla (React + Vite) ──WS /ws/stage──► FastAPI (Python 3.12, Azure Container Apps)
-                                            ├─ SessionManager (estado, timeouts, reset)
-                                            ├─ EventBus ─► Recorder (JSONL) ─► Replay
-                                            ├─ Enjambre MAF: GroupChatBuilder + selection_func determinista
-                                            │    Arquitecto · Financiero · Riesgo · Redactor  (FoundryChatClient)
-                                            ├─ Calculador de costos (pricing/catalogo.json) + generador Mermaid
-                                            └─ [Fase 3] Recepcionista: Microsoft Foundry voice agent (preview)
+ Pantalla 1920×1080 (React + Three.js)          Celular del visitante
+   │ WS /ws/stage   ◄── eventos ──┐               │ HTTPS /lead/{sesión}?t=…  (QR firmado)
+   │ WS /ws/voice   ⇄ PCM16 24kHz │               ▼
+   ▼                              │   ┌──────── Backend FastAPI · Azure Container Apps (1 réplica, Managed Identity) ────────┐
+ Micrófono (AudioWorklet)         └───┤ SessionManager: entrevista → guardia → enjambre → one-pager (timeouts, reset, failover) │
+                                      │ EventBus ─► Recorder (JSONL, curado automático) ─► Replay con la misma UI              │
+                                      │ Voz: relay ⇄ Foundry voice agent (gpt-realtime, es-MX, VAD multilingüe, ruido)        │
+                                      │ Guardia: Prompt Shields (Content Safety, Entra ID) + clasificador de tema (nano)        │
+                                      │ Enjambre MAF: GroupChatBuilder + director determinista · FoundryChatClient (Responses)  │
+                                      │ Calculador de costos (pricing/*.json) · generador de arquitectura                     │
+                                      │ One-pager: Jinja2 → Chromium → PDF · QR (segno) · leads CSV/JSONL · Power Automate     │
+                                      └──── OpenTelemetry → Application Insights (conectado al proyecto: Tracing de Foundry) ─┘
 ```
 
-Decisiones clave:
+**Decisiones clave**
 
-- **Todo lo que se ve es un evento del bus** (`backend/app/events.py`). El grabador persiste esos eventos, por eso el
-  **replay usa exactamente la misma UI**.
-- **El LLM no inventa números ni dibuja**: el Arquitecto devuelve componentes estructurados; Python calcula el costo con
-  `backend/pricing/catalogo.json` y genera el Mermaid. Diagrama y costo siempre son consistentes.
-- **El debate es real**: el director (`backend/app/swarm/director.py`) inyecta al Financiero la tabla del calculador; si un
-  modelo premium concentra ≥ 40 % del costo (o se pasa el presupuesto) el Financiero objeta y el Arquitecto ajusta.
-  Riesgo objeta si falta un control (PII, llaves, residencia). Máximo de rondas configurable.
-- **Presupuesto de tiempo**: timeout global del enjambre (110 s internos, 120 s en pantalla), watchdog de inactividad por
-  turno y degradación elegante (si algo falla, el one-pager se arma con la última versión disponible).
+- **Todo lo que se ve es un evento del bus** (`backend/app/events.py`). El grabador guarda esos eventos, así que el
+  replay usa exactamente la misma pantalla.
+- **El modelo no inventa números.** El Arquitecto devuelve componentes estructurados y Python calcula el costo con
+  `backend/pricing/catalogo.json`. Arquitectura y costo siempre coinciden.
+- **El debate es real.** El director (`backend/app/swarm/director.py`) le pasa al Financiero la tabla del calculador.
+  - El Financiero objeta si un modelo premium concentra ≥ 40 % del costo o si se pasa del presupuesto.
+  - Riesgo objeta si falta un control (PII, llaves, residencia de datos).
+- **Presupuesto de tiempo duro.**
+  - Entrevista: cierre suave a los 70 s y corte a los 95 s.
+  - Enjambre: corta a los 110 s (en pantalla se muestran 120 s), con vigilancia de inactividad por turno.
+  - Si algo falla, el one-pager se arma igual con lo último disponible.
+- **Resiliencia.**
+  - Si Foundry falla antes de que hable un agente, se reproduce una sesión grabada real.
+  - La tecla **P** fuerza el replay.
+  - Si no hay micrófono, se sigue por teclado.
 
-### Versiones verificadas (oct-2026)
+### Versiones verificadas (octubre 2026)
 
 | Paquete | Versión | Nota |
 |---|---|---|
 | `agent-framework-core` | 1.20.0 | GA |
 | `agent-framework-foundry` | 1.14.0 | Reemplaza a `agent-framework-azure-ai` (congelado en rc6) |
 | `agent-framework-orchestrations` | 1.3.0 | `GroupChatBuilder` |
-| `azure-ai-projects[voice]` | 2.7.x | `agent-framework-foundry` exige `<2.8`; voice agents disponibles desde 2.7 |
+| `azure-ai-projects[voice]` | 2.7.x | Voice agents (preview); `agent-framework-foundry` exige `<2.8` |
+| `three` / `@react-three/fiber` / `drei` | 0.186.1 / 9.8.1 / 10.7.9 | `postprocessing` exige three `<0.187` |
+| API de Prompt Shields | 2024-09-01 | `text:shieldPrompt` con token de Entra |
+| Foundry en Bicep | `Microsoft.CognitiveServices/accounts@2025-06-01` | `kind: AIServices`, `allowProjectManagement` |
 
-## Cómo correrla (desarrollo, sin Azure)
+## Correrla en local sin Azure (modo simulado)
 
 ```bash
 # Backend
 cd backend
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -e ".[dev]"
-cp ../.env.example ../.env            # DEMO_MODE=mock por defecto
+.venv/bin/python -m playwright install chromium     # para el PDF del one-pager
+cp ../.env.example ../.env                          # DEMO_MODE=mock por defecto
 .venv/bin/uvicorn app.main:app --port 8000
 
-# Frontend (otra terminal)
-cd frontend && npm install && npm run dev   # http://localhost:5173 (proxy a :8000)
+# Frontend
+cd frontend && npm install && npm run build         # luego abrir http://localhost:8000
+# (o `npm run dev` → http://localhost:5173 con proxy a :8000)
 ```
 
-O sirviendo el build desde el backend: `cd frontend && npm run build` y abrir `http://localhost:8000`.
+En modo `mock` todo funciona sin Azure:
+- **Enjambre:** se recorre el mismo camino de orquestación de MAF, con respuestas simuladas.
+- **Recepcionista:** es simulada. Responde a lo que escribes y, si hay micrófono, a ~3 s de audio por respuesta.
+- **Guardia:** usa heurísticas locales en lugar de Prompt Shields.
+- **Salida:** el PDF, el QR y los leads son reales.
 
-### Pantalla (Three.js)
-
-Escena 3D a pantalla completa (React Three Fiber + drei + postprocessing) con un HUD translúcido encima.
-
-- El problema del visitante es un **núcleo** en el centro. Los 4 agentes son **orbes** a su alrededor, con anillos que
-  giran mientras trabajan.
-- Cada traspaso es un **cometa con estela** que viaja en arco. Las **objeciones** son cometas ámbar que vuelan más alto
-  y vuelven hacia atrás; el orbe que objeta destella en ámbar.
-- Los **satélites** de cada agente (su modelo en Foundry y su herramienta) lo orbitan. Se encienden con un haz y muestran
-  su nombre en cada llamada.
-- La **cámara** se acerca suave al agente que habla. Al final todos disparan hacia el núcleo, que se convierte en el
-  one-pager con una onda expansiva.
-- Las etiquetas son HTML (drei `Html`), nítidas a cualquier distancia. A la derecha va la conversación; abajo,
-  arquitectura por capas, costo y gobierno.
-
-**Calidad gráfica.** Si la laptop no sostiene los FPS, la escena apaga bloom y estrellas automáticamente
-(`PerformanceMonitor`). Para forzarla: `?quality=high` o `?quality=low` en la URL, o `VITE_QUALITY=low` al compilar.
-
-### Atajos de teclado (pantalla)
+### Teclas de la pantalla
 
 | Tecla | Acción |
 |---|---|
-| `T` | Escribir el problema (fallback a teclado) |
-| `R` | Reset de la demo (< 1 s) |
+| `V` | Empezar la entrevista por voz |
+| `T` | Escribir (durante la entrevista: responder por teclado) |
+| `Enter` | Confirmar "Esto entendí" |
 | `O` | Ver/ocultar el one-pager |
+| `R` | Reset de la demo (< 1 s) |
+| `P` | Operador: reproducir ya una sesión grabada (si se cae la red) |
 | `F` | Pantalla completa |
-| `Esc` | Cerrar el formulario |
 
-### Modos (`DEMO_MODE`)
+### Modos (`DEMO_MODE`) y calidad gráfica
 
-- `mock`: mismo camino de orquestación MAF con un cliente simulado (`backend/app/swarm/mock.py`). Sin costo.
-- `live`: Microsoft Foundry real vía `FoundryChatClient` (Responses API) con `DefaultAzureCredential`.
-- `replay`: reproduce la sesión curada más reciente de `recordings/curated/` (o `REPLAY_FILE`). La pantalla muestra
-  "● Sesión grabada".
+- `live`: Microsoft Foundry real. `mock`: sin Azure. `replay`: solo sesiones grabadas.
+- El modo se cambia en caliente con `POST /api/mode`.
+- La escena apaga bloom y estrellas sola si bajan los FPS. Para forzar la calidad: `?quality=high` o `?quality=low`.
 
-Las sesiones completas, sin errores y dentro del presupuesto se curan automáticamente en `recordings/curated/`.
+## Despliegue en Azure (azd + Bicep)
 
-### Tests
+`infra/` crea, con Managed Identity y sin keys:
+
+- **Foundry:** cuenta `AIServices` con `disableLocalAuth`, el proyecto y los deployments de modelos.
+- **Guardrail `readymind-stand`:** filtros de contenido más Prompt Shields directos e indirectos, en modo bloqueo.
+- **Observabilidad:** Log Analytics y Application Insights, conectado al proyecto.
+- **App:** Container Apps (una réplica siempre encendida, con WebSockets), ACR, y Azure Files montado en `/data`.
+- **Roles:** Azure AI User y Cognitive Services User para la identidad de la app y para quien despliega.
 
 ```bash
-cd backend && .venv/bin/python -m pytest -q
+azd auth login
+azd env new readymind-aitour
+azd env set AZURE_LOCATION eastus2          # región con voice agents (preview) y los modelos elegidos
+# 1) Completar modelDeployments en infra/main.parameters.json (ver infra/models.example.json)
+# 2) Opcional: azd env set POWER_AUTOMATE_URL "<URL del disparador HTTP>"
+azd up                                       # provisiona, construye la imagen en ACR y despliega
 ```
 
-## Pendientes conocidos
+- **Voice agent:** el hook `postprovision` lo crea con `python -m scripts.create_voice_agent`; también se puede correr
+  a mano.
+- **Revisar antes del evento:** `cd backend && python -m scripts.preflight` contra el entorno real (ver el checklist).
+- **Imagen:** el `Dockerfile` de la raíz construye frontend + backend + Chromium en una sola imagen.
 
-- **Marca**: la paleta sale de readymind.ms (verde `#66DE7F`, azul `#2C68F5`, degradado `#66DE7F → #53B6AD → #397EF6`,
-  navy `#11243E`) y está toda en `frontend/src/branding.css`. Logo en `frontend/public/brand/`; la versión para fondo
-  oscuro (`readymind-logo-dark.png`) se generó poniendo en blanco la palabra "Ready". Conviene reemplazarla por el
-  logo negativo oficial en SVG.
-- **Tipografía Satoshi**: se carga desde Fontshare. Para no depender de la red en el stand, descargar Satoshi
-  (gratuita, ITF Free Font License) desde fontshare.com y copiar `Satoshi-Variable.woff2` a `frontend/public/fonts/`.
-- **Precios**: `backend/pricing/*.json` son referenciales y deben validarse con la Azure Pricing Calculator antes del evento.
-- **Regulación**: `backend/knowledge/regulacion_mx.md` debe revisarlo el área legal de Readymind.
+## Scripts de operación (`backend/scripts/`)
 
-## Roadmap
+| Script | Para qué |
+|---|---|
+| `create_voice_agent` | Crea o versiona el voice agent recepcionista en el proyecto |
+| `preflight` | Chequeo de punta a punta antes de abrir el stand (sale con 1 si algo crítico falla) |
+| `loadtest --sessions 10` | Prueba de carga contra el backend en marcha (sin degradación ni crecimiento de memoria) |
+| `retry_outbox` | Reenvía a Power Automate los leads que quedaron pendientes |
 
-1. ✅ **Fase 1** — Enjambre multiagente por texto + UI del grafo (incluye mock, grabación y replay básicos).
-2. **Fase 2** — Panel de gobierno: OpenTelemetry → Application Insights del proyecto Foundry, Prompt Shields previos al
-   enjambre, clasificador de tema, eventos de guardrails/content filter en pantalla.
-3. **Fase 3** — Voz con **Microsoft Foundry voice agents** (preview, `kind: voice`): recepcionista en es-MX
-   (`es-MX-Ximena:DragonHDLatestNeural`), `azure_semantic_vad_multilingual`, `azure_deep_noise_suppression`, herramienta
-   de función `cerrar_entrevista`, confirmación del brief y fallback a teclado.
-4. **Fase 4** — One-pager → PDF, QR, formulario de leads con aviso de privacidad (LFPDPPP), CSV/JSONL.
-5. **Fase 5** — Endurecimiento: failover automático a replay, prueba de carga (10 sesiones), Bicep/azd para
-   Azure Container Apps + Managed Identity, checklist del evento y guion de 5 minutos.
-6. **Al final** — Envío del PDF por mail vía **Power Automate** (flujo con disparador HTTP).
+## Tests
+
+```bash
+cd backend && .venv/bin/python -m pytest -q       # 28 tests
+```
+
+Cubren:
+- **Enjambre:** debate completo, corte por tiempo, costos deterministas.
+- **Guardia:** jailbreak, fuera de tema, llamada REST real simulada, respaldo local y bloqueo de la sesión.
+- **Voz:** definición válida del agente, entrevista completa por WebSocket y corte duro.
+- **Salida:** PDF real, QR firmado, consentimiento, outbox, Power Automate y límite de envíos.
+- **Resiliencia:** failover real y reset a mitad del enjambre.
+
+## Estructura
+
+```
+backend/app/         config, events (bus), session (estados), guard, telemetry, recorder (grabación y replay)
+  swarm/             agentes, prompts, director, mock, runner (MAF)
+  voice/             definición del voice agent, backends (Foundry / simulado), relay de la entrevista
+  onepager/          render (HTML → PDF), store (QR firmado), leads (CSV/JSONL + Power Automate), plantillas
+backend/scripts/     create_voice_agent, preflight, loadtest, retry_outbox
+backend/pricing/     catálogo de precios configurable (referencial)
+backend/knowledge/   base regulatoria MX para el agente de Riesgo (revisión legal pendiente)
+backend/seed/        sesión semilla para el replay de respaldo
+frontend/src/scene/  escena 3D (núcleo, orbes, cometas, satélites, cámara)
+frontend/src/voice/  micrófono (AudioWorklet), reproducción y sesión de voz
+frontend/src/branding.css   ÚNICO lugar con la paleta y la tipografía de Readymind
+infra/               Bicep (azd) · azure.yaml · Dockerfile
+docs/                checklist del evento, guion de 5 minutos, Power Automate
+```
