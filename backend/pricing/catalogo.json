@@ -1,0 +1,32 @@
+{
+  "moneda": "USD",
+  "vigencia": "2026-10 · PRECIOS DE REFERENCIA POR VALIDAR con la Azure Pricing Calculator antes del evento",
+  "disclaimer": "Estimación referencial de costo mensual, sin impuestos ni descuentos (EA/CSP). No constituye una cotización. Readymind valida el dimensionamiento final con el cliente.",
+  "items": {
+    "foundry.gpt-5.4": {"nombre": "Foundry · GPT-5.4", "categoria": "IA", "unidad": "1M tokens (mezcla 3:1 entrada/salida)", "precio_usd": 5.0, "premium": true},
+    "foundry.gpt-5.4-mini": {"nombre": "Foundry · GPT-5.4 mini", "categoria": "IA", "unidad": "1M tokens (mezcla 3:1)", "precio_usd": 0.9},
+    "foundry.gpt-5.4-nano": {"nombre": "Foundry · GPT-5.4 nano", "categoria": "IA", "unidad": "1M tokens (mezcla 3:1)", "precio_usd": 0.2},
+    "foundry.embeddings": {"nombre": "Foundry · text-embedding-3-large", "categoria": "IA", "unidad": "1M tokens", "precio_usd": 0.13},
+    "foundry.agent_service": {"nombre": "Foundry Agent Service", "categoria": "IA", "unidad": "mes (orquestación; el consumo se cobra por modelo/herramienta)", "precio_usd": 0.0},
+    "voice.voice_live_standard": {"nombre": "Voice Live (Standard)", "categoria": "Voz", "unidad": "hora de audio", "precio_usd": 1.5},
+    "speech.stt": {"nombre": "Azure Speech · voz a texto", "categoria": "Voz", "unidad": "hora de audio", "precio_usd": 1.0},
+    "doc_intelligence.read": {"nombre": "Document Intelligence · Read", "categoria": "Datos", "unidad": "1,000 páginas", "precio_usd": 1.5},
+    "doc_intelligence.prebuilt": {"nombre": "Document Intelligence · modelos prebuilt (facturas, IDs)", "categoria": "Datos", "unidad": "1,000 páginas", "precio_usd": 10.0},
+    "ai_search.basic": {"nombre": "Azure AI Search · Basic", "categoria": "Datos", "unidad": "unidad de búsqueda/mes", "precio_usd": 75.0},
+    "ai_search.s1": {"nombre": "Azure AI Search · Standard S1", "categoria": "Datos", "unidad": "unidad de búsqueda/mes", "precio_usd": 250.0},
+    "cosmosdb.serverless": {"nombre": "Azure Cosmos DB · serverless", "categoria": "Datos", "unidad": "1M RU", "precio_usd": 0.25},
+    "sql.serverless": {"nombre": "Azure SQL Database · serverless", "categoria": "Datos", "unidad": "mes (2 vCore prom.)", "precio_usd": 380.0},
+    "storage.blob_hot": {"nombre": "Azure Blob Storage · Hot", "categoria": "Datos", "unidad": "TB/mes", "precio_usd": 21.0},
+    "fabric.f2": {"nombre": "Microsoft Fabric · F2", "categoria": "Datos", "unidad": "capacidad/mes", "precio_usd": 263.0},
+    "container_apps": {"nombre": "Azure Container Apps", "categoria": "Cómputo", "unidad": "réplica activa/mes (1 vCPU, 2 GiB)", "precio_usd": 70.0},
+    "functions.flex": {"nombre": "Azure Functions · Flex Consumption", "categoria": "Cómputo", "unidad": "1M ejecuciones", "precio_usd": 0.4},
+    "app_service.p1v3": {"nombre": "App Service · P1v3", "categoria": "Cómputo", "unidad": "instancia/mes", "precio_usd": 125.0},
+    "logic_apps.standard": {"nombre": "Logic Apps · Standard WS1", "categoria": "Integración", "unidad": "plan/mes", "precio_usd": 180.0},
+    "apim.basicv2": {"nombre": "API Management · Basic v2", "categoria": "Integración", "unidad": "unidad/mes", "precio_usd": 150.0},
+    "service_bus.standard": {"nombre": "Service Bus · Standard", "categoria": "Integración", "unidad": "mes base", "precio_usd": 10.0},
+    "content_safety": {"nombre": "Azure AI Content Safety", "categoria": "Gobierno", "unidad": "1,000 registros de texto", "precio_usd": 0.38},
+    "app_insights": {"nombre": "Application Insights / Log Analytics", "categoria": "Gobierno", "unidad": "GB ingerido", "precio_usd": 2.3},
+    "key_vault": {"nombre": "Azure Key Vault", "categoria": "Gobierno", "unidad": "10,000 operaciones", "precio_usd": 0.03},
+    "purview": {"nombre": "Microsoft Purview · Data Map", "categoria": "Gobierno", "unidad": "capacidad/mes", "precio_usd": 300.0}
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "nota": "Precio por 1M tokens de los modelos que usa la propia demo (panel de gobierno). Referencial: validar contra el precio vigente de tus deployments.",
+  "modelos": {
+    "gpt-5.4": {"input": 2.5, "output": 15.0},
+    "gpt-5.4-mini": {"input": 0.4, "output": 2.4},
+    "gpt-5.4-nano": {"input": 0.1, "output": 0.6},
+    "gpt-5-mini": {"input": 0.25, "output": 2.0},
+    "gpt-4.1": {"input": 2.0, "output": 8.0},
+    "gpt-4.1-mini": {"input": 0.4, "output": 1.6},
+    "default": {"input": 1.0, "output": 4.0}
+  }
+}

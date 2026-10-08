@@ -1,0 +1,37 @@
+/*
+ * Tokens de marca Readymind. ÚNICO lugar donde se definen colores y tipografía.
+ * TODO(marca): reemplazar con la paleta oficial de https://www.readymind.ms/es/
+ * (el sitio no fue accesible desde el entorno de desarrollo; valores provisorios).
+ */
+:root {
+  /* Fondo y superficies (estética oscura para pantalla de stand) */
+  --rm-bg: #070b1a;
+  --rm-bg-2: #0d1430;
+  --rm-surface: #121a3a;
+  --rm-surface-2: #1a2450;
+  --rm-border: #2a3570;
+
+  /* Marca */
+  --rm-primary: #2f6bff;
+  --rm-primary-2: #00c2ff;
+  --rm-accent: #7a5cff;
+
+  /* Texto */
+  --rm-text: #f2f5ff;
+  --rm-text-dim: #9aa6d6;
+
+  /* Estados */
+  --rm-ok: #2bd98a;
+  --rm-warn: #ffb547;
+  --rm-danger: #ff5470;
+
+  /* Color de cada agente en el grafo */
+  --agent-arquitecto: #2f6bff;
+  --agent-financiero: #2bd98a;
+  --agent-riesgo: #ffb547;
+  --agent-redactor: #c58bff;
+  --agent-recepcionista: #00c2ff;
+
+  --rm-font: 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --rm-radius: 18px;
+}

@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+frontend/dist/
+# Grabaciones de sesiones (pueden contener lo que dijeron los visitantes)
+recordings/*
+!recordings/.gitkeep
+leads/
+.azure/
