@@ -5,7 +5,10 @@ import type { StageState, Turn } from '../types'
 /** La charla entre agentes, en orden. El mensaje más reciente se ve más grande. */
 export function ChatLog({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: () => void }) {
   const end = useRef<HTMLDivElement>(null)
-  useEffect(() => end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), [s.turns.length, s.live?.text, s.phase])
+  // Con llaves: en Chrome reciente scrollIntoView devuelve una Promise y React no acepta eso como limpieza del efecto.
+  useEffect(() => {
+    void end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+  }, [s.turns.length, s.live?.text, s.phase])
 
   if (s.phase === 'idle' && !s.interview.active && !s.interview.lines.length) {
     return (

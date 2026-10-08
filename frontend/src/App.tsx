@@ -24,7 +24,9 @@ export default function App() {
   const latest = useRef({ s, voice, interviewing })
   latest.current = { s, voice, interviewing }
 
-  useEffect(() => setShowOnePager(false), [s.sessionId])
+  useEffect(() => {
+    setShowOnePager(false)
+  }, [s.sessionId])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
