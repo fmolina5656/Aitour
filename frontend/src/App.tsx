@@ -8,7 +8,8 @@ import { TextInput } from './components/TextInput'
 import { Scene } from './scene/Scene'
 import { api, useStage } from './useStage'
 
-const LOGO_URL = import.meta.env.VITE_BRAND_LOGO_URL as string | undefined
+// Versión del logo para fondo oscuro (la palabra "Ready" en blanco); se puede reemplazar por VITE_BRAND_LOGO_URL.
+const LOGO_URL = (import.meta.env.VITE_BRAND_LOGO_URL as string | undefined) ?? '/brand/readymind-logo-dark.png'
 
 export default function App() {
   const s = useStage()
@@ -49,8 +50,10 @@ export default function App() {
     <div className="stage">
       <header className="header">
         <div className="brand">
-          {LOGO_URL ? <img src={LOGO_URL} alt="Readymind" className="logo" /> : <span className="logo-text">readymind</span>}
-          <span className="title">Cuéntame tu problema y en 3 minutos te armo la solución</span>
+          <img src={LOGO_URL} alt="Readymind" className="logo" />
+          <span className="title">
+            Cuéntame tu problema y <span className="brand-gradient-text">en 3 minutos te armo la solución</span>
+          </span>
         </div>
         <div className="status">
           {s.mode === 'replay' && <span>Sesión grabada</span>}

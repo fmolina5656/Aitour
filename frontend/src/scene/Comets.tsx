@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
-import { MathUtils, TubeGeometry, type Color, type InstancedMesh, type MeshBasicMaterial, Object3D } from 'three'
+import { useLayoutEffect, useMemo, useRef } from 'react'
+import { Color, MathUtils, TubeGeometry, type InstancedMesh, type MeshBasicMaterial, Object3D } from 'three'
 import type { Handoff } from '../types'
 import { arcBetween, cssColor } from './layout'
 
@@ -10,6 +10,7 @@ const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 
 export function Links({ handoffs }: { handoffs: Handoff[] }) {
   const accent = useMemo(() => cssColor('--accent'), [])
   const alert = useMemo(() => cssColor('--alert'), [])
+  const green = useMemo(() => cssColor('--brand-green'), [])
 
   const pairs = useMemo(() => {
     const m = new Map<string, Handoff & { last: number }>()
@@ -30,7 +31,7 @@ export function Links({ handoffs }: { handoffs: Handoff[] }) {
         <Cable key={`${p.from}->${p.to}`} h={p} color={p.objection ? alert : accent} fresh={p.last === lastSeq} />
       ))}
       {recent.map((h) => (
-        <Comet key={h.seq} h={h} color={h.objection ? alert : accent} />
+        <Comet key={h.seq} h={h} head={h.objection ? alert : accent} tail={h.objection ? alert : green} />
       ))}
     </>
   )
@@ -58,13 +59,23 @@ const dummy = new Object3D()
  * Cometa: cabeza brillante + cola de partículas muestreadas sobre la MISMA curva (sin artefactos).
  * Un solo InstancedMesh por cometa.
  */
-function Comet({ h, color }: { h: Handoff; color: Color }) {
+function Comet({ h, head, tail }: { h: Handoff; head: Color; tail: Color }) {
   const curve = useMemo(() => arcBetween(h.from, h.to, h.objection), [h.from, h.to, h.objection])
   const mesh = useRef<InstancedMesh>(null)
   const t = useRef(0)
-  const bright = useMemo(() => color.clone().multiplyScalar(3), [color])
   const size = h.objection ? 0.2 : 0.15
   const dur = h.objection ? 1.7 : 1.35
+  // Cola con el degradado de marca: cabeza azul → cola verde (como "READY"). Valores > 1 para el bloom.
+  useLayoutEffect(() => {
+    const m = mesh.current
+    if (!m) return
+    const c = new Color()
+    for (let i = 0; i < TAIL; i++) {
+      c.copy(head).lerp(tail, i / TAIL).multiplyScalar(3)
+      m.setColorAt(i, c)
+    }
+    if (m.instanceColor) m.instanceColor.needsUpdate = true
+  }, [head, tail])
   useFrame((_, dt) => {
     t.current = Math.min(t.current + dt / dur, 1.6)
     const m = mesh.current
@@ -84,7 +95,7 @@ function Comet({ h, color }: { h: Handoff; color: Color }) {
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, TAIL]} frustumCulled={false}>
       <sphereGeometry args={[1, 12, 12]} />
-      <meshBasicMaterial color={bright} toneMapped={false} transparent opacity={0.9} depthWrite={false} />
+      <meshBasicMaterial toneMapped={false} transparent opacity={0.9} depthWrite={false} />
     </instancedMesh>
   )
 }

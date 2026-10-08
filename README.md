@@ -100,8 +100,12 @@ cd backend && .venv/bin/python -m pytest -q
 
 ## Pendientes conocidos
 
-- **Paleta de marca**: `frontend/src/branding.css` tiene valores provisorios. `www.readymind.ms` está bloqueado por la
-  política de red del entorno de desarrollo; reemplazar los tokens (y `VITE_BRAND_LOGO_URL`) con la paleta oficial.
+- **Marca**: la paleta sale de readymind.ms (verde `#66DE7F`, azul `#2C68F5`, degradado `#66DE7F → #53B6AD → #397EF6`,
+  navy `#11243E`) y está toda en `frontend/src/branding.css`. Logo en `frontend/public/brand/`; la versión para fondo
+  oscuro (`readymind-logo-dark.png`) se generó poniendo en blanco la palabra "Ready". Conviene reemplazarla por el
+  logo negativo oficial en SVG.
+- **Tipografía Satoshi**: se carga desde Fontshare. Para no depender de la red en el stand, descargar Satoshi
+  (gratuita, ITF Free Font License) desde fontshare.com y copiar `Satoshi-Variable.woff2` a `frontend/public/fonts/`.
 - **Precios**: `backend/pricing/*.json` son referenciales y deben validarse con la Azure Pricing Calculator antes del evento.
 - **Regulación**: `backend/knowledge/regulacion_mx.md` debe revisarlo el área legal de Readymind.
 

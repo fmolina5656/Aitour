@@ -8,7 +8,7 @@ import { AgentOrb } from './AgentOrb'
 import { CameraRig } from './CameraRig'
 import { Links } from './Comets'
 import { Core } from './Core'
-import { AGENT_POS } from './layout'
+import { AGENT_POS, cssColor } from './layout'
 import type { SatelliteSpec } from './Satellites'
 
 // Calidad: ?quality=high|low en la URL la fuerza; si no, VITE_QUALITY=low o degradación automática por FPS.
@@ -38,14 +38,15 @@ export function Scene({ s }: { s: StageState }) {
   }, [s.models, s.subPulses])
 
   const done = s.status.onepager === 'done'
+  const theme = useMemo(() => ({ bg: cssColor('--bg'), cell: cssColor('--grid-cell'), section: cssColor('--grid-section') }), [])
   const coreTitle = done ? 'One-pager listo' : s.brief ? 'Tu problema' : 'Esperando tu problema'
   const coreSub = done ? (s.cost ? `${money(s.cost.total_usd)}/mes estimado` : undefined) : s.brief?.industria
 
   return (
     <Canvas className="scene" dpr={[1, 1.5]} camera={{ position: [3.6, 10, 19], fov: 40 }} gl={{ antialias: true, powerPreference: 'high-performance' }}>
       {!FORCED && <PerformanceMonitor onDecline={() => setLow(true)} onFallback={() => setLow(true)} flipflops={3} />}
-      <color attach="background" args={['#04060a']} />
-      <fog attach="fog" args={['#04060a', 20, 42]} />
+      <color attach="background" args={[theme.bg]} />
+      <fog attach="fog" args={[theme.bg, 20, 42]} />
       <ambientLight intensity={0.25} />
       <directionalLight position={[4, 10, 6]} intensity={0.6} />
       {!low && <Stars radius={70} depth={40} count={2600} factor={3.2} saturation={0} fade speed={0.4} />}
@@ -54,10 +55,10 @@ export function Scene({ s }: { s: StageState }) {
         infiniteGrid
         cellSize={0.6}
         cellThickness={0.6}
-        cellColor="#101622"
+        cellColor={theme.cell}
         sectionSize={3}
         sectionThickness={1}
-        sectionColor="#1a2333"
+        sectionColor={theme.section}
         fadeDistance={30}
         fadeStrength={1.6}
       />

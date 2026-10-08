@@ -1,36 +1,70 @@
 /*
  * Tokens de marca Readymind. ÚNICO lugar donde se definen colores y tipografía.
- * TODO(marca): reemplazar con la paleta oficial de https://www.readymind.ms/es/
- * (el sitio no fue accesible desde el entorno de desarrollo; valores provisorios).
+ * Paleta tomada de readymind.ms (muestreada de capturas del sitio):
+ *   verde #66DE7F · azul #2C68F5 · degradado "READY" #66DE7F → #53B6AD → #397EF6
+ *   texto #2D2D2D · navy #11243E · fondos claros #EFEFEF / #E8E8E8
+ * La pantalla del stand es oscura: los fondos derivan del navy de marca.
  */
 :root {
-  --bg: #0d0f12;
-  --surface: #15181d;
-  --node-bg: #1b1f26;
-  --node-border: #2c323c;
-  --line: #232830;
-  --line-strong: #353c47;
-  --grid-dot: #262b33;
-  --glass: rgba(10, 13, 19, 0.58);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  /* Marca */
+  --brand-green: #66de7f;
+  --brand-teal: #53b6ad;
+  --brand-blue: #397ef6;
+  --brand-blue-deep: #2c68f5;
+  --brand-navy: #11243e;
+  --brand-ink: #2d2d2d;
+  --brand-gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
 
-  --text: #eef0f4;
-  --text-2: #b4bac5;
-  --text-3: #6f7784;
+  /* Fondos (navy de marca llevado a oscuro) */
+  --bg: #050a12;
+  --surface: #0b1424;
+  --node-bg: #0f1b2e;
+  --node-border: #1f3150;
+  --line: #16243a;
+  --line-strong: #24395a;
+  --grid-cell: #0d1a2c;
+  --grid-section: #15284a;
+  --glass: rgba(7, 14, 26, 0.62);
+  --glass-border: rgba(102, 222, 127, 0.1);
 
-  /* Acento de marca: cables activos y partículas */
-  --accent: #4f8cff;
-  --alert: #f5a524;
-  --ok: #22c55e;
+  /* Texto */
+  --text: #f3f6fa;
+  --text-2: #b7c2d2;
+  --text-3: #6f7f95;
 
-  /* Color de cada nodo */
-  --who-visitante: #b4bac5;
-  --who-arquitecto: #4f8cff;
-  --who-financiero: #2fd391;
-  --who-riesgo: #ff6b8a;
-  --who-redactor: #b794ff;
-  --who-onepager: #eef0f4;
+  /* Acentos: cables y cometas en azul de marca; el verde marca lo terminado */
+  --accent: #397ef6;
+  --alert: #ffb547;
+  --ok: #66de7f;
 
-  --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Agentes: los tres tonos del degradado de marca + su continuación natural */
+  --who-visitante: #b7c2d2;
+  --who-arquitecto: #397ef6;
+  --who-financiero: #66de7f;
+  --who-riesgo: #53b6ad;
+  --who-redactor: #8f8cf7;
+  --who-onepager: #f3f6fa;
+
+  /* Núcleo: neutro mientras es "tu problema", verde de marca al convertirse en solución */
+  --core: #b7c2d2;
+  --core-done: #66de7f;
+
+  --font: 'Satoshi', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --mono: 'Cascadia Mono', 'Consolas', ui-monospace, monospace;
+}
+
+/* Satoshi (ITF Free Font License). Si están los archivos en public/fonts se usan sin red;
+   si no, se cargan desde Fontshare (ver index.html). */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Variable.woff2') format('woff2');
+  font-weight: 300 900;
+  font-display: swap;
+}
+
+.brand-gradient-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }

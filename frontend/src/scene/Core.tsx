@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
-import { Color, MathUtils, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from 'three'
+import { MathUtils, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from 'three'
 import { CORE, cssColor } from './layout'
 
 /**
@@ -9,8 +9,8 @@ import { CORE, cssColor } from './layout'
  * y emite una onda expansiva).
  */
 export function Core({ title, subtitle, done, active }: { title: string; subtitle?: string; done: boolean; active: boolean }) {
-  const accent = useMemo(() => cssColor('--accent'), [])
-  const finale = useMemo(() => new Color('#ffffff'), [])
+  const accent = useMemo(() => cssColor('--core'), [])
+  const finale = useMemo(() => cssColor('--core-done'), [])
   const shell = useRef<Mesh>(null)
   const inner = useRef<Mesh>(null)
   const group = useRef<Group>(null)
@@ -46,12 +46,12 @@ export function Core({ title, subtitle, done, active }: { title: string; subtitl
         </mesh>
         <mesh ref={shell}>
           <icosahedronGeometry args={[1.0, 1]} />
-          <meshBasicMaterial color={done ? '#ffffff' : accent} wireframe transparent opacity={0.35} />
+          <meshBasicMaterial color={done ? finale : accent} wireframe transparent opacity={0.35} />
         </mesh>
       </group>
       <mesh ref={wave} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.9, 1, 96]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0} depthWrite={false} toneMapped={false} />
+        <meshBasicMaterial color={finale} transparent opacity={0} depthWrite={false} toneMapped={false} />
       </mesh>
       <Html position={[0, -1.95, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
         <div className={`core-label ${done ? 'done' : ''}`}>
