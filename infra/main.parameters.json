@@ -6,6 +6,7 @@
     "location": { "value": "${AZURE_LOCATION=eastus2}" },
     "principalId": { "value": "${AZURE_PRINCIPAL_ID}" },
     "powerAutomateUrl": { "value": "${POWER_AUTOMATE_URL=}" },
+    "leadSecret": { "value": "${LEAD_SECRET}" },
     "modelDeployments": {
       "value": [
         { "name": "gpt-5.4", "model": "gpt-5.4", "version": "2026-03-05", "sku": "GlobalStandard", "capacity": 100 },

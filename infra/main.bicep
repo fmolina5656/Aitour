@@ -16,9 +16,12 @@ param principalId string = ''
 @description('Deployments de modelos. Confirmar nombre/versión/capacidad disponibles en el catálogo de Foundry de la región.')
 param modelDeployments array = []
 
+// Fijo por entorno (azd env set LEAD_SECRET ...): si cambia, los QR ya mostrados dejan de valer.
+// Antes era newGuid() y se regeneraba en cada azd provision.
 @secure()
-@description('Firma de los links del QR. Se genera sola si no se indica.')
-param leadSecret string = newGuid()
+@minLength(32)
+@description('Firma de los links del QR (azd env set LEAD_SECRET "<valor de 32+ caracteres>").')
+param leadSecret string
 
 @secure()
 @description('URL del disparador HTTP de Power Automate que envía el correo (vacío = los leads quedan en outbox).')

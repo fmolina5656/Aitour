@@ -24,6 +24,10 @@ from .session import SessionManager
 from .swarm.schemas import Brief
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+# El SDK de Azure loguea en INFO cada request (incluidos los envíos de telemetría, que a su vez se exportan
+# a Application Insights): tapa los logs útiles y suma costo en Log Analytics.
+for _noisy in ("azure.core.pipeline.policies.http_logging_policy", "azure.monitor.opentelemetry.exporter", "azure.identity"):
+    logging.getLogger(_noisy).setLevel(logging.WARNING)
 
 settings = get_settings()
 telemetry.setup(settings)

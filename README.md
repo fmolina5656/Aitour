@@ -127,7 +127,9 @@ azd auth login
 azd env new readymind-aitour
 azd env set AZURE_LOCATION eastus2          # región con voice agents (preview) y los modelos elegidos
 # 1) Completar modelDeployments en infra/main.parameters.json (ver infra/models.example.json)
-# 2) Opcional: azd env set POWER_AUTOMATE_URL "<URL del disparador HTTP>"
+# 2) Firma de los QR, fija por entorno (si cambia, los QR ya mostrados dejan de valer):
+azd env set LEAD_SECRET "$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+# 3) Opcional: azd env set POWER_AUTOMATE_URL "<URL del disparador HTTP>"
 azd up                                       # provisiona, construye la imagen en ACR y despliega
 ```
 
