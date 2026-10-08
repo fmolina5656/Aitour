@@ -171,7 +171,10 @@ kbd { font-family: var(--mono); font-size: 13px; border: 1px solid var(--line-st
 @media (max-width: 900px) { .stage.tablet .row3 { grid-template-columns: 1fr; } }
 .tablet-bottom { position: fixed !important; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 16px 28px; pointer-events: none; }
 .tablet-bottom > * { pointer-events: auto; }
-.tablet-bottom .share { max-width: 640px; background: rgba(7, 14, 26, .85); backdrop-filter: blur(14px); }
+.tablet-share { position: fixed !important; top: 16px; right: 16px; width: 380px; max-width: calc(100vw - 32px); }
+.tablet-share .share { margin: 0; padding: 12px; gap: 12px; background: rgba(7, 14, 26, .85); backdrop-filter: blur(14px); }
+.tablet-share .share-qr { width: 120px; height: 120px; }
+.tablet-share .share-title { font-size: 17px; }
 .subtitle { width: min(1100px, 100%); text-align: center; text-shadow: 0 2px 14px #000, 0 0 4px #000; animation: rise .4s ease-out; }
 .subtitle-who { font-size: 18px; font-weight: 700; color: var(--c); letter-spacing: .3px; }
 .subtitle-action { font-weight: 400; color: var(--text-2); }

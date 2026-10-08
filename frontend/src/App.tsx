@@ -110,8 +110,11 @@ export default function App() {
         {s.interview.proposed && (
           <BriefCard brief={s.interview.proposed} onConfirm={voice.confirm} onCorrect={() => setFocusText((n) => n + 1)} />
         )}
-        <div className="tablet-bottom">
+        {/* el QR va a la esquina: abajo al centro tapaba a los mundos */}
+        <div className="tablet-share">
           <ShareCard s={s} onOpenOnePager={() => setShowOnePager(true)} />
+        </div>
+        <div className="tablet-bottom">
           <Subtitle s={s} />
         </div>
         {showText && <TextInput onClose={() => setShowText(false)} />}
