@@ -66,9 +66,16 @@ export function ChatLog({ s, onOpenOnePager }: { s: StageState; onOpenOnePager: 
           </div>
         )}
         {s.phase === 'done' && s.onepager && (
-          <button className="btn primary chat-cta" onClick={onOpenOnePager}>
-            Ver one-pager <kbd>O</kbd>
-          </button>
+          <div className="share">
+            {s.share ? <img className="share-qr" src={s.share.qrUrl} alt="QR para recibir el one-pager" /> : null}
+            <div className="share-text">
+              <div className="share-title">{s.leadReceived ? '✓ ¡Recibido! Va en camino a tu correo' : 'Escanea y recibe tu one-pager en PDF'}</div>
+              <div className="muted">{s.leadReceived ? 'Gracias por visitarnos.' : s.share ? 'Deja tu nombre, empresa y correo.' : 'Pídeselo a nuestro equipo en el stand.'}</div>
+              <button className="btn" onClick={onOpenOnePager}>
+                Ver one-pager <kbd>O</kbd>
+              </button>
+            </div>
+          </div>
         )}
         <div ref={end} />
       </div>

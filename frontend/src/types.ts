@@ -119,6 +119,8 @@ export interface StageState {
   onepager: OnePager | null
   blocked: { kind: 'jailbreak' | 'off_topic'; reply: string } | null
   interview: Interview
+  share: { qrUrl: string } | null
+  leadReceived: boolean
   elapsed: number
   budget: number
 }

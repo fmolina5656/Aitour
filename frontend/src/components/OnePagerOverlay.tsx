@@ -1,8 +1,8 @@
 import { usd } from '../agents'
 import type { OnePager } from '../types'
 
-/** Cierre de la sesión. En la Fase 4 se agrega el QR para dejar los datos y recibir el PDF. */
-export function OnePagerOverlay({ op, onClose }: { op: OnePager; onClose: () => void }) {
+/** Cierre de la sesión: el one-pager y el QR para dejar los datos y recibir el PDF. */
+export function OnePagerOverlay({ op, qrUrl, onClose }: { op: OnePager; qrUrl?: string; onClose: () => void }) {
   const o = op.onepager
   return (
     <div className="overlay" onClick={onClose}>
@@ -27,7 +27,8 @@ export function OnePagerOverlay({ op, onClose }: { op: OnePager; onClose: () => 
             <p className="op-cost">{op.costo ? `${usd(op.costo.total_usd)} /mes` : '—'}</p>
             <h3>Siguientes pasos</h3>
             <ol>{o.siguientes_pasos.map((b) => <li key={b}>{b}</li>)}</ol>
-            <div className="qr-placeholder">QR · Fase 4</div>
+            {qrUrl ? <img className="op-qr" src={qrUrl} alt="QR" /> : null}
+            {qrUrl && <div className="muted">Escanea para recibirlo en PDF</div>}
           </div>
         </div>
         {op.costo && <div className="fine">{op.costo.disclaimer}</div>}

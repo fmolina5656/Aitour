@@ -29,6 +29,8 @@ EVENT_TYPES = {
     "voice.ended",  # {confirmed}
     "brief.proposed",  # {brief}  "esto entendí"
     "brief.confirmed",  # {brief, via}
+    "share.ready",  # {session_id, qr_url}  QR para dejar los datos y recibir el PDF
+    "lead.received",  # {envio}  sin datos personales: es la pantalla pública
     "artifact.diagram",  # {mermaid, version}
     "artifact.cost",  # {items, total_usd, supuestos, disclaimer}
     "artifact.risk",  # {datos_sensibles, regulacion, mitigaciones}

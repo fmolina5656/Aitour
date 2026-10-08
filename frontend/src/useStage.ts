@@ -25,6 +25,8 @@ export const initialState: StageState = {
   onepager: null,
   blocked: null,
   interview: { active: false, lines: [], agentLive: '', proposed: null },
+  share: null,
+  leadReceived: false,
   elapsed: 0,
   budget: 120,
 }
@@ -124,6 +126,10 @@ export function reducer(s: StageState, ev: Action): StageState {
       return { ...s, interview: { ...s.interview, proposed: null } }
     case 'voice.ended':
       return { ...s, interview: { ...s.interview, active: false, proposed: null, agentLive: '' } }
+    case 'share.ready':
+      return { ...s, share: { qrUrl: d.qr_url } }
+    case 'lead.received':
+      return { ...s, leadReceived: true }
     case 'guard.blocked':
       return { ...s, blocked: { kind: d.kind, reply: d.reply }, live: null }
     case 'governance.event':

@@ -9,4 +9,5 @@ frontend/dist/
 recordings/*
 !recordings/.gitkeep
 leads/
+data/
 .azure/

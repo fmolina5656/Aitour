@@ -5,14 +5,20 @@ import contextlib
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import telemetry
 from .config import get_settings
-from .events import EventBus
+from .events import Event, EventBus
+from .onepager import leads as lead_mod
+from .onepager.render import HERE as ONEPAGER_DIR
+from .onepager.render import _env as templates
+from .onepager.render import render_pdf
+from .onepager.store import OnePagerStore
 from .session import SessionManager
 from .swarm.schemas import Brief
 
@@ -22,6 +28,31 @@ settings = get_settings()
 telemetry.setup(settings)
 bus = EventBus()
 sessions = SessionManager(bus, settings)
+store = OnePagerStore(settings)
+leads = lead_mod.LeadStore(settings)
+_pdf_tasks: set = set()
+
+
+def _on_event(ev: Event) -> None:
+    """Al terminar el enjambre: se guarda el one-pager, se pre-genera el PDF y se ofrece el QR."""
+    if ev.type != "artifact.onepager" or not ev.session_id or ev.session_id.startswith("replay-"):
+        return
+    sid = ev.session_id
+    store.save(sid, ev.data)
+    task = asyncio.get_running_loop().create_task(_pregen_pdf(sid))
+    _pdf_tasks.add(task)
+    task.add_done_callback(_pdf_tasks.discard)
+    bus.publish("share.ready", session_id=sid, qr_url=f"/api/qr/{sid}.svg?t={store.token(sid)}")
+
+
+async def _pregen_pdf(sid: str) -> None:
+    try:
+        await render_pdf(store.get(sid) or {}, store.pdf_path(sid), settings)
+    except Exception:  # noqa: BLE001 — se reintenta al pedirlo
+        logging.getLogger(__name__).exception("No se pudo pre-generar el PDF de %s", sid)
+
+
+bus.add_listener(_on_event)
 
 
 @asynccontextmanager
@@ -57,6 +88,80 @@ async def start_text_session(req: TextSessionRequest) -> dict:
 async def reset() -> dict:
     await sessions.reset()
     return {"ok": True}
+
+
+def _check(sid: str, t: str) -> dict:
+    payload = store.get(sid)
+    if payload is None or not store.valid(sid, t):
+        raise HTTPException(404, "No encontrado")
+    return payload
+
+
+def _base_url(request: Request) -> str:
+    return settings.public_base_url.rstrip("/") or str(request.base_url).rstrip("/")
+
+
+@app.get("/api/qr/{sid}.svg")
+async def qr(sid: str, t: str, request: Request) -> Response:
+    import io
+
+    import segno
+
+    _check(sid, t)
+    buf = io.BytesIO()
+    segno.make(f"{_base_url(request)}/lead/{sid}?t={t}", error="m").save(buf, kind="svg", scale=10, border=2, dark="#11243e", light="#ffffff")
+    return Response(buf.getvalue(), media_type="image/svg+xml", headers={"Cache-Control": "no-store"})
+
+
+@app.get("/lead/{sid}", response_class=HTMLResponse)
+async def lead_page(sid: str, t: str) -> HTMLResponse:
+    payload = _check(sid, t)
+    costo = (payload.get("costo") or {}).get("total_usd")
+    html = templates().get_template("lead.html").render(
+        titulo=(payload.get("onepager") or {}).get("titulo", "Tu solución de IA"),
+        costo=f"USD {costo:,.0f} / mes" if costo else "",
+        post_url=f"/api/lead/{sid}?t={t}",
+        pdf_url=f"/api/pdf/{sid}?t={t}",
+    )
+    return HTMLResponse(html, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/lead-assets/logo.png")
+async def lead_logo() -> FileResponse:
+    return FileResponse(ONEPAGER_DIR / "assets" / "readymind-logo.png")
+
+
+@app.get("/privacidad", response_class=HTMLResponse)
+async def privacidad() -> HTMLResponse:
+    return HTMLResponse(templates().get_template("privacidad.html").render(
+        responsable=settings.privacy_responsable, contacto=settings.privacy_contacto, aviso_integral=settings.privacy_aviso_integral))
+
+
+@app.get("/api/pdf/{sid}")
+async def pdf(sid: str, t: str) -> FileResponse:
+    payload = _check(sid, t)
+    path = await render_pdf(payload, store.pdf_path(sid), settings)
+    return FileResponse(path, media_type="application/pdf", filename=path.name)
+
+
+@app.post("/api/lead/{sid}")
+async def lead_submit(sid: str, t: str, lead: lead_mod.LeadIn, request: Request) -> dict:
+    payload = _check(sid, t)
+    if leads.count_for(sid) >= settings.max_leads_per_session:
+        raise HTTPException(429, "Ya recibimos los datos de esta sesión")
+    titulo = (payload.get("onepager") or {}).get("titulo", "")
+    path = await render_pdf(payload, store.pdf_path(sid), settings)
+    message = {
+        "nombre": lead.nombre.strip(), "empresa": lead.empresa.strip(), "correo": lead.correo, "cargo": lead.cargo.strip(),
+        "acepta_contacto": lead.acepta_contacto, "titulo": titulo, "session_id": sid,
+        "pdf_url": f"{_base_url(request)}/api/pdf/{sid}?t={t}",
+    }
+    envio = await lead_mod.send_power_automate(settings, message, path)
+    await leads.add(sid, lead, titulo, envio)
+    if envio != "enviado":
+        await leads.to_outbox(message)
+    bus.publish("lead.received", envio=envio)
+    return {"ok": True, "envio": envio}
 
 
 @app.websocket("/ws/voice")

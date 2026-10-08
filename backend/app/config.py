@@ -37,6 +37,20 @@ class Settings(BaseSettings):
     interview_hard_limit_s: float = 95.0  # corte duro: se arma el brief con lo transcrito
     voice_goodbye_s: float = 3.0  # tiempo para la frase de despedida antes de cerrar la voz
 
+    # One-pager, QR y leads
+    public_base_url: str = ""  # URL pública (Container Apps) para el QR; vacío = la del request
+    lead_secret: str = ""  # firma de los links del QR; vacío = aleatorio por proceso (los QR vencen al reiniciar)
+    data_dir: Path = REPO_DIR / "data"  # one-pagers, PDFs y leads (en ACA: volumen de Azure Files)
+    chromium_path: str = ""  # vacío = el Chromium de Playwright
+    # Envío por mail con Power Automate (disparador HTTP "When an HTTP request is received")
+    power_automate_url: str = ""  # vacío = no se envía; los leads quedan en la bandeja de salida
+    power_automate_timeout_s: float = 15.0
+    max_leads_per_session: int = 3
+    # Aviso de privacidad (PENDIENTE: validar con el área legal de Readymind)
+    privacy_responsable: str = "Readymind (razón social y domicilio pendientes de validar por el área legal)"
+    privacy_contacto: str = "privacidad@readymind.ms (pendiente de confirmar)"
+    privacy_aviso_integral: str = "https://www.readymind.ms (pendiente de confirmar la URL del aviso integral)"
+
     # Gobierno: Prompt Shields (Azure AI Content Safety). Con un recurso de Foundry (AIServices)
     # es el endpoint del recurso: https://<recurso>.cognitiveservices.azure.com
     content_safety_endpoint: str = ""

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tu one-pager · Readymind</title>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
+<style>
+  :root { --green: #66de7f; --blue: #2c68f5; --navy: #11243e; --ink: #2d2d2d; --muted: #6b7280; --bg: #efefef; --line: #e2e2e2;
+          --grad: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%); }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Satoshi', -apple-system, 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); }
+  header { background: #fff; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  header img { height: 34px; display: block; }
+  main { padding: 22px 20px 40px; max-width: 520px; margin: 0 auto; }
+  .pill { display: inline-block; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 500; }
+  h1 { font-size: 30px; line-height: 1.12; margin: 14px 0 8px; font-weight: 800; }
+  h1 .g { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { font-size: 16px; line-height: 1.5; color: #444; margin: 0 0 18px; }
+  .summary { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 18px; }
+  .summary b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); margin-bottom: 4px; }
+  .summary .cost { font-size: 26px; font-weight: 800; color: var(--navy); }
+  form { background: #fff; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  label { font-size: 14px; font-weight: 500; display: flex; flex-direction: column; gap: 6px; }
+  input[type=text], input[type=email] { font: inherit; font-size: 17px; padding: 12px 14px; border: 1px solid #d4d4d4; border-radius: 12px; background: #fafafa; }
+  input:focus { outline: 2px solid var(--green); border-color: transparent; }
+  .check { flex-direction: row; align-items: flex-start; gap: 10px; font-weight: 400; line-height: 1.4; }
+  .check input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--green); flex: none; }
+  a { color: var(--blue); }
+  button, .btn { font: inherit; font-size: 18px; font-weight: 700; color: var(--navy); background: var(--green); border: none; border-radius: 14px; padding: 15px; cursor: pointer; text-align: center; text-decoration: none; display: block; box-shadow: 0 8px 22px rgba(102, 222, 127, .35); }
+  button:disabled { opacity: .6; }
+  .btn.secondary { background: #fff; border: 1px solid var(--line); box-shadow: none; }
+  .err { color: #c0392b; font-size: 14px; min-height: 18px; }
+  .done { display: none; background: #fff; border-radius: 16px; padding: 22px; text-align: center; }
+  .done h2 { margin: 6px 0 10px; font-size: 24px; }
+  .done p { color: #444; line-height: 1.5; }
+  .done .btn { margin-top: 14px; }
+  .fine { font-size: 12px; color: var(--muted); margin-top: 16px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<header><img src="/lead-assets/logo.png" alt="Readymind" /></header>
+<main>
+  <span class="pill">Microsoft AI Tour México</span>
+  <h1>Tu solución, <span class="g">lista para llevar</span></h1>
+  <p class="lead">Déjanos tus datos y te enviamos por correo el one-pager ejecutivo que armó nuestro equipo de agentes de IA.</p>
+
+  <div class="summary">
+    <b>{{ titulo }}</b>
+    <div class="cost">{{ costo }}</div>
+    <div style="color:#666;font-size:13px">costo mensual estimado (referencial)</div>
+  </div>
+
+  <form id="f">
+    <label>Nombre<input type="text" name="nombre" autocomplete="name" required minlength="2" maxlength="80" /></label>
+    <label>Empresa<input type="text" name="empresa" autocomplete="organization" required maxlength="100" /></label>
+    <label>Correo de trabajo<input type="email" name="correo" autocomplete="email" required maxlength="120" /></label>
+    <label>Cargo (opcional)<input type="text" name="cargo" autocomplete="organization-title" maxlength="80" /></label>
+    <label class="check"><input type="checkbox" name="acepta_privacidad" required />
+      <span>He leído y acepto el <a href="/privacidad" target="_blank">aviso de privacidad</a> de Readymind.</span></label>
+    <label class="check"><input type="checkbox" name="acepta_contacto" />
+      <span>Acepto que Readymind me contacte para dar seguimiento a esta propuesta.</span></label>
+    <div class="err" id="err"></div>
+    <button id="send">Enviarme el one-pager</button>
+  </form>
+
+  <div class="done" id="done">
+    <div style="font-size:40px">✓</div>
+    <h2>¡Listo!</h2>
+    <p id="doneMsg">Te enviaremos el one-pager a tu correo en unos minutos.</p>
+    <a class="btn" href="{{ pdf_url }}">Descargar el PDF ahora</a>
+  </div>
+
+  <p class="fine">Estimación referencial generada por IA durante una demostración en vivo. No constituye una cotización.</p>
+</main>
+<script>
+  const f = document.getElementById('f'), err = document.getElementById('err'), btn = document.getElementById('send')
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault(); err.textContent = ''; btn.disabled = true; btn.textContent = 'Enviando…'
+    const d = Object.fromEntries(new FormData(f))
+    const body = { nombre: d.nombre, empresa: d.empresa, correo: d.correo, cargo: d.cargo || '',
+                   acepta_privacidad: !!d.acepta_privacidad, acepta_contacto: !!d.acepta_contacto }
+    try {
+      const r = await fetch({{ post_url | tojson }}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const j = await r.json()
+      if (!r.ok) throw new Error(j.detail?.[0]?.msg || j.detail || 'No se pudo enviar')
+      if (j.envio !== 'enviado') document.getElementById('doneMsg').textContent = 'Recibimos tus datos. Puedes descargar el PDF ahora; también te lo haremos llegar por correo.'
+      f.style.display = 'none'; document.getElementById('done').style.display = 'block'
+    } catch (x) { err.textContent = String(x.message || x).replace('Value error, ', ''); btn.disabled = false; btn.textContent = 'Enviarme el one-pager' }
+  })
+</script>
+</body>
+</html>

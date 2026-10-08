@@ -76,6 +76,8 @@ async def replay(bus: EventBus, path: Path, speed: float = 1.0) -> None:
     loop = asyncio.get_running_loop()
     t0 = loop.time()
     for ev in events:
+        if ev.type in ("share.ready", "lead.received"):
+            continue  # en replay no se ofrece el QR de una sesión ajena
         wait = ev.t / speed - (loop.time() - t0)
         if wait > 0:
             await asyncio.sleep(wait)
