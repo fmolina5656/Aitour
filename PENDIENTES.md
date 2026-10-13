@@ -44,7 +44,8 @@ commiteadas en `claude/readymind-aitour-demo`.
     - calidad del reconocimiento con el ruido del stand.
   - [ ] **Prompt Shields** con Entra ID sobre el endpoint de la cuenta de Foundry.
   - [ ] **Trazas** visibles en *Tracing* del proyecto de Foundry.
-- [ ] `python -m scripts.loadtest --url https://<app> --sessions 10` contra Foundry real.
+- [ ] `python -m scripts.loadtest --url https://<app> --sessions 10 --salas pc,tablet1,tablet2` contra Foundry real
+      (tres sesiones en paralelo: revisa que la cuota de los modelos aguante el pico).
 - [ ] Grabar **3 sesiones reales buenas** para el replay de respaldo. Hoy solo está la semilla simulada.
 
 ## 3. Correo (al final, como pediste)
@@ -77,7 +78,8 @@ commiteadas en `claude/readymind-aitour-demo`.
 - **Replay**: se marca con "Sesión grabada" en el encabezado, por transparencia con el visitante.
 - **Failover automático**: solo si Foundry falla **antes** de que hable algún agente. Si ya habló, se termina con lo
   que haya.
-- **Una sola réplica** en Container Apps, siempre encendida: la sesión del stand vive en memoria.
+- **Una sola réplica** en Container Apps, siempre encendida: las sesiones de las 3 salas (PC y dos tablets) viven en
+  memoria en ese mismo proceso.
 - **QR firmado con HMAC**: si `LEAD_SECRET` cambia, los QR viejos dejan de valer.
 - **La pantalla nunca muestra datos personales** (solo "¡Recibido!").
 - **El one-pager no se abre solo** al terminar: queda el QR en el chat y se abre con `O`.

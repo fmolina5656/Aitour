@@ -1,4 +1,4 @@
-"""Máquina de estados de la sesión del stand. Una sesión activa a la vez; reset en < 1 s."""
+"""Máquina de estados de la sesión de una sala del stand. Una sesión activa por sala; reset en < 1 s."""
 
 import asyncio
 import contextlib
@@ -20,8 +20,9 @@ log = logging.getLogger(__name__)
 
 
 class SessionManager:
-    def __init__(self, bus: EventBus, settings: Settings) -> None:
+    def __init__(self, bus: EventBus, settings: Settings, sala: str = "") -> None:
         self.bus = bus
+        self.sala = sala
         self.settings = settings
         self.recorder = Recorder(bus, settings.recordings_dir)
         self.guard = Guard(bus, settings)
@@ -50,6 +51,7 @@ class SessionManager:
         self.state = "swarm"
         t0 = time.monotonic()
         with telemetry.session_span(self.session_id or "", self.settings.demo_mode, brief.industria) as span:
+            span.set_attribute("demo.sala", self.sala)
             # Gobierno primero: Prompt Shields + tema. Un bloqueo también es parte del show.
             verdict = await self.guard.check(f"{brief.problema}\n{brief.datos}")
             if not verdict.allowed:

@@ -1,6 +1,7 @@
 """Prueba de carga del stand: N sesiones seguidas contra el backend en marcha, sin degradación.
 
 Uso:  cd backend && .venv/bin/python -m scripts.loadtest --url http://localhost:8000 --sessions 10
+      --salas pc,tablet1,tablet2  corre cada ronda en las tres salas a la vez (PC y tablets en paralelo)
 Criterios (requisitos del stand):
   - todas las sesiones terminan "ok" y el enjambre dura < 120 s,
   - las últimas 3 no son > 20 % más lentas que las primeras 3,
@@ -25,12 +26,12 @@ PROBLEMS = [
 ]
 
 
-async def one_session(base: str, i: int) -> dict:
-    ws_url = base.replace("http", "ws", 1) + "/ws/stage"
+async def one_session(base: str, i: int, sala: str) -> dict:
+    ws_url = base.replace("http", "ws", 1) + f"/ws/stage?sala={sala}"
     async with websockets.connect(ws_url, max_size=2**22) as ws, httpx.AsyncClient(base_url=base, timeout=30) as http:
         p, ind, vol, dat = PROBLEMS[i % len(PROBLEMS)]
         t0 = time.monotonic()
-        r = await http.post("/api/session/text", json={"problema": p, "industria": ind, "volumen": vol, "datos": dat})
+        r = await http.post(f"/api/session/text?sala={sala}", json={"problema": p, "industria": ind, "volumen": vol, "datos": dat})
         sid = r.json()["session_id"]
         status, swarm_s, events = "sin-fin", None, 0
         while time.monotonic() - t0 < 150:
@@ -42,23 +43,25 @@ async def one_session(base: str, i: int) -> dict:
                 status, swarm_s = ev["data"]["status"], ev["data"]["swarm_s"]
                 break
         health = (await http.get("/api/health")).json()
-        return {"i": i + 1, "status": status, "swarm_s": swarm_s, "wall_s": round(time.monotonic() - t0, 1), "events": events, "rss_mb": health.get("rss_mb", 0)}
+        return {"i": i + 1, "sala": sala, "status": status, "swarm_s": swarm_s, "wall_s": round(time.monotonic() - t0, 1), "events": events, "rss_mb": health.get("rss_mb", 0)}
 
 
 async def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", default="http://localhost:8000")
     ap.add_argument("--sessions", type=int, default=10)
+    ap.add_argument("--salas", default="pc", help="salas separadas por coma; cada ronda corre una sesión en cada una, en paralelo")
     args = ap.parse_args()
+    salas = [s.strip() for s in args.salas.split(",") if s.strip()]
 
     async with httpx.AsyncClient(base_url=args.url, timeout=10) as http:
         mode = (await http.get("/api/health")).json()["mode"]
-    print(f"Backend en {args.url} · modo {mode} · {args.sessions} sesiones\n")
+    print(f"Backend en {args.url} · modo {mode} · {args.sessions} rondas × {len(salas)} salas ({', '.join(salas)})\n")
     rows = []
     for i in range(args.sessions):
-        row = await one_session(args.url, i)
-        rows.append(row)
-        print(f"  #{row['i']:>2}  {row['status']:<8} enjambre {row['swarm_s']:>6}s  total {row['wall_s']:>6}s  eventos {row['events']:>3}  memoria {row['rss_mb']} MB")
+        for row in await asyncio.gather(*(one_session(args.url, i, s) for s in salas)):
+            rows.append(row)
+            print(f"  #{row['i']:>2} {row['sala']:<8} {row['status']:<8} enjambre {row['swarm_s']:>6}s  total {row['wall_s']:>6}s  eventos {row['events']:>3}  memoria {row['rss_mb']} MB")
 
     durations = [r["swarm_s"] or 999 for r in rows]
     first, last = statistics.mean(durations[:3]), statistics.mean(durations[-3:])

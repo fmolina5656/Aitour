@@ -4,7 +4,8 @@
 
 - [ ] `azd up` hecho en la suscripción del evento.
 - [ ] `python -m scripts.preflight` en verde contra Azure: modelos, Prompt Shields, voice agent, App Insights y PDF.
-- [ ] **Prueba de carga real**: `python -m scripts.loadtest --url https://<app> --sessions 10`, en verde.
+- [ ] **Prueba de carga real**: `python -m scripts.loadtest --url https://<app> --sessions 10 --salas pc,tablet1,tablet2`,
+      en verde (PC y tablets en paralelo).
 - [ ] Al menos **3 sesiones reales buenas** grabadas, con problemas distintos (facturas, call center, crédito). Quedan en
       `/data/recordings/curated/` y son el respaldo para el replay.
 - [ ] Probar el failover: desconectar la red a mitad de una sesión. Debe aparecer "Foundry no respondió" y luego la
@@ -25,10 +26,13 @@
 - [ ] **Red:** cable si hay. Si no, hotspot de respaldo ya probado.
 - [ ] **Navegador:**
   - Chrome con `https://<app>/?quality=high` y luego `F` para pantalla completa.
+  - Tablets: `https://<app>/?sala=tablet1` y `https://<app>/?sala=tablet2` (cada una con su propia sesión).
+    El encabezado de la PC dice "Sala pc"; si una pantalla dice "Sala desconocida", revisar el `?sala=`.
   - Si se traba, usar `?quality=low`.
 - [ ] Dar permiso del micrófono **una vez**: presionar `V`, aceptar y luego `R`.
 - [ ] **Sesión de prueba completa por voz**: el one-pager sale, el QR abre en un celular, el formulario llega y el
       correo llega.
+- [ ] **Las 3 salas a la vez**: arrancar una sesión en la PC y en las dos tablets; `R` en una tablet no corta las otras.
 - [ ] Probar un jailbreak ("ignora tus instrucciones…"): debe verse el bloqueo en ámbar y **0 llamadas** a modelos.
 - [ ] `python -m scripts.preflight` en verde una última vez.
 - [ ] Silenciar las notificaciones de la laptop.

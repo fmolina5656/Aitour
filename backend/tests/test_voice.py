@@ -30,9 +30,10 @@ def test_voice_interview_end_to_end_over_websocket(tmp_path, monkeypatch):
     from app import main
 
     fast = Settings(demo_mode="mock", mock_speed=0.01, recordings_dir=tmp_path, voice_goodbye_s=0.05)
-    monkeypatch.setattr(main.sessions, "settings", fast)
+    pc = main.salas["pc"]
+    monkeypatch.setattr(pc.sessions, "settings", fast)
     seen: list = []
-    main.bus.add_listener(seen.append)
+    pc.bus.add_listener(seen.append)
     with TestClient(main.app) as client, client.websocket_connect("/ws/voice") as ws:
         for answer in ["Conciliamos a mano 5,000 facturas al mes", "Manufactura", "5,000 facturas", "CFDI en SharePoint", "Sí, correcto"]:
             ws.send_json({"type": "text", "text": answer})

@@ -1,10 +1,14 @@
-"""API del stand: WebSocket para la pantalla, REST para iniciar/resetear sesiones."""
+"""API del stand: WebSocket para la pantalla, REST para iniciar/resetear sesiones.
+
+Cada pantalla (PC y tablets) es una sala con su propio bus y su propia sesión: se elige con ?sala=<nombre>.
+"""
 
 import asyncio
 import contextlib
 import logging
 import os
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,23 +35,40 @@ for _noisy in ("azure.core.pipeline.policies.http_logging_policy", "azure.monito
 
 settings = get_settings()
 telemetry.setup(settings)
-bus = EventBus()
-sessions = SessionManager(bus, settings)
 store = OnePagerStore(settings)
 leads = lead_mod.LeadStore(settings)
 _pdf_tasks: set = set()
 
 
-def _on_event(ev: Event) -> None:
+@dataclass
+class Sala:
+    name: str
+    bus: EventBus
+    sessions: SessionManager
+
+
+def _make_sala(name: str) -> Sala:
+    bus = EventBus()
+    sala = Sala(name, bus, SessionManager(bus, settings, sala=name))
+    bus.add_listener(lambda ev: _on_event(sala, ev))
+    return sala
+
+
+salas: dict[str, Sala] = {}
+_sesion_sala: dict[str, str] = {}  # session_id → sala, para avisar en la pantalla correcta cuando llega un lead
+
+
+def _on_event(sala: Sala, ev: Event) -> None:
     """Al terminar el enjambre: se guarda el one-pager, se pre-genera el PDF y se ofrece el QR."""
     if ev.type != "artifact.onepager" or not ev.session_id or ev.session_id.startswith("replay-"):
         return
     sid = ev.session_id
+    _sesion_sala[sid] = sala.name
     store.save(sid, ev.data)
     task = asyncio.get_running_loop().create_task(_pregen_pdf(sid))
     _pdf_tasks.add(task)
     task.add_done_callback(_pdf_tasks.discard)
-    bus.publish("share.ready", session_id=sid, qr_url=f"/api/qr/{sid}.svg?t={store.token(sid)}")
+    sala.bus.publish("share.ready", session_id=sid, qr_url=f"/api/qr/{sid}.svg?t={store.token(sid)}")
 
 
 async def _pregen_pdf(sid: str) -> None:
@@ -57,13 +78,24 @@ async def _pregen_pdf(sid: str) -> None:
         logging.getLogger(__name__).exception("No se pudo pre-generar el PDF de %s", sid)
 
 
-bus.add_listener(_on_event)
+for _name in settings.sala_names:
+    salas[_name] = _make_sala(_name)
+
+
+def _sala(sala: str | None) -> Sala:
+    """La sala pedida; sin nombre, la primera (la PC del stand)."""
+    if not sala:
+        return next(iter(salas.values()))
+    found = salas.get(sala.strip().lower())
+    if found is None:
+        raise HTTPException(404, f"Sala desconocida: {sala}")
+    return found
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     yield
-    await sessions.reset(announce=False)
+    await asyncio.gather(*(s.sessions.reset(announce=False) for s in salas.values()))
 
 
 app = FastAPI(title="Readymind · AI Tour demo", lifespan=lifespan)
@@ -86,8 +118,12 @@ def _rss_mb() -> float:
 
 
 @app.get("/api/health")
-async def health() -> dict:
-    return {"ok": True, "mode": settings.demo_mode, "state": sessions.state, "session_id": sessions.session_id, "rss_mb": _rss_mb()}
+async def health(sala: str | None = None) -> dict:
+    s = _sala(sala)
+    return {
+        "ok": True, "mode": settings.demo_mode, "sala": s.name, "state": s.sessions.state, "session_id": s.sessions.session_id,
+        "salas": {n: x.sessions.state for n, x in salas.items()}, "rss_mb": _rss_mb(),
+    }
 
 
 class ModeRequest(BaseModel):
@@ -99,29 +135,32 @@ async def set_mode(req: ModeRequest) -> dict:
     """Cambia el modo en caliente (operador del stand): live | mock | replay."""
     if req.mode not in ("live", "mock", "replay"):
         raise HTTPException(422, "Modo inválido")
-    await sessions.reset()
+    # el modo es del backend completo: se reinician todas las salas y todas se enteran
+    await asyncio.gather(*(s.sessions.reset() for s in salas.values()))
     settings.demo_mode = req.mode
-    bus.publish("mode.changed", mode=req.mode)
+    for s in salas.values():
+        s.bus.publish("mode.changed", mode=req.mode)
     return {"ok": True, "mode": req.mode}
 
 
 @app.post("/api/replay")
-async def play_recorded() -> dict:
+async def play_recorded(sala: str | None = None) -> dict:
     """Tecla P: reproduce de inmediato la sesión grabada más reciente (si se cae la red)."""
-    await sessions.start_replay()
+    await _sala(sala).sessions.start_replay()
     return {"ok": True}
 
 
 @app.post("/api/session/text")
-async def start_text_session(req: TextSessionRequest) -> dict:
+async def start_text_session(req: TextSessionRequest, sala: str | None = None) -> dict:
+    s = _sala(sala)
     brief = Brief(problema=req.problema[:600], industria=req.industria[:80], volumen=req.volumen[:120], datos=req.datos[:200])
-    session_id = await sessions.start(brief)
-    return {"session_id": session_id, "mode": settings.demo_mode}
+    session_id = await s.sessions.start(brief)
+    return {"session_id": session_id, "mode": settings.demo_mode, "sala": s.name}
 
 
 @app.post("/api/reset")
-async def reset() -> dict:
-    await sessions.reset()
+async def reset(sala: str | None = None) -> dict:
+    await _sala(sala).sessions.reset()
     return {"ok": True}
 
 
@@ -195,16 +234,29 @@ async def lead_submit(sid: str, t: str, lead: lead_mod.LeadIn, request: Request)
     await leads.add(sid, lead, titulo, envio)
     if envio != "enviado":
         await leads.to_outbox(message)
-    bus.publish("lead.received", envio=envio)
+    if (s := salas.get(_sesion_sala.get(sid, ""))) is not None and s.sessions.session_id == sid:
+        s.bus.publish("lead.received", envio=envio)  # solo si esa pantalla sigue mostrando la sesión
     return {"ok": True, "envio": envio}
 
 
+async def _ws_sala(ws: WebSocket, sala: str | None) -> Sala | None:
+    """Acepta el WebSocket de una sala; si no existe, lo cierra con 4404 (el frontend deja de reintentar)."""
+    await ws.accept()  # se acepta antes de cerrar para que el código 4404 llegue al navegador
+    try:
+        return _sala(sala)
+    except HTTPException:
+        await ws.close(code=4404, reason="Sala desconocida")
+        return None
+
+
 @app.websocket("/ws/voice")
-async def voice(ws: WebSocket) -> None:
-    """Micrófono del stand ⇄ recepcionista (Foundry voice agent o simulada)."""
-    await ws.accept()
-    await sessions.reset()
-    interview = sessions.new_interview()
+async def voice(ws: WebSocket, sala: str | None = None) -> None:
+    """Micrófono de la sala ⇄ recepcionista (Foundry voice agent o simulada)."""
+    s = await _ws_sala(ws, sala)
+    if s is None:
+        return
+    await s.sessions.reset()
+    interview = s.sessions.new_interview()
     try:
         await interview.run(ws)
     finally:
@@ -213,12 +265,16 @@ async def voice(ws: WebSocket) -> None:
 
 
 @app.websocket("/ws/stage")
-async def stage(ws: WebSocket) -> None:
-    await ws.accept()
+async def stage(ws: WebSocket, sala: str | None = None) -> None:
+    s = await _ws_sala(ws, sala)
+    if s is None:
+        return
+    bus = s.bus
     q = bus.subscribe()
     try:
         models = {a: getattr(settings, f"model_{a}") for a in ("arquitecto", "financiero", "riesgo", "diagramador", "redactor")}
-        await ws.send_json({"type": "hello", "data": {"mode": settings.demo_mode, "state": sessions.state, "models": models}})
+        await ws.send_json({"type": "hello", "data": {
+            "mode": settings.demo_mode, "state": s.sessions.state, "models": models, "sala": s.name, "salas": list(salas)}})
         for ev in list(bus.history):  # estado actual para clientes que se conectan tarde
             await ws.send_text(ev.model_dump_json())
         while True:

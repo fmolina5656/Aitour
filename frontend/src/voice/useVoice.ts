@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { withSala } from '../sala'
 import { StandAudio } from './audio'
 
 export type VoiceStatus = 'off' | 'connecting' | 'live' | 'text-only'
@@ -25,7 +26,7 @@ export function useVoice() {
     await stop()
     setStatus('connecting')
     const proto = location.protocol === 'https:' ? 'wss' : 'ws'
-    const sock = new WebSocket(`${proto}://${location.host}/ws/voice`)
+    const sock = new WebSocket(`${proto}://${location.host}${withSala('/ws/voice')}`)
     sock.binaryType = 'arraybuffer'
     ws.current = sock
     sock.onmessage = (m) => {

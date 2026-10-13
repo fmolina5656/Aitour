@@ -103,6 +103,24 @@ los agentes en **Tracing** del proyecto de Foundry.
 - `az containerapp logs show` puede fallar en Windows con `UnicodeEncodeError` por caracteres como "→" en los
   logs. En ese caso, consultar Log Analytics.
 
+## Salas: una PC y dos tablets a la vez
+
+El stand tiene **3 salas independientes**: `pc`, `tablet1` y `tablet2`. Cada una tiene su propia entrevista, su propio
+enjambre, su propio QR y su propio reset, así que tres visitantes pueden usar la demo al mismo tiempo sin pisarse.
+
+| Pantalla | URL |
+|---|---|
+| PC del stand | `https://<app>/` (o `/?sala=pc`) |
+| Tablet 1 | `https://<app>/?sala=tablet1` |
+| Tablet 2 | `https://<app>/?sala=tablet2` |
+
+- La sala se recuerda en el dispositivo: basta abrir la URL con `?sala=` una vez.
+- Las tablets arrancan solas en modo tablet la primera vez (`M` lo cambia).
+- `R` y `P` solo afectan a la sala de esa pantalla. Cambiar el modo (`POST /api/mode`) reinicia las tres.
+- Dos pantallas abiertas en la **misma** sala ven lo mismo, como antes (por ejemplo, una tablet espejo de la PC).
+- Las salas se configuran con `SALAS` (por defecto `pc,tablet1,tablet2`). `GET /api/health` muestra el estado de todas.
+- Tres enjambres en paralelo triplican el consumo de tokens en el pico: revisar la cuota (TPM) de los deployments.
+
 ## Flujo de una sesión (meta: < 4 minutos)
 
 | Tiempo | Qué pasa | Dónde vive |
@@ -235,7 +253,7 @@ Para probar en local **contra Foundry real**, cargar las variables de azd como e
 | `T` | Escribir (durante la entrevista: responder por teclado) |
 | `Enter` | Confirmar "Esto entendí" |
 | `O` | Ver/ocultar el one-pager |
-| `R` | Reset de la demo (< 1 s) |
+| `R` | Reset de la demo en esta sala (< 1 s) |
 | `P` | Operador: reproducir ya una sesión grabada (si se cae la red) |
 | `F` | Pantalla completa |
 
@@ -275,7 +293,7 @@ Hace falta rol **Owner** (o Contributor + User Access Administrator) en la suscr
 |---|---|
 | `create_voice_agent` | Crea una versión nueva del voice agent recepcionista en el proyecto |
 | `preflight` | Chequeo de punta a punta antes de abrir el stand (sale con 1 si algo crítico falla) |
-| `loadtest --sessions 10` | Prueba de carga contra el backend en marcha (sin degradación ni crecimiento de memoria) |
+| `loadtest --sessions 10 [--salas pc,tablet1,tablet2]` | Prueba de carga contra el backend en marcha, opcionalmente con las salas en paralelo (sin degradación ni crecimiento de memoria) |
 | `retry_outbox` | Reenvía a Power Automate los leads que quedaron pendientes |
 
 ## Tests

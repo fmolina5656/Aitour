@@ -175,6 +175,7 @@ kbd { font-family: var(--mono); font-size: 13px; border: 1px solid var(--line-st
 .tablet-share .share { margin: 0; padding: 12px; gap: 12px; background: rgba(7, 14, 26, .85); backdrop-filter: blur(14px); }
 .tablet-share .share-qr { width: 120px; height: 120px; }
 .tablet-share .share-title { font-size: 17px; }
+.sala-error { position: fixed; top: 16px; left: 16px; max-width: calc(100vw - 32px); padding: 10px 14px; border-radius: 10px; background: rgba(7, 14, 26, .9); color: var(--alert); font-size: 16px; }
 .subtitle { width: min(1100px, 100%); text-align: center; text-shadow: 0 2px 14px #000, 0 0 4px #000; animation: rise .4s ease-out; }
 .subtitle-who { font-size: 18px; font-weight: 700; color: var(--c); letter-spacing: .3px; }
 .subtitle-action { font-weight: 400; color: var(--text-2); }

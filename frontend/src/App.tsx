@@ -7,6 +7,7 @@ import { OnePagerOverlay } from './components/OnePagerOverlay'
 import { Subtitle } from './components/Subtitle'
 import { TextInput } from './components/TextInput'
 import { BriefCard, VoiceBar } from './components/VoiceUI'
+import { SALA } from './sala'
 import { Scene } from './scene/Scene'
 import { api, useStage } from './useStage'
 import { useVoice } from './voice/useVoice'
@@ -14,13 +15,16 @@ import { useVoice } from './voice/useVoice'
 // Versión del logo para fondo oscuro (la palabra "Ready" en blanco); se puede reemplazar por VITE_BRAND_LOGO_URL.
 const LOGO_URL = (import.meta.env.VITE_BRAND_LOGO_URL as string | undefined) ?? '/brand/readymind-logo-dark.png'
 
-// Modo tablet (tecla M): solo el universo y un subtítulo. Se recuerda entre recargas.
+// Modo tablet (tecla M): solo el universo y un subtítulo. Se recuerda entre recargas;
+// la primera vez, las salas de tablet arrancan en modo tablet.
 const TABLET_KEY = 'aitour.tablet'
 function readTablet() {
+  const byDefault = SALA.startsWith('tablet')
   try {
-    return localStorage.getItem(TABLET_KEY) === '1'
+    const saved = localStorage.getItem(TABLET_KEY)
+    return saved === null ? byDefault : saved === '1'
   } catch {
-    return false
+    return byDefault
   }
 }
 
@@ -92,6 +96,7 @@ export default function App() {
     <Scene s={s} tablet={tablet} />
     {tablet ? (
       <div className="stage tablet">
+        {s.salaError && <div className="sala-error">Sala desconocida: «{SALA}». Revisa el ?sala= de la URL.</div>}
         {s.phase === 'idle' && !interviewing && (
           // en el stand hay ruido: escribir es lo principal y la voz queda como alternativa
           <div className="scene-cta">
@@ -132,6 +137,8 @@ export default function App() {
           </span>
         </div>
         <div className="status">
+          {s.sala && <span>Sala {s.sala}</span>}
+          {s.salaError && <span className="alert">Sala desconocida</span>}
           {s.mode === 'replay' && <span>Sesión grabada</span>}
           {s.mode === 'mock' && <span>Modo simulado</span>}
           {!s.connected && <span className="alert">Sin conexión</span>}

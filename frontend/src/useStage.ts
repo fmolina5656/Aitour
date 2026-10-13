@@ -1,9 +1,12 @@
 import { useEffect, useReducer } from 'react'
 import { money } from './agents'
+import { forgetSala, SALA, withSala } from './sala'
 import type { Actor, AgentId, Cost, FlowNodeId, GovEvent, Handoff, OnePager, Span, StageEvent, StageState, Turn } from './types'
 
 export const initialState: StageState = {
   connected: false,
+  sala: SALA,
+  salaError: false,
   mode: '',
   models: {},
   sessionId: null,
@@ -31,7 +34,7 @@ export const initialState: StageState = {
   budget: 120,
 }
 
-type Action = StageEvent | { type: '__connected'; data: { value: boolean } }
+type Action = StageEvent | { type: '__connected'; data: { value: boolean } } | { type: '__sala_error'; data: Record<string, never> }
 
 /** Traduce el mensaje de un agente a un turno: qué hizo y qué produjo. */
 function toTurn(s: StageState, agent: AgentId, text: string, d: Record<string, any>): Turn {
@@ -67,13 +70,16 @@ export function reducer(s: StageState, ev: Action): StageState {
   switch (ev.type) {
     case '__connected':
       return { ...s, connected: d.value }
+    case '__sala_error':
+      return { ...s, salaError: true }
     case 'hello':
-      return { ...s, mode: d.mode, models: d.models ?? {} }
+      return { ...s, mode: d.mode, models: d.models ?? {}, sala: d.sala ?? s.sala }
     case 'session.started': {
       const brief = d.brief ?? {}
       return {
         ...initialState,
         connected: s.connected,
+        sala: s.sala,
         models: s.models,
         interview: { ...s.interview, active: false, proposed: null, agentLive: '' },
         mode: d.mode ?? s.mode,
@@ -87,7 +93,7 @@ export function reducer(s: StageState, ev: Action): StageState {
       }
     }
     case 'session.reset':
-      return { ...initialState, connected: s.connected, mode: s.mode, models: s.models }
+      return { ...initialState, connected: s.connected, sala: s.sala, mode: s.mode, models: s.models }
     case 'session.ended':
       return { ...s, phase: 'done', live: null }
     case 'agent.thinking': {
@@ -117,7 +123,7 @@ export function reducer(s: StageState, ev: Action): StageState {
     case 'trace.span':
       return { ...s, spans: [d as Span, ...s.spans].slice(0, 30), sessionCost: d.session_cost_usd, subPulses: pulse(s, `model-${d.agent}`) }
     case 'voice.started':
-      return { ...initialState, connected: s.connected, mode: s.mode, models: s.models, interview: { active: true, lines: [], agentLive: '', proposed: null } }
+      return { ...initialState, connected: s.connected, sala: s.sala, mode: s.mode, models: s.models, interview: { active: true, lines: [], agentLive: '', proposed: null } }
     case 'voice.agent':
       return d.final
         ? { ...s, interview: { ...s.interview, agentLive: '', lines: [...s.interview.lines, { who: 'recepcionista', text: d.text }] } }
@@ -172,7 +178,7 @@ export function reducer(s: StageState, ev: Action): StageState {
   }
 }
 
-/** Conexión al bus del backend con reconexión automática. */
+/** Conexión al bus de la sala en el backend, con reconexión automática. */
 export function useStage() {
   const [state, dispatch] = useReducer(reducer, initialState)
   useEffect(() => {
@@ -181,11 +187,17 @@ export function useStage() {
     let alive = true
     const connect = () => {
       const proto = location.protocol === 'https:' ? 'wss' : 'ws'
-      ws = new WebSocket(`${proto}://${location.host}/ws/stage`)
+      ws = new WebSocket(`${proto}://${location.host}${withSala('/ws/stage')}`)
       ws.onopen = () => dispatch({ type: '__connected', data: { value: true } })
       ws.onmessage = (m) => dispatch(JSON.parse(m.data))
-      ws.onclose = () => {
+      ws.onclose = (e) => {
         dispatch({ type: '__connected', data: { value: false } })
+        if (e.code === 4404) {
+          // sala inexistente: no tiene sentido reintentar
+          forgetSala()
+          dispatch({ type: '__sala_error', data: {} })
+          return
+        }
         if (alive) retry = window.setTimeout(connect, 1000)
       }
     }
@@ -200,8 +212,8 @@ export function useStage() {
 }
 
 export const api = {
-  reset: () => fetch('/api/reset', { method: 'POST' }),
-  replay: () => fetch('/api/replay', { method: 'POST' }),
+  reset: () => fetch(withSala('/api/reset'), { method: 'POST' }),
+  replay: () => fetch(withSala('/api/replay'), { method: 'POST' }),
   startText: (body: Record<string, string>) =>
-    fetch('/api/session/text', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+    fetch(withSala('/api/session/text'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
 }

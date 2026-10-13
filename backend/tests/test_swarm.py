@@ -114,7 +114,7 @@ async def test_record_and_replay_roundtrip(tmp_path):
 def test_api_text_session_and_reset(tmp_path, monkeypatch):
     from app import main
 
-    monkeypatch.setattr(main.sessions, "settings", fast_settings(tmp_path))
+    monkeypatch.setattr(main.salas["pc"].sessions, "settings", fast_settings(tmp_path))
     with TestClient(main.app) as client:
         r = client.post("/api/session/text", json={"problema": "Atender 2,000 correos de clientes al día"})
         assert r.status_code == 200
@@ -123,3 +123,30 @@ def test_api_text_session_and_reset(tmp_path, monkeypatch):
             assert ws.receive_json()["type"] == "session.started"
         assert client.post("/api/reset").json() == {"ok": True}
         assert client.get("/api/health").json()["state"] == "idle"
+
+
+def test_salas_are_independent(tmp_path, monkeypatch):
+    """PC y tablets: cada sala tiene su sesión; reiniciar una no toca a las otras."""
+    from app import main
+
+    for sala in main.salas.values():
+        monkeypatch.setattr(sala.sessions, "settings", fast_settings(tmp_path, mock_speed=1.0))
+    with TestClient(main.app) as client:
+        sid_pc = client.post("/api/session/text", json={"problema": "Conciliar facturas a mano"}).json()["session_id"]
+        r = client.post("/api/session/text?sala=tablet1", json={"problema": "El call center no da abasto"})
+        assert r.json()["sala"] == "tablet1"
+        sid_t1 = r.json()["session_id"]
+        assert sid_pc != sid_t1
+        assert client.post("/api/session/text?sala=no-existe", json={"problema": "x"}).status_code == 404
+
+        with client.websocket_connect("/ws/stage?sala=tablet1") as ws:
+            hello = ws.receive_json()
+            assert hello["data"]["sala"] == "tablet1" and hello["data"]["salas"] == ["pc", "tablet1", "tablet2"]
+            started = ws.receive_json()
+            assert started["type"] == "session.started" and started["session_id"] == sid_t1
+
+        assert client.post("/api/reset?sala=tablet1").json() == {"ok": True}
+        salas = client.get("/api/health").json()["salas"]
+        assert salas["tablet1"] == "idle" and salas["pc"] == "swarm" and salas["tablet2"] == "idle"
+        assert main.salas["pc"].sessions.busy
+        client.post("/api/reset")

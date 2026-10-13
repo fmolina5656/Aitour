@@ -97,6 +97,8 @@ export interface Interview {
 
 export interface StageState {
   connected: boolean
+  sala: string
+  salaError: boolean
   mode: string
   models: Partial<Record<AgentId, string>>
   sessionId: string | null

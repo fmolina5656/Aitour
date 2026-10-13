@@ -89,6 +89,15 @@ class Settings(BaseSettings):
     # Si Foundry falla antes de que hable algún agente, se reproduce una sesión grabada (modo live)
     auto_failover: bool = True
 
+    # Salas del stand: cada pantalla (PC y tablets) corre su propia sesión, independiente de las demás.
+    # Se elige con ?sala=<nombre> en la URL; sin parámetro se usa la primera.
+    salas: str = "pc,tablet1,tablet2"
+
+    @property
+    def sala_names(self) -> list[str]:
+        names = [s.strip().lower() for s in self.salas.split(",") if s.strip()]
+        return list(dict.fromkeys(names)) or ["pc"]
+
     # Grabaciones
     recordings_dir: Path = REPO_DIR / "recordings"
     replay_file: str = ""  # vacío = la grabación curada más reciente
