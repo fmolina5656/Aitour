@@ -14,6 +14,7 @@ Todo se ve en una escena 3D (Three.js) pensada para una pantalla de 1920×1080 v
 > - **Para redeployar un cambio:** [Cómo redeployar](#cómo-redeployar).
 > - Operación del stand: [docs/CHECKLIST_EVENTO.md](docs/CHECKLIST_EVENTO.md)
 > - Guion de 5 minutos: [docs/GUION_STAND.md](docs/GUION_STAND.md)
+> - **Recorrido para ventas, contado por Glitch:** `https://<app>/story` (`frontend/public/story/index.html`)
 > - Correo con Power Automate: [docs/POWER_AUTOMATE.md](docs/POWER_AUTOMATE.md)
 
 ## Entorno en Azure

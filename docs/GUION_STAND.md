@@ -2,6 +2,9 @@
 
 > Objetivo: que el visitante viva la demo **con su propio problema** y se vaya con un PDF y una conversación comercial
 > abierta. Tú guías; la pantalla hace el trabajo.
+>
+> Para aprenderlo de forma visual, el mismo recorrido contado por Glitch está en `https://<app>/story`
+> (flechas para avanzar, `A` para modo automático, `F` pantalla completa).
 
 ## 0:00 – 0:30 · Enganche
 

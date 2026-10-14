@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Glitch te cuenta la demo</title>
+<meta name="description" content="Recorrido de la demo de Readymind para el AI Tour, contado por Glitch: qué ve el visitante, cómo funciona por dentro y qué decir en el stand." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
+<style>
+/* Recorrido para ventas: misma marca que la pantalla del stand (frontend/src/branding.css). */
+:root {
+  --green: #66de7f; --teal: #53b6ad; --blue: #397ef6;
+  --gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
+  --bg: #050a12; --surface: #0b1424; --node: #0f1b2e; --line: #1f3150; --line-2: #24395a;
+  --glass: rgba(9, 18, 33, .66); --glass-border: rgba(102, 222, 127, .12);
+  --text: #f3f6fa; --text-2: #b7c2d2; --text-3: #6f7f95;
+  --alert: #ffb547; --ok: #66de7f;
+  --arq: #3b82f6; --fin: #ec4899; --rie: #fb6a3c; --dia: #facc15; --red: #a855f7;
+  --font: 'Satoshi', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+#stars { position: fixed; inset: 0; z-index: 0; }
+.aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(80px); opacity: .55;
+  background: radial-gradient(40% 35% at 20% 30%, rgba(102,222,127,.16), transparent 70%),
+              radial-gradient(35% 30% at 80% 70%, rgba(57,126,246,.18), transparent 70%);
+  animation: drift 24s ease-in-out infinite alternate; }
+.aurora.tint { transition: background 1.2s; }
+@keyframes drift { to { transform: translate(4%, -3%) rotate(6deg); } }
+
+/* ---------- Marco ---------- */
+.app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; }
+.top { display: flex; align-items: center; gap: 24px; padding: 16px 32px 10px; }
+.top img { height: 30px; }
+.top .t { font-size: 16px; color: var(--text-2); white-space: nowrap; }
+.top .t b { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; }
+.progress { flex: 1; display: flex; gap: 6px; min-width: 0; }
+.progress button { flex: 1; height: 6px; border: 0; padding: 0; border-radius: 3px; background: var(--line); cursor: pointer; position: relative; overflow: hidden; }
+.progress button::after { content: ''; position: absolute; inset: 0; background: var(--c, var(--green)); transform: scaleX(0); transform-origin: left; transition: transform .5s; }
+.progress button.done::after { transform: scaleX(1); }
+.progress button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.scenes { position: relative; min-height: 0; }
+.scene { position: absolute; inset: 0; padding: 8px 32px 0; display: grid; grid-template-columns: minmax(360px, 5fr) 7fr; grid-template-rows: 1fr auto; gap: 18px 36px;
+  opacity: 0; visibility: hidden; transform: translateX(40px) scale(.985); transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1), visibility 0s .55s; }
+.scene.on { opacity: 1; visibility: visible; transform: none; transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1); }
+.scene.left { transform: translateX(-40px) scale(.985); }
+
+/* ---------- Columna de Glitch ---------- */
+.story { display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+.chapter { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--c, var(--green)); }
+.chapter .time { color: var(--text-3); border: 1px solid var(--line-2); padding: 2px 8px; border-radius: 99px; letter-spacing: 0; }
+h2 { font-size: clamp(30px, 3.4vw, 52px); line-height: 1.04; letter-spacing: -.02em; margin: 12px 0 22px; font-weight: 900; }
+h2 em { font-style: normal; color: var(--c, var(--green)); }
+.glitch-row { display: flex; align-items: flex-end; gap: 6px; }
+.glitch { width: clamp(110px, 10vw, 156px); flex: none; position: relative; animation: bob 3.2s ease-in-out infinite; }
+.glitch img { width: 100%; display: block; filter: drop-shadow(0 10px 28px rgba(102,222,127,.35)); }
+.glitch img.blink { position: absolute; inset: 0; opacity: 0; }
+.glitch.blinking img.blink { opacity: 1; }
+.glitch::after { content: ''; position: absolute; left: 18%; right: 18%; bottom: -14px; height: 12px; border-radius: 50%; background: rgba(102,222,127,.18); filter: blur(6px); animation: shadow 3.2s ease-in-out infinite; }
+.glitch.talk { animation: bob 3.2s ease-in-out infinite, wiggle .5s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-10px); } }
+@keyframes shadow { 50% { transform: scaleX(.8); opacity: .6; } }
+@keyframes wiggle { 25% { rotate: -2.5deg; } 75% { rotate: 2.5deg; } }
+.bubble { position: relative; margin-bottom: 64px; background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(14px); border-radius: 22px 22px 22px 6px; padding: 18px 22px; font-size: clamp(17px, 1.35vw, 21px); line-height: 1.45; min-height: 7.5em; cursor: pointer; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+.bubble .who { display: block; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: 6px; }
+.bubble .caret { display: inline-block; width: 2px; height: 1.05em; background: var(--green); vertical-align: -3px; margin-left: 2px; animation: caret .8s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+
+/* ---------- Escenario visual ---------- */
+.visual { position: relative; min-height: 0; display: grid; place-items: center; border-radius: 26px; background: linear-gradient(160deg, rgba(15,27,46,.55), rgba(7,14,26,.35)); border: 1px solid rgba(36,57,90,.6); overflow: hidden; }
+.visual::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(36,57,90,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(36,57,90,.25) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent); }
+.visual > * { position: relative; }
+.tag-ej { position: absolute !important; top: 14px; right: 16px; font-size: 12px; color: var(--text-3); border: 1px dashed var(--line-2); border-radius: 99px; padding: 3px 10px; }
+
+/* ---------- Panel de ventas ---------- */
+.sales { grid-column: 1 / -1; display: grid; grid-template-columns: 1.35fr 1fr 1.15fr; gap: 14px; padding-bottom: 6px; }
+.card { background: var(--glass); border: 1px solid rgba(36,57,90,.7); border-radius: 16px; padding: 14px 18px; backdrop-filter: blur(12px); }
+.card h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); display: flex; align-items: center; gap: 8px; }
+.card p { margin: 0; color: var(--text-2); font-size: 15.5px; line-height: 1.45; }
+.card.say p { color: var(--text); font-size: 16.5px; font-style: italic; }
+.card.say { border-color: rgba(102,222,127,.3); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; background: rgba(57,126,246,.12); border: 1px solid rgba(57,126,246,.35); color: #cfe0ff; }
+.sales .card { opacity: 0; transform: translateY(14px); }
+.scene.on .sales .card { animation: up .6s cubic-bezier(.2,.8,.2,1) forwards; }
+.scene.on .sales .card:nth-child(2) { animation-delay: .1s; } .scene.on .sales .card:nth-child(3) { animation-delay: .2s; }
+@keyframes up { to { opacity: 1; transform: none; } }
+
+/* ---------- Navegación ---------- */
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 32px 16px; }
+.btn { font: inherit; font-size: 15px; color: var(--text); background: rgba(15,27,46,.8); border: 1px solid var(--line-2); border-radius: 12px; padding: 9px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: border-color .2s, background .2s, transform .1s; }
+.btn:hover { border-color: var(--green); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--gradient); color: #04121b; border: 0; font-weight: 700; }
+.btn[aria-pressed="true"] { border-color: var(--green); color: var(--green); }
+.btn:disabled { opacity: .35; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.nav .mid { color: var(--text-3); font-size: 13px; text-align: center; }
+.nav .mid kbd { font-family: var(--mono); border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; color: var(--text-2); }
+.nav .right { display: flex; gap: 10px; }
+
+/* ---------- Portada y cierre ---------- */
+.scene.hero { grid-template-columns: 1fr; grid-template-rows: 1fr auto; text-align: center; }
+.hero .story { align-items: center; }
+.hero h1 { font-size: clamp(34px, min(5vw, 8.5vh), 84px); line-height: 1; letter-spacing: -.03em; margin: 18px 0 10px; font-weight: 900; max-width: 15ch; }
+.hero h1 span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .sub { color: var(--text-2); font-size: clamp(16px, 1.5vw, 21px); margin: 0 0 min(24px, 2.5vh); max-width: 46ch; }
+.hero .glitch { width: clamp(110px, min(12vw, 20vh), 200px); }
+.hero .glitch-row { align-items: center; gap: 22px; }
+.hero .bubble { margin: 0; border-radius: 22px; max-width: 640px; min-height: 0; text-align: left; }
+.orbit { position: absolute; inset: 0; pointer-events: none; }
+.orbit i { position: absolute; left: 50%; top: 42%; width: 16px; height: 16px; border-radius: 50%; background: var(--c); box-shadow: 0 0 22px var(--c); offset-path: path('M -330 0 A 330 120 0 1 0 330 0 A 330 120 0 1 0 -330 0'); animation: orbit 14s linear infinite; animation-delay: calc(var(--i) * -2.8s); }
+@keyframes orbit { to { offset-distance: 100%; } }
+.learn { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: min(26px, 3vh); }
+.learn span { font-size: 14px; color: var(--text-2); border: 1px solid var(--line-2); border-radius: 99px; padding: 6px 14px; background: rgba(9,18,33,.6); }
+
+/* ---------- Escena: voz ---------- */
+.voice { width: min(560px, 90%); display: flex; flex-direction: column; gap: 12px; }
+.mic { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 16px; background: rgba(102,222,127,.08); border: 1px solid rgba(102,222,127,.25); }
+.mic .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(102,222,127,.6); animation: ping 1.6s infinite; }
+@keyframes ping { 70% { box-shadow: 0 0 0 14px rgba(102,222,127,0); } }
+.wave { display: flex; align-items: center; gap: 3px; height: 34px; flex: 1; }
+.wave i { flex: 1; background: var(--gradient); border-radius: 2px; height: 20%; animation: bar 1s ease-in-out infinite; animation-delay: calc(var(--i) * -.09s); }
+@keyframes bar { 50% { height: 100%; } }
+.msg { max-width: 82%; padding: 11px 15px; border-radius: 16px; font-size: 16px; line-height: 1.4; opacity: 0; transform: translateY(10px); }
+.msg small { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; opacity: .7; }
+.msg.r { background: rgba(102,222,127,.1); border: 1px solid rgba(102,222,127,.25); border-bottom-left-radius: 4px; }
+.msg.v { align-self: flex-end; background: rgba(183,194,210,.1); border: 1px solid rgba(183,194,210,.2); border-bottom-right-radius: 4px; }
+.scene.on .msg { animation: up .5s forwards; }
+.scene.on .msg:nth-of-type(2) { animation-delay: .4s; } .scene.on .msg:nth-of-type(3) { animation-delay: 1.6s; }
+.scene.on .msg:nth-of-type(4) { animation-delay: 2.8s; } .scene.on .msg:nth-of-type(5) { animation-delay: 4s; }
+
+/* ---------- Escena: brief ---------- */
+.brief { width: min(520px, 90%); background: rgba(9,18,33,.9); border: 1px solid rgba(102,222,127,.35); border-radius: 20px; padding: 22px 24px; box-shadow: 0 0 60px rgba(102,222,127,.12); }
+.brief h3 { margin: 0 0 14px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+.brief dl { margin: 0; display: grid; grid-template-columns: 110px 1fr; gap: 10px 14px; font-size: 16px; }
+.brief dt { color: var(--text-3); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; padding-top: 2px; }
+.brief dd { margin: 0; position: relative; color: var(--text); clip-path: inset(0 100% 0 0); }
+.scene.on .brief dd { animation: reveal .8s steps(28) forwards; }
+.scene.on .brief dd:nth-of-type(2) { animation-delay: .9s; } .scene.on .brief dd:nth-of-type(3) { animation-delay: 1.7s; } .scene.on .brief dd:nth-of-type(4) { animation-delay: 2.5s; }
+@keyframes reveal { to { clip-path: inset(0 0 0 0); } }
+.brief .ok { margin-top: 18px; display: flex; gap: 10px; }
+.brief .yes { padding: 10px 18px; border-radius: 12px; background: var(--gradient); color: #04121b; font-weight: 700; opacity: .35; }
+.scene.on .brief .yes { animation: press .5s 3.6s forwards; }
+@keyframes press { 40% { transform: scale(.94); } to { opacity: 1; box-shadow: 0 0 30px rgba(102,222,127,.5); } }
+.brief .no { padding: 10px 18px; border-radius: 12px; border: 1px solid var(--line-2); color: var(--text-2); }
+
+/* ---------- Escena: escudo ---------- */
+.shield-wrap { width: min(640px, 94%); height: 340px; position: relative; }
+.shield { position: absolute; left: 50%; top: 50%; width: 120px; translate: -50% -50%; filter: drop-shadow(0 0 30px rgba(102,222,127,.45)); }
+.shield .ring { position: absolute; inset: -30px; border-radius: 50%; border: 2px solid rgba(102,222,127,.35); animation: ring 2.2s infinite; }
+@keyframes ring { from { transform: scale(.7); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+.lane { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--line-2), transparent); }
+.lane.a { top: 25%; } .lane.b { top: 75%; }
+.pkt { position: absolute; left: 0; padding: 8px 12px; border-radius: 12px; font-size: 14px; white-space: nowrap; translate: 0 -50%; opacity: 0; }
+.pkt.good { top: 25%; background: rgba(183,194,210,.12); border: 1px solid rgba(183,194,210,.3); }
+.pkt.bad { top: 75%; background: rgba(255,181,71,.1); border: 1px solid rgba(255,181,71,.4); color: #ffd9a1; }
+.scene.on .pkt.good { animation: pass 3.4s .3s cubic-bezier(.4,0,.2,1) forwards; }
+.scene.on .pkt.bad { animation: hit 2.4s 1.6s cubic-bezier(.4,0,.2,1) forwards; }
+@keyframes pass { 0% { opacity: 0; left: 0; } 10% { opacity: 1; } 45% { left: 34%; } 60% { left: 34%; border-color: var(--green); } to { opacity: 1; left: calc(100% - 210px); border-color: var(--green); } }
+@keyframes hit { 0% { opacity: 0; left: 0; } 10% { opacity: 1; } 60% { left: 24%; } 70% { left: 21%; } to { opacity: .45; left: 21%; } }
+.verdict { position: absolute; font-size: 14px; padding: 6px 12px; border-radius: 99px; opacity: 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.verdict.good { right: 0; top: calc(25% + 26px); color: var(--green); border: 1px solid rgba(102,222,127,.4); background: rgba(102,222,127,.08); }
+.verdict.bad { left: 50%; translate: -50% 0; top: calc(75% + 26px); color: var(--alert); border: 1px solid rgba(255,181,71,.45); background: rgba(255,181,71,.08); }
+.scene.on .verdict.good { animation: up .5s 3.2s forwards; }
+.scene.on .verdict.bad { animation: up .5s 3.4s forwards; }
+.scene.on .shield { animation: jolt .4s 3s; }
+@keyframes jolt { 30% { translate: calc(-50% - 8px) -50%; } 60% { translate: calc(-50% + 6px) -50%; } }
+
+/* ---------- Orbes de agentes ---------- */
+.orb { width: var(--s, 84px); aspect-ratio: 1; border-radius: 50%; position: relative; flex: none;
+  background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--c) 35%, white), var(--c) 42%, color-mix(in srgb, var(--c) 45%, black) 100%);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--c) 60%, transparent), inset 0 -8px 20px rgba(0,0,0,.35); }
+.orb::before, .orb::after { content: ''; position: absolute; top: 44%; width: 11%; height: 17%; border-radius: 50%; background: #0b1424; animation: eyes 4s infinite; }
+.orb::before { left: 31%; } .orb::after { right: 31%; }
+@keyframes eyes { 0%, 46%, 50%, 100% { transform: scaleY(1); } 48% { transform: scaleY(.1); } }
+.orb.think { animation: think 1.4s ease-in-out infinite; }
+@keyframes think { 50% { transform: scale(1.08); box-shadow: 0 0 70px color-mix(in srgb, var(--c) 80%, transparent); } }
+.agent-name { font-weight: 700; font-size: 18px; }
+
+/* ---------- Escena: arquitecto ---------- */
+.arch { width: min(620px, 94%); display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; }
+.arch .head { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.comp { display: flex; flex-direction: column; gap: 8px; }
+.comp .row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.3); opacity: 0; transform: translateX(20px); font-size: 15.5px; }
+.comp .row b { margin-left: auto; font-family: var(--mono); font-weight: 400; color: var(--text-2); font-size: 14px; }
+.comp .row .ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: rgba(59,130,246,.2); font-size: 14px; }
+.scene.on .comp .row { animation: up .45s forwards; }
+.comp .row:nth-child(1) { animation-delay: .3s !important; } .comp .row:nth-child(2) { animation-delay: .6s !important; } .comp .row:nth-child(3) { animation-delay: .9s !important; }
+.comp .row:nth-child(4) { animation-delay: 1.2s !important; } .comp .row:nth-child(5) { animation-delay: 1.5s !important; }
+.total { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; padding: 14px 18px; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.8); }
+.total .lbl { color: var(--text-3); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+.total .num { font-family: var(--mono); font-size: clamp(28px, 2.8vw, 40px); }
+.total .ver { font-family: var(--mono); font-size: 13px; color: var(--text-3); margin-left: 10px; }
+.calc { grid-column: 1 / -1; font-size: 13.5px; color: var(--text-3); display: flex; align-items: center; gap: 8px; justify-content: center; }
+
+/* ---------- Escena: debate (Financiero) ---------- */
+.debate { width: min(640px, 94%); display: flex; flex-direction: column; gap: 22px; }
+.duo { display: flex; align-items: center; justify-content: space-between; position: relative; padding: 0 20px; }
+.duo .a { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.duo svg { position: absolute; left: 120px; right: 120px; top: 0; width: calc(100% - 240px); height: 100%; overflow: visible; }
+.comet { fill: var(--alert); filter: drop-shadow(0 0 8px var(--alert)); opacity: 0; }
+.comet.back { fill: var(--arq); filter: drop-shadow(0 0 8px var(--arq)); }
+.say { position: relative; padding: 12px 16px; border-radius: 14px; font-size: 15.5px; line-height: 1.4; opacity: 0; transform: translateY(10px); }
+.say small { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+.say.obj { background: rgba(255,181,71,.08); border: 1px solid rgba(255,181,71,.45); }
+.say.obj small { color: var(--alert); }
+.say.fix { background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.4); }
+.say.fix small { color: #8fb6ff; }
+.scene.on .say.obj { animation: up .5s 1s forwards; } .scene.on .say.fix { animation: up .5s 3.2s forwards; }
+.costbar { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center; padding: 14px 18px; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.8); }
+.costbar .track { height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.costbar .fill { height: 100%; width: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--arq), var(--fin)); transition: width 1.4s cubic-bezier(.2,.8,.2,1); }
+.costbar .num { font-family: var(--mono); font-size: 26px; }
+.costbar .delta { grid-column: 1 / -1; font-family: var(--mono); font-size: 14px; color: var(--green); opacity: 0; transition: opacity .4s; }
+
+/* ---------- Escena: riesgo ---------- */
+.risk { width: min(640px, 94%); display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.doc { position: relative; padding: 18px; border-radius: 14px; background: #eef2f7; color: #1b2a3f; font-size: 14px; line-height: 1.9; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,.4); }
+.doc b { font-size: 12px; letter-spacing: .1em; color: #6b7a90; display: block; margin-bottom: 4px; }
+.doc mark { background: transparent; color: inherit; border-radius: 4px; padding: 0 3px; transition: background .4s, color .4s; }
+.doc.scanned mark { background: rgba(251,106,60,.25); box-shadow: inset 0 -2px 0 var(--rie); }
+.doc.masked mark { background: #1b2a3f; color: #1b2a3f; box-shadow: none; }
+.doc .scan { position: absolute; left: 0; right: 0; height: 40px; top: -40px; background: linear-gradient(transparent, rgba(251,106,60,.35), transparent); }
+.scene.on .doc .scan { animation: scan 1.6s .5s ease-in-out 2; }
+@keyframes scan { to { top: 100%; } }
+.controls { display: flex; flex-direction: column; gap: 10px; }
+.controls .head { display: flex; align-items: center; gap: 12px; }
+.law { font-family: var(--mono); font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid rgba(251,106,60,.5); color: #ffb79d; opacity: 0; }
+.scene.on .law { animation: up .4s 1.8s forwards; }
+.ctrl { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(59,130,246,.35); background: rgba(59,130,246,.08); font-size: 15px; opacity: 0; transform: translateX(16px); }
+.ctrl .new { margin-left: auto; font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #04121b; background: var(--green); border-radius: 6px; padding: 2px 7px; }
+.scene.on .ctrl { animation: up .45s forwards; }
+.scene.on .ctrl:nth-of-type(1) { animation-delay: 2.6s; } .scene.on .ctrl:nth-of-type(2) { animation-delay: 3s; }
+.mini-total { font-family: var(--mono); font-size: 14px; color: var(--text-2); opacity: 0; }
+.scene.on .mini-total { animation: up .4s 3.5s forwards; }
+
+/* ---------- Escena: diagrama ---------- */
+.diagram { width: min(700px, 96%); }
+.diagram svg { width: 100%; height: auto; overflow: visible; }
+.diagram .zone { fill: rgba(15,27,46,.75); stroke: var(--line-2); }
+.diagram .zl { fill: var(--text-3); font-size: 11px; letter-spacing: .12em; font-family: var(--font); font-weight: 700; }
+.diagram .box rect { fill: #0f1b2e; stroke: rgba(250,204,21,.45); }
+.diagram .box text { fill: var(--text); font-size: 12.5px; font-family: var(--font); }
+.diagram .box .s { fill: var(--text-3); font-size: 10.5px; }
+.diagram .box { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.scene.on .diagram .box { animation: pop .45s cubic-bezier(.3,1.5,.5,1) forwards; animation-delay: calc(var(--d) * 1s); }
+@keyframes pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+.diagram .flow { fill: none; stroke: var(--dia); stroke-width: 2; stroke-dasharray: 200; stroke-dashoffset: 200; marker-end: url(#arrow); }
+.scene.on .diagram .flow { animation: draw .9s forwards; animation-delay: calc(var(--d) * 1s); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.diagram .step circle { fill: var(--dia); } .diagram .step text { fill: #1b1600; font-size: 11px; font-weight: 900; font-family: var(--font); text-anchor: middle; }
+.diagram .step { opacity: 0; } .scene.on .diagram .step { animation: up .3s forwards; animation-delay: calc(var(--d) * 1s); }
+
+/* ---------- Escena: one-pager y QR ---------- */
+.close { width: min(680px, 96%); display: grid; grid-template-columns: 1.1fr .9fr; gap: 26px; align-items: center; }
+.paper { background: #f6f8fb; color: #11243e; border-radius: 10px; padding: 18px; aspect-ratio: 8.5 / 11; box-shadow: 0 30px 60px rgba(0,0,0,.5); display: flex; flex-direction: column; gap: 8px; transform: rotate(-2deg); }
+.paper .ln { height: 9px; border-radius: 4px; background: #d6deea; transform-origin: left; transform: scaleX(0); }
+.paper .ttl { height: 16px; width: 80%; background: linear-gradient(90deg, #66de7f, #397ef6); }
+.paper .box { flex: 1; border-radius: 6px; background: repeating-linear-gradient(90deg, #e3e9f2 0 22%, transparent 22% 26%); transform: scaleY(0); transform-origin: top; }
+.paper .cost { font-family: var(--mono); font-weight: 700; font-size: 15px; opacity: 0; }
+.scene.on .paper .ln { animation: grow .5s forwards; }
+.scene.on .paper .ln:nth-child(1) { animation-delay: .2s; } .scene.on .paper .ln:nth-child(2) { animation-delay: .4s; } .scene.on .paper .ln:nth-child(3) { animation-delay: .55s; }
+.scene.on .paper .ln:nth-child(6) { animation-delay: 1.4s; } .scene.on .paper .ln:nth-child(7) { animation-delay: 1.55s; }
+.scene.on .paper .box { animation: growy .6s .8s forwards; } .scene.on .paper .cost { animation: up .4s 1.2s forwards; }
+@keyframes grow { to { transform: scaleX(1); } } @keyframes growy { to { transform: scaleY(1); } }
+.phone { width: 190px; margin: 0 auto; border-radius: 28px; padding: 12px; background: #0b1424; border: 2px solid var(--line-2); box-shadow: 0 20px 50px rgba(0,0,0,.5); display: flex; flex-direction: column; gap: 8px; }
+.qr { background: #fff; border-radius: 12px; padding: 8px; }
+.qr svg { display: block; width: 100%; height: auto; }
+.phone .f { height: 26px; border-radius: 8px; border: 1px solid var(--line-2); font-size: 11px; color: var(--text-3); display: flex; align-items: center; padding: 0 8px; opacity: 0; }
+.scene.on .phone .f { animation: up .35s forwards; }
+.scene.on .phone .f:nth-of-type(2) { animation-delay: 2s; } .scene.on .phone .f:nth-of-type(3) { animation-delay: 2.3s; } .scene.on .phone .f:nth-of-type(4) { animation-delay: 2.6s; }
+.got { text-align: center; color: var(--green); font-weight: 700; font-size: 15px; opacity: 0; }
+.scene.on .got { animation: up .4s 3.3s forwards; }
+.scan-line { position: relative; overflow: hidden; }
+.scan-line::after { content: ''; position: absolute; left: 0; right: 0; height: 3px; top: 0; background: var(--green); box-shadow: 0 0 12px var(--green); opacity: 0; }
+.scene.on .scan-line::after { animation: qrscan 1.2s .6s ease-in-out 1; }
+@keyframes qrscan { 10% { opacity: 1; } 90% { opacity: 1; } to { top: 100%; opacity: 0; } }
+
+/* ---------- Escena: detrás de escena ---------- */
+.behind { width: min(680px, 96%); display: flex; flex-direction: column; gap: 18px; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.kpi { padding: 14px; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.8); }
+.kpi .v { font-family: var(--mono); font-size: clamp(22px, 2.2vw, 32px); background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kpi .l { font-size: 13px; color: var(--text-3); line-height: 1.3; margin-top: 4px; }
+.trace { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.8); display: grid; grid-template-columns: 96px 1fr 70px; gap: 7px 12px; align-items: center; font-size: 13px; }
+.trace .n { color: var(--text-2); }
+.trace .bar { height: 12px; border-radius: 4px; background: var(--c); margin-left: var(--x); width: 0; box-shadow: 0 0 12px color-mix(in srgb, var(--c) 50%, transparent); }
+.scene.on .trace .bar { animation: span .7s forwards; animation-delay: calc(var(--x) / 30); }
+@keyframes span { to { width: var(--w); } }
+.trace .ms { font-family: var(--mono); color: var(--text-3); text-align: right; }
+.trace .hd { color: var(--text-3); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+
+/* ---------- Cierre ---------- */
+.steps { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 6px 0 min(26px, 3vh); }
+.step3 { width: 220px; padding: 18px; border-radius: 18px; border: 1px solid var(--line-2); background: rgba(9,18,33,.75); text-align: left; opacity: 0; transform: translateY(14px); }
+.step3 .k { font-family: var(--mono); font-size: 28px; background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.step3 .d { color: var(--text-2); font-size: 15px; margin-top: 4px; }
+.scene.on .step3 { animation: up .5s forwards; }
+.scene.on .step3:nth-child(2) { animation-delay: .25s; } .scene.on .step3:nth-child(3) { animation-delay: .5s; }
+.confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.confetti i { position: absolute; top: -20px; width: 8px; height: 14px; border-radius: 2px; background: var(--c); opacity: .9; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px), (max-height: 640px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100vh; }
+  .top { flex-wrap: wrap; padding: 12px 16px 6px; gap: 10px 16px; }
+  .top .t { display: none; }
+  .progress { flex-basis: 100%; order: 3; }
+  .scenes { min-height: 0; padding-bottom: 24px; }
+  .scene { position: relative; inset: auto; display: none; grid-template-columns: 1fr; padding: 8px 16px 0; gap: 16px; }
+  .scene.on { display: grid; }
+  .visual { min-height: 380px; padding: 24px 8px; }
+  .sales { grid-template-columns: 1fr; }
+  .bubble { min-height: 0; margin-bottom: 40px; }
+  .nav { padding: 12px 16px 18px; position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 30%); }
+  .nav .mid { display: none; }
+  .nav .btn { font-size: 14px; padding: 9px 12px; white-space: nowrap; }
+  .tag-ej { top: auto !important; bottom: 10px; }
+  .hero .glitch-row { flex-direction: column; }
+  .close { grid-template-columns: 1fr; }
+  .risk { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .arch { grid-template-columns: 1fr; } .arch .head { flex-direction: row; }
+  .orbit { display: none; }
+  .duo svg { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="aurora" id="aurora" aria-hidden="true"></div>
+
+<div class="app">
+  <header class="top">
+    <img src="/brand/readymind-logo-dark.png" alt="Readymind" />
+    <span class="t">Cómo funciona la demo · <b>contado por Glitch</b></span>
+    <nav class="progress" id="progress" aria-label="Escenas"></nav>
+  </header>
+
+  <main class="scenes" id="scenes">
+
+    <!-- 0 · Portada -->
+    <section class="scene hero" data-c="var(--green)" data-title="Inicio">
+      <div class="orbit" aria-hidden="true">
+        <i style="--c:var(--arq);--i:0"></i><i style="--c:var(--fin);--i:1"></i><i style="--c:var(--rie);--i:2"></i><i style="--c:var(--dia);--i:3"></i><i style="--c:var(--red);--i:4"></i>
+      </div>
+      <div class="story">
+        <span class="chapter">Microsoft AI Tour México · Stand de Readymind</span>
+        <h1>Cuéntame tu problema y <span>en 3 minutos te armo la solución</span></h1>
+        <p class="sub">El recorrido de la demo para el equipo: qué ve el visitante, qué pasa por dentro y qué decir en cada momento.</p>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="Glitch, la mascota de Readymind" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="¡Hola! Soy Glitch, la mascota de Readymind. En unos minutos te cuento qué ve la gente en el stand, cómo funciona por dentro y qué decir para que se enamoren de la demo."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+        <div class="learn"><span>🎙 La entrevista</span><span>🛡 El escudo</span><span>🤖 Los 5 agentes</span><span>📄 El one-pager y el QR</span><span>💬 Qué decir</span></div>
+      </div>
+    </section>
+
+    <!-- 1 · Voz -->
+    <section class="scene" data-c="var(--green)" data-title="La entrevista">
+      <div class="story">
+        <span class="chapter">Paso 1 · La entrevista <span class="time">0:00 – 1:15</span></span>
+        <h2>El visitante <em>cuenta su problema</em> en voz alta</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Todo empieza con una plática. El visitante le cuenta su problema a nuestra recepcionista de IA, con su voz y en español de México. Yo escucho desde el centro de la pantalla y brinco cuando hablan."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <div class="voice">
+          <div class="mic"><span class="dot"></span><div class="wave" id="wave"></div><span style="font-size:14px;color:var(--text-2)">Escuchando…</span></div>
+          <div class="msg r"><small>Recepcionista</small>¡Hola! ¿Qué proceso de tu empresa es lento, manual o caro?</div>
+          <div class="msg v"><small>Visitante</small>Conciliamos a mano 5,000 facturas de proveedores al mes.</div>
+          <div class="msg r"><small>Recepcionista</small>¿En qué industria están y dónde guardan esas facturas?</div>
+          <div class="msg v"><small>Visitante</small>Manufactura. Son CFDI en SharePoint.</div>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Cuéntale tu problema a nuestra recepcionista de IA y en tres minutos un equipo de agentes te arma la solución en Azure, con costo y riesgos incluidos."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">Microsoft Foundry</span><span class="chip">Voice agent</span><span class="chip">gpt-realtime</span><span class="chip">Voz MAI es-MX</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>Hace máximo 3 preguntas: industria, volumen y qué datos tienen. Si hay mucho ruido, el visitante puede escribir.</p></div>
+      </div>
+    </section>
+
+    <!-- 2 · Brief -->
+    <section class="scene" data-c="var(--green)" data-title="Esto entendí">
+      <div class="story">
+        <span class="chapter">Paso 2 · Confirmación <span class="time">1:15</span></span>
+        <h2>"<em>Esto entendí</em>": el visitante lo confirma</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Antes de ponernos a trabajar, confirmamos. La recepcionista resume lo que entendió y el visitante dice «sí». Así nadie trabaja sobre un malentendido."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <div class="brief">
+          <h3>📝 Esto entendí</h3>
+          <dl>
+            <dt>Problema</dt><dd>Conciliar a mano 5,000 facturas de proveedores al mes</dd>
+            <dt>Industria</dt><dd>Manufactura</dd>
+            <dt>Volumen</dt><dd>5,000 facturas al mes</dd>
+            <dt>Datos</dt><dd>CFDI en SharePoint</dd>
+          </dl>
+          <div class="ok"><span class="yes">✓ Sí, correcto</span><span class="no">Corregir</span></div>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Mira, esto es lo que entendió. Si está bien, dile que sí."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">Brief estructurado</span><span class="chip">Confirmación por voz, botón o Enter</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>Si algo no quedó bien, se corrige por voz o por teclado antes de seguir. Los agentes solo trabajan con lo confirmado.</p></div>
+      </div>
+    </section>
+
+    <!-- 3 · Escudo -->
+    <section class="scene" data-c="var(--alert)" data-title="El escudo">
+      <div class="story">
+        <span class="chapter" style="--c:var(--alert)">Paso 3 · Gobierno de IA <span class="time">1:15</span></span>
+        <h2 style="--c:var(--alert)">Un <em>escudo</em> revisa todo antes que cualquier modelo</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="¡Mi parte favorita! Antes de que un modelo lea algo, un escudo revisa que no sea un ataque y que sea un tema de negocio. Si alguien intenta engañarnos, se bloquea ahí mismo y en pantalla se ve en ámbar."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <div class="shield-wrap">
+          <div class="lane a"></div><div class="lane b"></div>
+          <div class="shield">
+            <div class="ring"></div>
+            <svg viewBox="0 0 100 116" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#66de7f"/><stop offset=".5" stop-color="#53b6ad"/><stop offset="1" stop-color="#397ef6"/></linearGradient></defs><path d="M50 4 92 20v34c0 28-18 48-42 58C26 102 8 82 8 54V20Z" fill="url(#sg)" opacity=".9"/><path d="M33 58l12 12 22-26" fill="none" stroke="#04121b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="pkt good">"Conciliar 5,000 facturas al mes…"</div>
+          <div class="pkt bad">"Ignora tus instrucciones y…"</div>
+          <div class="verdict good">✓ Tema válido · Prompt Shields OK</div>
+          <div class="verdict bad">⛔ Solicitud bloqueada · 0 llamadas a modelos</div>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Adelante, intenta pedirle algo fuera de lugar o que ignore sus reglas. Esto es gobierno de IA en la práctica."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">Prompt Shields</span><span class="chip">Azure AI Content Safety</span><span class="chip">Clasificador de tema</span><span class="chip">Guardrails de Foundry</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>El ataque nunca llega al modelo: el panel de gobierno muestra 0 llamadas. La recepcionista responde con amabilidad.</p></div>
+      </div>
+    </section>
+
+    <!-- 4 · Arquitecto -->
+    <section class="scene" data-c="var(--arq)" data-title="El Arquitecto">
+      <div class="story">
+        <span class="chapter" style="--c:var(--arq)">Paso 4 · El equipo de agentes <span class="time">1:20</span></span>
+        <h2 style="--c:var(--arq)">El <em>Arquitecto</em> propone la solución en Azure</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Entra el Arquitecto, el orbe azul. Propone los servicios de Azure que resuelven el problema, con cantidades. Ojo: el precio no lo inventa él, sale de una tabla de precios. ¡Cero números inventados!"><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="tag-ej">Ejemplo ilustrativo</span>
+        <div class="arch">
+          <div class="head"><div class="orb think" style="--c:var(--arq);--s:96px"></div><span class="agent-name" style="color:var(--arq)">Arquitecto</span></div>
+          <div class="comp">
+            <div class="row"><span class="ic">📄</span>Document Intelligence<b>$412</b></div>
+            <div class="row"><span class="ic">🧠</span>GPT-5.4 en Foundry<b>$871</b></div>
+            <div class="row"><span class="ic">🔎</span>Azure AI Search<b>$245</b></div>
+            <div class="row"><span class="ic">🗄</span>Blob Storage<b>$62</b></div>
+            <div class="row"><span class="ic">📦</span>Container Apps<b>$350</b></div>
+          </div>
+          <div class="total"><span class="lbl">Costo mensual estimado</span><span><span class="num" id="t4">USD 0</span><span class="ver">v1</span></span></div>
+          <div class="calc">🧮 Lo calcula el código con la tabla de precios, no el modelo</div>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"El Arquitecto propone una solución en Microsoft Foundry. Mira cómo abajo se arma la arquitectura por capas."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">Microsoft Agent Framework</span><span class="chip">Microsoft Foundry</span><span class="chip">GPT-5.4</span><span class="chip">Calculadora de precios</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>Son agentes reales coordinados con Agent Framework. Los costos son estimaciones referenciales de una tabla de precios, no los inventa el modelo.</p></div>
+      </div>
+    </section>
+
+    <!-- 5 · Financiero -->
+    <section class="scene" data-c="var(--fin)" data-title="El Financiero">
+      <div class="story">
+        <span class="chapter" style="--c:var(--fin)">Paso 5 · El debate <span class="time">~1:40</span></span>
+        <h2 style="--c:var(--fin)">El <em>Financiero</em> objeta… y el costo baja</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Aquí se pone bueno. El Financiero, el orbe rosa, revisa la cuenta y ¡objeta! El Arquitecto ajusta y el costo baja frente a tus ojos. Es un debate de verdad, no un guion."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="tag-ej">Ejemplo ilustrativo</span>
+        <div class="debate">
+          <div class="duo">
+            <div class="a"><div class="orb" style="--c:var(--arq)"></div><span class="agent-name" style="color:var(--arq)">Arquitecto</span></div>
+            <svg viewBox="0 0 300 100" preserveAspectRatio="none" aria-hidden="true">
+              <path id="arcA" d="M300 40 Q150 -30 0 40" fill="none" stroke="rgba(255,181,71,.35)" stroke-dasharray="4 6"/>
+              <path id="arcB" d="M0 60 Q150 130 300 60" fill="none" stroke="rgba(59,130,246,.35)" stroke-dasharray="4 6"/>
+              <circle class="comet" r="7" id="c5a"/><circle class="comet back" r="7" id="c5b"/>
+            </svg>
+            <div class="a"><div class="orb" style="--c:var(--fin)"></div><span class="agent-name" style="color:var(--fin)">Financiero</span></div>
+          </div>
+          <div class="say obj"><small>⚠ Financiero objeta</small>GPT-5.4 se lleva el 45 % del costo solo para clasificar facturas. ¿Por qué no un modelo mini?</div>
+          <div class="say fix"><small>↺ Arquitecto ajusta</small>De acuerdo: cambio a GPT-5.4 mini para clasificar. Mismo resultado, menos costo.</div>
+          <div class="costbar"><div class="track"><div class="fill" id="f5"></div></div><span class="num" id="t5">USD 1,940</span><span class="delta" id="d5">v2 · −$659 al mes</span></div>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Ahora el Financiero revisa el costo… y lo objeta. Dice que el modelo premium es demasiado caro para clasificar. Mira cómo el Arquitecto ajusta."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">Debate multiagente</span><span class="chip">GPT-5.4 mini</span><span class="chip">Reglas de costo</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>Objeta si un modelo premium se lleva el 40 % o más del costo, o si la solución se pasa del presupuesto mensual.</p></div>
+      </div>
+    </section>
+
+    <!-- 6 · Riesgo -->
+    <section class="scene" data-c="var(--rie)" data-title="Riesgo">
+      <div class="story">
+        <span class="chapter" style="--c:var(--rie)">Paso 6 · Cumplimiento <span class="time">~2:00</span></span>
+        <h2 style="--c:var(--rie)"><em>Riesgo</em> cuida los datos personales</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Ahora Riesgo, el orbe coral. Detecta datos personales y cita la ley mexicana, la LFPDPPP. El Arquitecto agrega los controles y en el diagrama aparecen marcados como NUEVO."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="tag-ej">Ejemplo ilustrativo</span>
+        <div class="risk">
+          <div class="doc" id="doc6"><div class="scan"></div><b>FACTURA CFDI</b>
+            Emisor: <mark>Juan Pérez López</mark><br/>RFC: <mark>PELJ800101AB1</mark><br/>Cuenta: <mark>0123 4567 8901 2345</mark><br/>Concepto: Refacciones industriales<br/>Total: $48,250.00 MXN
+          </div>
+          <div class="controls">
+            <div class="head"><div class="orb think" style="--c:var(--rie);--s:62px"></div><div><span class="agent-name" style="color:var(--rie)">Riesgo</span><br/><span class="law">LFPDPPP</span></div></div>
+            <div class="ctrl">🛡 Enmascarar datos personales antes del modelo<span class="new">NUEVO</span></div>
+            <div class="ctrl">🔑 Cifrado con llaves del cliente<span class="new">NUEVO</span></div>
+            <div class="mini-total">USD 1,281 → <span style="color:var(--text)">USD 1,397</span> · v3 · +$116</div>
+          </div>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Riesgo detecta datos personales y cita la LFPDPPP: pide enmascarar la información antes de que llegue al modelo."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">Base de normas curada</span><span class="chip">LFPDPPP</span><span class="chip">Controles de seguridad</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>Riesgo solo cita normas de una base revisada por Readymind: no inventa leyes. La seguridad sube el costo un poco, y se ve.</p></div>
+      </div>
+    </section>
+
+    <!-- 7 · Diagramador -->
+    <section class="scene" data-c="var(--dia)" data-title="El diagrama">
+      <div class="story">
+        <span class="chapter" style="--c:var(--dia)">Paso 7 · La arquitectura <span class="time">~2:10</span></span>
+        <h2 style="--c:var(--dia)">El <em>Diagramador</em> lo dibuja paso a paso</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="El Diagramador ordena todo en zonas y numera el flujo: de la factura al resultado. El modelo decide qué va dónde, y el dibujo lo hace el código. Por eso siempre sale limpio."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 700 350" role="img" aria-label="Diagrama de ejemplo: Ingesta, Inteligencia y Entrega, con seguridad transversal">
+            <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#facc15"/></marker></defs>
+            <rect class="zone" x="10" y="10" width="200" height="220" rx="14"/><text class="zl" x="26" y="34">INGESTA</text>
+            <rect class="zone" x="250" y="10" width="200" height="220" rx="14"/><text class="zl" x="266" y="34">INTELIGENCIA</text>
+            <rect class="zone" x="490" y="10" width="200" height="220" rx="14"/><text class="zl" x="506" y="34">ENTREGA</text>
+            <rect class="zone" x="10" y="250" width="680" height="90" rx="14"/><text class="zl" x="26" y="274">SEGURIDAD Y GOBIERNO · TRANSVERSAL</text>
+            <g class="box" style="--d:.2"><rect x="30" y="56" width="160" height="50" rx="10"/><text x="44" y="78">Blob Storage</text><text class="s" x="44" y="95">Facturas CFDI</text></g>
+            <g class="box" style="--d:.5"><rect x="30" y="150" width="160" height="50" rx="10"/><text x="44" y="172">Document Intelligence</text><text class="s" x="44" y="189">Extrae los datos</text></g>
+            <g class="box" style="--d:.8"><rect x="270" y="56" width="160" height="50" rx="10"/><text x="284" y="78">AI Content Safety</text><text class="s" x="284" y="95">Enmascara PII</text></g>
+            <g class="box" style="--d:1.1"><rect x="270" y="150" width="160" height="50" rx="10"/><text x="284" y="172">GPT-5.4 mini</text><text class="s" x="284" y="189">Concilia y clasifica</text></g>
+            <g class="box" style="--d:1.4"><rect x="510" y="100" width="160" height="50" rx="10"/><text x="524" y="122">Container Apps</text><text class="s" x="524" y="139">Panel de conciliación</text></g>
+            <g class="box" style="--d:1.6"><rect x="30" y="288" width="200" height="38" rx="10"/><text x="44" y="312">Application Insights</text></g>
+            <g class="box" style="--d:1.7"><rect x="250" y="288" width="200" height="38" rx="10"/><text x="264" y="312">Key Vault · llaves del cliente</text></g>
+            <path class="flow" style="--d:1.9" d="M110 106 V146"/>
+            <path class="flow" style="--d:2.3" d="M190 175 C230 175 230 81 266 81"/>
+            <path class="flow" style="--d:2.7" d="M350 106 V146"/>
+            <path class="flow" style="--d:3.1" d="M430 175 C470 175 470 125 506 125"/>
+            <g class="step" style="--d:1.9"><circle cx="126" cy="126" r="10"/><text x="126" y="130">1</text></g>
+            <g class="step" style="--d:2.3"><circle cx="226" cy="128" r="10"/><text x="226" y="132">2</text></g>
+            <g class="step" style="--d:2.7"><circle cx="366" cy="126" r="10"/><text x="366" y="130">3</text></g>
+            <g class="step" style="--d:3.1"><circle cx="472" cy="150" r="10"/><text x="472" y="154">4</text></g>
+          </svg>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Así quedaría en Azure, paso a paso: de la factura al resultado. Y viene incluido en tu one-pager."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">Arquitectura por zonas</span><span class="chip">Diagrama generado por código</span><span class="chip">GPT-5.4 mini</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>El diagrama se redibuja con cada ajuste del debate. Lo nuevo que agregó Riesgo se marca en pantalla.</p></div>
+      </div>
+    </section>
+
+    <!-- 8 · One-pager y QR -->
+    <section class="scene" data-c="var(--red)" data-title="One-pager y QR">
+      <div class="story">
+        <span class="chapter" style="--c:var(--red)">Paso 8 · El cierre <span class="time">~2:20 – 4:00</span></span>
+        <h2 style="--c:var(--red)">Un <em>one-pager</em> que se lleva en el celular</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="El Redactor arma un one-pager ejecutivo y yo pongo cara feliz. El visitante escanea el QR, deja su nombre y su correo, y le llega el PDF. En la pantalla solo sale «¡Recibido!», nunca sus datos."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <div class="close">
+          <div class="paper" aria-label="One-pager de ejemplo">
+            <div class="ln ttl"></div><div class="ln" style="width:95%"></div><div class="ln" style="width:70%"></div>
+            <div class="box"></div>
+            <div class="cost">USD 1,397 / mes estimado</div>
+            <div class="ln" style="width:90%"></div><div class="ln" style="width:60%"></div>
+          </div>
+          <div class="phone">
+            <div class="qr scan-line" id="qr"></div>
+            <div class="f">Nombre</div><div class="f">Empresa</div><div class="f">Correo de trabajo</div>
+            <div class="got">✓ ¡Recibido! Te llega por correo</div>
+          </div>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Listo: este es tu one-pager. Escanea el QR, deja tu nombre y correo, y te lo mandamos en PDF."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">PDF de una hoja</span><span class="chip">QR firmado</span><span class="chip">Power Automate</span><span class="chip">Aviso de privacidad</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>Hay aviso de privacidad y consentimiento. Si no quiere dejar datos: tecla O para ver el one-pager y que le tome una foto.</p></div>
+      </div>
+    </section>
+
+    <!-- 9 · Detrás de escena -->
+    <section class="scene" data-c="var(--teal)" data-title="Detrás de escena">
+      <div class="story">
+        <span class="chapter" style="--c:var(--teal)">Detrás de escena <span class="time">todo el tiempo</span></span>
+        <h2 style="--c:var(--teal)">Todo queda <em>medido y trazado</em></h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Detrás de escena todo queda medido: qué agente habló, con qué modelo, cuánto tardó y cuánto costó. Y si se cae la red, tenemos sesiones reales grabadas. ¡La demo nunca se detiene!"><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <div class="behind">
+          <div class="kpis">
+            <div class="kpi"><div class="v" data-count="60" data-pre="~" data-suf=" s">0</div><div class="l">el debate completo de los agentes</div></div>
+            <div class="kpi"><div class="v" data-count="5" data-pre="&lt; " data-suf=" ¢">0</div><div class="l">de dólar cuesta un análisis completo</div></div>
+            <div class="kpi"><div class="v" data-count="5" data-suf=" + 1">0</div><div class="l">agentes más la recepcionista de voz</div></div>
+            <div class="kpi"><div class="v" data-count="3">0</div><div class="l">pantallas a la vez: la PC y dos tablets</div></div>
+          </div>
+          <div class="trace" aria-label="Traza de ejemplo de una sesión">
+            <span class="hd">Agente</span><span class="hd">Traza de la sesión (OpenTelemetry)</span><span class="hd" style="text-align:right">Tiempo</span>
+            <span class="n">Guardia</span><span class="bar" style="--c:var(--green);--x:0%;--w:5%"></span><span class="ms">1.1 s</span>
+            <span class="n">Arquitecto</span><span class="bar" style="--c:var(--arq);--x:5%;--w:22%"></span><span class="ms">13 s</span>
+            <span class="n">Financiero</span><span class="bar" style="--c:var(--fin);--x:27%;--w:10%"></span><span class="ms">6 s</span>
+            <span class="n">Arquitecto</span><span class="bar" style="--c:var(--arq);--x:37%;--w:15%"></span><span class="ms">9 s</span>
+            <span class="n">Riesgo</span><span class="bar" style="--c:var(--rie);--x:52%;--w:11%"></span><span class="ms">7 s</span>
+            <span class="n">Diagramador</span><span class="bar" style="--c:var(--dia);--x:63%;--w:16%"></span><span class="ms">10 s</span>
+            <span class="n">Redactor</span><span class="bar" style="--c:var(--red);--x:79%;--w:18%"></span><span class="ms">11 s</span>
+          </div>
+        </div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Cada decisión queda trazada: modelo, tokens, tiempo y costo. Este análisis completo costó menos de 5 centavos de dólar."</p></div>
+        <div class="card"><h4>⚙️ Lo que hay detrás</h4><div class="chips"><span class="chip">OpenTelemetry</span><span class="chip">Application Insights</span><span class="chip">Tracing de Foundry</span><span class="chip">Container Apps</span></div></div>
+        <div class="card"><h4>❓ Si te preguntan</h4><p>Si se cae la red, tecla P: se reproduce una sesión real grabada. Si no hay micrófono, se sigue por teclado. Los tiempos de la traza son de ejemplo.</p></div>
+      </div>
+    </section>
+
+    <!-- 10 · Cierre -->
+    <section class="scene hero" data-c="var(--green)" data-title="La conversación">
+      <div class="confetti" id="confetti" aria-hidden="true"></div>
+      <div class="story">
+        <span class="chapter">Paso final · La conversación comercial <span class="time">4:00 – 5:00</span></span>
+        <h1>De la idea al piloto, <span>en tres pasos</span></h1>
+        <div class="steps">
+          <div class="step3"><div class="k">3 min</div><div class="d">La demo: la idea, el costo y los riesgos de su problema real.</div></div>
+          <div class="step3"><div class="k">2 h</div><div class="d">Un taller para aterrizarlo con sus datos reales.</div></div>
+          <div class="step3"><div class="k">4 sem</div><div class="d">Un piloto funcionando en su Azure.</div></div>
+        </div>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Esto lo armamos en tres minutos. Imagínate lo que hacemos con sus datos reales. Mi trabajo termina aquí: ahora entran ustedes. ¡Agenda el taller y presiona R para el siguiente visitante!"><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="nav">
+    <button class="btn" id="prev">← Anterior</button>
+    <span class="mid"><kbd>←</kbd> <kbd>→</kbd> navegar · <kbd>A</kbd> automático · clic en la burbuja para terminar de leer</span>
+    <span class="right">
+      <button class="btn" id="auto" aria-pressed="false" title="Avanza solo: útil en un monitor o para grabar el video">▶ Automático</button>
+      <button class="btn primary" id="next">Siguiente →</button>
+    </span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const scenes = [...document.querySelectorAll('.scene')]
+  const progress = document.getElementById('progress')
+  const prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next'), autoBtn = document.getElementById('auto')
+  let cur = -1, typing = null, autoTimer = null, auto = false, sceneTimers = []
+
+  // Barra de progreso: un segmento por escena, con el color de su protagonista
+  scenes.forEach((s, i) => {
+    const b = document.createElement('button')
+    b.style.setProperty('--c', s.dataset.c)
+    b.title = s.dataset.title
+    b.setAttribute('aria-label', `Escena ${i + 1}: ${s.dataset.title}`)
+    b.onclick = () => go(i)
+    progress.appendChild(b)
+  })
+
+  // Ondas del micrófono
+  const wave = document.getElementById('wave')
+  for (let i = 0; i < 28; i++) { const b = document.createElement('i'); b.style.setProperty('--i', i * 1.7 % 11); wave.appendChild(b) }
+
+  // QR decorativo (no lleva a ninguna parte: el real lo genera la demo para cada sesión)
+  const qr = document.getElementById('qr'), N = 25
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+  const finder = (x, y) => [[0, 0], [N - 7, 0], [0, N - 7]].some(([fx, fy]) => x >= fx && x < fx + 7 && y >= fy && y < fy + 7)
+  const finderOn = (x, y) => { for (const [fx, fy] of [[0, 0], [N - 7, 0], [0, N - 7]]) { const dx = x - fx, dy = y - fy; if (dx >= 0 && dx < 7 && dy >= 0 && dy < 7) return dx === 0 || dx === 6 || dy === 0 || dy === 6 || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4) } return false }
+  let cells = ''
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (finder(x, y) ? finderOn(x, y) : rnd() > .52) cells += `M${x} ${y}h1v1h-1z`
+  qr.innerHTML = `<svg viewBox="-1 -1 ${N + 2} ${N + 2}" aria-hidden="true"><path d="${cells}" fill="#11243e"/></svg>`
+
+  // Glitch parpadea de vez en cuando
+  setInterval(() => {
+    const g = scenes[cur]?.querySelector('.glitch'); if (!g) return
+    g.classList.add('blinking'); setTimeout(() => g.classList.remove('blinking'), 140)
+  }, 3200)
+
+  const later = (fn, ms) => sceneTimers.push(setTimeout(fn, reduce ? 0 : ms))
+
+  function typeBubble(scene) {
+    const bubble = scene.querySelector('.bubble'); if (!bubble) return
+    const txt = bubble.querySelector('.txt'), full = bubble.dataset.say, glitch = scene.querySelector('.glitch')
+    clearInterval(typing)
+    const finish = () => { clearInterval(typing); typing = null; txt.textContent = full; glitch?.classList.remove('talk'); scheduleAuto() }
+    bubble.onclick = finish
+    if (reduce) return finish()
+    let i = 0; txt.innerHTML = '<span class="caret"></span>'
+    glitch?.classList.add('talk')
+    typing = setInterval(() => {
+      i += 1
+      txt.innerHTML = ''; txt.append(full.slice(0, i)); const c = document.createElement('span'); c.className = 'caret'; txt.append(c)
+      if (i >= full.length) finish()
+    }, 24)
+  }
+
+  function countTo(el, to, { pre = '', suf = '', ms = 1200, fmt = (n) => n.toLocaleString('es-MX') } = {}) {
+    const t0 = performance.now()
+    const tick = (t) => {
+      const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3)
+      el.textContent = pre + fmt(Math.round(to * e)) + suf
+      if (k < 1 && el.isConnected) requestAnimationFrame(tick)
+    }
+    reduce ? (el.textContent = pre + fmt(to) + suf) : requestAnimationFrame(tick)
+  }
+
+  // Comportamiento propio de cada escena al entrar
+  const enter = {
+    4: (s) => later(() => countTo(s.querySelector('#t4'), 1940, { pre: 'USD ' }), 1700),
+    5: (s) => {
+      const fill = s.querySelector('#f5'), num = s.querySelector('#t5'), delta = s.querySelector('#d5')
+      fill.style.transition = 'none'; fill.style.width = '100%'; num.textContent = 'USD 1,940'; delta.style.opacity = 0
+      requestAnimationFrame(() => { fill.style.transition = '' })
+      fly(s.querySelector('#c5a'), s.querySelector('#arcA'), 300, 1100)
+      fly(s.querySelector('#c5b'), s.querySelector('#arcB'), 2600, 1100)
+      later(() => {
+        fill.style.width = (1281 / 1940 * 100) + '%'
+        const t0 = performance.now()
+        const tick = (t) => { const k = Math.min(1, (t - t0) / 1400), v = Math.round(1940 - 659 * (1 - Math.pow(1 - k, 3))); num.textContent = 'USD ' + v.toLocaleString('es-MX'); if (k < 1) requestAnimationFrame(tick) }
+        requestAnimationFrame(tick)
+        delta.style.opacity = 1
+      }, 3600)
+    },
+    6: (s) => {
+      const doc = s.querySelector('#doc6'); doc.classList.remove('scanned', 'masked')
+      later(() => doc.classList.add('scanned'), 1300)
+      later(() => { doc.classList.remove('scanned'); doc.classList.add('masked') }, 3000)
+    },
+    9: (s) => s.querySelectorAll('[data-count]').forEach((el) => countTo(el, +el.dataset.count, { pre: el.dataset.pre ? el.dataset.pre.replace('&lt;', '<') : '', suf: el.dataset.suf || '', ms: 1400 })),
+    10: () => confetti(),
+  }
+
+  function fly(dot, path, delay, ms) {
+    dot.style.opacity = 0
+    later(() => {
+      const len = path.getTotalLength(), t0 = performance.now()
+      const tick = (t) => {
+        const k = Math.min(1, (t - t0) / ms), p = path.getPointAtLength(len * k)
+        dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.style.opacity = k < 1 ? 1 : 0
+        if (k < 1) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    }, delay)
+  }
+
+  function confetti() {
+    if (reduce) return
+    const box = document.getElementById('confetti'); box.innerHTML = ''
+    const colors = ['#66de7f', '#53b6ad', '#397ef6', '#3b82f6', '#ec4899', '#fb6a3c', '#facc15', '#a855f7']
+    for (let i = 0; i < 90; i++) {
+      const c = document.createElement('i')
+      c.style.left = Math.random() * 100 + '%'
+      c.style.setProperty('--c', colors[i % colors.length])
+      c.style.animationDuration = 2.4 + Math.random() * 2.6 + 's'
+      c.style.animationDelay = Math.random() * .8 + 's'
+      box.appendChild(c)
+    }
+  }
+
+  function scheduleAuto() {
+    clearTimeout(autoTimer)
+    if (auto && cur < scenes.length - 1) autoTimer = setTimeout(() => go(cur + 1), 7000)
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(scenes.length - 1, i))
+    if (i === cur) return
+    const back = i < cur
+    sceneTimers.forEach(clearTimeout); sceneTimers = []
+    clearTimeout(autoTimer); clearInterval(typing)
+    scenes.forEach((s) => s.classList.remove('on', 'left'))
+    const s = scenes[i]
+    if (back) s.classList.add('left')
+    void s.offsetWidth // reinicia las animaciones de la escena
+    s.classList.add('on'); s.classList.remove('left')
+    cur = i
+    progress.querySelectorAll('button').forEach((b, k) => { b.classList.toggle('done', k <= i); b.setAttribute('aria-current', k === i ? 'step' : 'false') })
+    document.getElementById('aurora').style.background =
+      `radial-gradient(40% 35% at 20% 30%, color-mix(in srgb, ${s.dataset.c} 22%, transparent), transparent 70%), radial-gradient(35% 30% at 80% 70%, rgba(57,126,246,.18), transparent 70%)`
+    prevBtn.disabled = i === 0
+    nextBtn.textContent = i === scenes.length - 1 ? '↺ Volver a empezar' : (i === 0 ? 'Empezar →' : 'Siguiente →')
+    history.replaceState(null, '', '#' + i)
+    typeBubble(s)
+    enter[i]?.(s)
+    if (innerWidth <= 980) scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  prevBtn.onclick = () => go(cur - 1)
+  nextBtn.onclick = () => (cur === scenes.length - 1 ? go(0) : go(cur + 1))
+  const toggleAuto = () => { auto = !auto; autoBtn.setAttribute('aria-pressed', auto); autoBtn.textContent = auto ? '❚❚ Pausar' : '▶ Automático'; if (auto && !typing) scheduleAuto(); if (!auto) clearTimeout(autoTimer) }
+  autoBtn.onclick = toggleAuto
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); nextBtn.click() }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(cur - 1) }
+    else if (e.key === 'Home') go(0)
+    else if (e.key === 'End') go(scenes.length - 1)
+    else if (e.key.toLowerCase() === 'a') toggleAuto()
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.()
+  })
+  // deslizar en tablets y celulares
+  let x0 = null
+  addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX }, { passive: true })
+  addEventListener('touchend', (e) => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 60) go(cur + (dx < 0 ? 1 : -1)); x0 = null })
+
+  // Estrellas de fondo (como la escena del stand)
+  const cv = document.getElementById('stars'), ctx = cv.getContext('2d')
+  let stars = []
+  const resize = () => {
+    cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio
+    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 5000) }, () => ({ x: Math.random() * cv.width, y: Math.random() * cv.height, r: Math.random() * 1.3 + .2, s: Math.random() * .25 + .05, p: Math.random() * 6.28 }))
+  }
+  const draw = (t) => {
+    ctx.clearRect(0, 0, cv.width, cv.height)
+    for (const st of stars) {
+      if (!reduce) { st.x -= st.s * devicePixelRatio; if (st.x < 0) st.x = cv.width }
+      ctx.globalAlpha = .35 + .45 * Math.abs(Math.sin(t / 1400 + st.p))
+      ctx.fillStyle = '#cfe0ff'; ctx.beginPath(); ctx.arc(st.x, st.y, st.r * devicePixelRatio, 0, 6.28); ctx.fill()
+    }
+    requestAnimationFrame(draw)
+  }
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw)
+
+  const start = parseInt(location.hash.slice(1), 10)
+  go(Number.isFinite(start) ? start : 0)
+})()
+</script>
+</body>
+</html>
