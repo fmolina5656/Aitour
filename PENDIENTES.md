@@ -44,8 +44,12 @@ commiteadas en `claude/readymind-aitour-demo`.
     - calidad del reconocimiento con el ruido del stand.
   - [ ] **Prompt Shields** con Entra ID sobre el endpoint de la cuenta de Foundry.
   - [ ] **Trazas** visibles en *Tracing* del proyecto de Foundry.
-- [ ] `python -m scripts.loadtest --url https://<app> --sessions 10 --salas pc,tablet1,tablet2` contra Foundry real
-      (tres sesiones en paralelo: revisa que la cuota de los modelos aguante el pico).
+- [x] `python -m scripts.loadtest --url https://<app> --sessions 3 --salas pc,tablet1,tablet2` contra Foundry real
+      (14-oct): 9/9 "ok" en 38–57 s con `REASONING_EFFORT=none` y `TURN_IDLE_TIMEOUT_S=45`. Con razonamiento "low",
+      Foundry tardaba hasta 27 s por turno con tres sesiones a la vez y se cortaban por tiempo. La CPU de la app no pasó
+      del 11 % y no hubo rechazos por cuota (429).
+- [ ] Revisar la **calidad** de un debate sin razonamiento (que el Financiero objete, que Riesgo cite la LFPDPPP y que
+      el one-pager se lea bien). Si el Arquitecto empeora, devolverle el razonamiento solo a él.
 - [ ] Grabar **3 sesiones reales buenas** para el replay de respaldo. Hoy solo está la semilla simulada.
 
 ## 3. Correo (al final, como pediste)

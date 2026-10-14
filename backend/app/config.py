@@ -25,7 +25,9 @@ class Settings(BaseSettings):
     model_diagramador: str = "gpt-5.4-mini"
     model_redactor: str = "gpt-5.4-mini"
     model_guard: str = "gpt-5.4-nano"  # clasificador de tema (rápido y barato)
-    reasoning_effort: Literal["none", "low", "medium", "high"] = "low"
+    # "none": con 3 salas en paralelo, "low" llevaba turnos a 20–27 s y cortes por tiempo; sin razonamiento las 9
+    # sesiones de la prueba de carga cerraron "ok" en 38–57 s (las reglas del debate están en el director, no en el modelo)
+    reasoning_effort: Literal["none", "low", "medium", "high"] = "none"
 
     # Voz: Microsoft Foundry voice agent (preview) que hace de recepcionista
     voice_agent_name: str = "readymind-recepcionista"
@@ -75,7 +77,7 @@ class Settings(BaseSettings):
     # Presupuestos del enjambre (requisito: < 120 s)
     swarm_timeout_s: float = 110.0  # corte interno, con margen
     display_budget_s: int = 120  # lo que ve el público
-    turn_idle_timeout_s: float = 25.0
+    turn_idle_timeout_s: float = 45.0  # con Foundry cargado un turno puede tardar más de 25 s en empezar a escribir
     swarm_max_rounds: int = 10  # debate completo (7 turnos) + Diagramador + Redactor, con una de margen
     max_debate_rounds: int = 2
 
