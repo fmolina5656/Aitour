@@ -95,8 +95,10 @@ class SwarmRunner:
             ).build()
             async with asyncio.timeout(self.settings.swarm_timeout_s):
                 await self._consume(workflow.run(brief.as_prompt(), stream=True))
-        except TimeoutError:
+        except TimeoutError as exc:
             status = "timeout"
+            # el motivo queda en los logs: corte total o un agente que dejó de responder (y cuál)
+            log.warning("Enjambre cortado por tiempo: %s", exc or f"presupuesto total de {self.settings.swarm_timeout_s}s")
             self.bus.publish("governance.event", kind="timeout", severity="warning", title="Presupuesto de tiempo agotado", detail="El enjambre se cortó a tiempo; el one-pager usa la última versión disponible.")
         except Exception as exc:  # noqa: BLE001 — en el stand nunca se cae la sesión
             if is_content_filter(exc):
@@ -125,7 +127,8 @@ class SwarmRunner:
             except StopAsyncIteration:
                 break
             except TimeoutError as exc:
-                raise TimeoutError(f"Sin actividad en {idle}s") from exc
+                who = f"{turn.agent} ({turn.model}) tras {time.monotonic() - turn.t0:.1f}s de turno" if turn else "entre turnos"
+                raise TimeoutError(f"Sin actividad en {idle}s: {who}") from exc
 
             if ev.type == "group_chat" and isinstance(ev.data, GroupChatRequestSentEvent):
                 name = ev.data.participant_name
