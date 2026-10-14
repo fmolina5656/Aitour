@@ -34,8 +34,11 @@ async def one_session(base: str, i: int, sala: str) -> dict:
         r = await http.post(f"/api/session/text?sala={sala}", json={"problema": p, "industria": ind, "volumen": vol, "datos": dat})
         sid = r.json()["session_id"]
         status, swarm_s, events = "sin-fin", None, 0
-        while time.monotonic() - t0 < 150:
-            ev = json.loads(await asyncio.wait_for(ws.recv(), timeout=150))
+        while time.monotonic() - t0 < 180:
+            try:
+                ev = json.loads(await asyncio.wait_for(ws.recv(), timeout=180 - (time.monotonic() - t0)))
+            except TimeoutError:
+                break
             if ev.get("session_id") != sid:
                 continue
             events += 1
@@ -61,7 +64,7 @@ async def main() -> int:
     for i in range(args.sessions):
         for row in await asyncio.gather(*(one_session(args.url, i, s) for s in salas)):
             rows.append(row)
-            print(f"  #{row['i']:>2} {row['sala']:<8} {row['status']:<8} enjambre {row['swarm_s']:>6}s  total {row['wall_s']:>6}s  eventos {row['events']:>3}  memoria {row['rss_mb']} MB")
+            print(f"  #{row['i']:>2} {row['sala']:<8} {row['status']:<8} enjambre {row['swarm_s'] if row['swarm_s'] is not None else '—':>6}s  total {row['wall_s']:>6}s  eventos {row['events']:>3}  memoria {row['rss_mb']} MB")
 
     durations = [r["swarm_s"] or 999 for r in rows]
     first, last = statistics.mean(durations[:3]), statistics.mean(durations[-3:])
