@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Casos de éxito con Glitch</title>
+<meta name="description" content="Cinco casos de éxito de Readymind contados por Glitch, con una muestra animada de cómo funciona cada solución." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
+<style>
+/* Casos de éxito para el stand: misma marca y mecánica que /story (frontend/public/story/index.html). */
+:root {
+  --green: #66de7f; --teal: #53b6ad; --blue: #397ef6;
+  --gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
+  --bg: #050a12; --line: #1f3150; --line-2: #24395a;
+  --glass: rgba(9, 18, 33, .66); --glass-border: rgba(102, 222, 127, .12);
+  --text: #f3f6fa; --text-2: #b7c2d2; --text-3: #6f7f95;
+  --alert: #ffb547; --crit: #ff5d5d;
+  --c1: #fb6a3c; --c2: #3b82f6; --c3: #ec4899; --c4: #facc15; --c5: #a855f7;
+  --font: 'Satoshi', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+#stars { position: fixed; inset: 0; z-index: 0; }
+.aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(80px); opacity: .55; transition: background 1.2s; animation: drift 24s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translate(4%, -3%) rotate(6deg); } }
+
+/* ---------- Marco ---------- */
+.app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; }
+.top { display: flex; align-items: center; gap: 24px; padding: 16px 32px 10px; }
+.top img { height: 30px; }
+.top .t { font-size: 16px; color: var(--text-2); white-space: nowrap; }
+.top .t b { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; }
+.progress { flex: 1; display: flex; gap: 6px; min-width: 0; }
+.progress button { flex: 1; height: 6px; border: 0; padding: 0; border-radius: 3px; background: var(--line); cursor: pointer; position: relative; overflow: hidden; }
+.progress button::after { content: ''; position: absolute; inset: 0; background: var(--c, var(--green)); transform: scaleX(0); transform-origin: left; transition: transform .5s; }
+.progress button.done::after { transform: scaleX(1); }
+.progress button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.scenes { position: relative; min-height: 0; }
+.scene { position: absolute; inset: 0; padding: 8px 32px 0; display: grid; grid-template-columns: minmax(360px, 5fr) 7fr; grid-template-rows: 1fr auto; gap: 18px 36px;
+  opacity: 0; visibility: hidden; transform: translateX(40px) scale(.985); transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1), visibility 0s .55s; }
+.scene.on { opacity: 1; visibility: visible; transform: none; transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1); }
+.scene.left { transform: translateX(-40px) scale(.985); }
+
+/* ---------- Columna de Glitch ---------- */
+.story { display: flex; flex-direction: column; justify-content: safe center; min-height: 0; }
+.chapter { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; font-family: var(--mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--c, var(--green)); }
+.chapter .time { color: var(--text-3); border: 1px solid var(--line-2); padding: 2px 8px; border-radius: 99px; letter-spacing: 0; text-transform: none; }
+.org { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin-top: 14px; }
+.org .name { font-weight: 900; font-size: clamp(22px, 2vw, 30px); letter-spacing: .02em; }
+.org .proj { color: var(--text-2); font-size: 17px; }
+h2 { font-size: clamp(28px, 3.1vw, 48px); line-height: 1.05; letter-spacing: -.02em; margin: 8px 0 20px; font-weight: 900; }
+h2 em { font-style: normal; color: var(--c, var(--green)); }
+.glitch-row { display: flex; align-items: flex-end; gap: 6px; }
+.glitch { width: clamp(100px, 9vw, 146px); flex: none; position: relative; animation: bob 3.2s ease-in-out infinite; }
+.glitch img { width: 100%; display: block; filter: drop-shadow(0 10px 28px rgba(102,222,127,.35)); }
+.glitch img.blink { position: absolute; inset: 0; opacity: 0; }
+.glitch.blinking img.blink { opacity: 1; }
+.glitch::after { content: ''; position: absolute; left: 18%; right: 18%; bottom: -14px; height: 12px; border-radius: 50%; background: rgba(102,222,127,.18); filter: blur(6px); }
+.glitch.talk { animation: bob 3.2s ease-in-out infinite, wiggle .5s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-10px); } }
+@keyframes wiggle { 25% { rotate: -2.5deg; } 75% { rotate: 2.5deg; } }
+.bubble { position: relative; margin-bottom: 60px; background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(14px); border-radius: 22px 22px 22px 6px; padding: 16px 20px; font-size: clamp(16px, 1.3vw, 20px); line-height: 1.45; min-height: 8.2em; cursor: pointer; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+.bubble .who { display: block; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: 6px; }
+.bubble .caret { display: inline-block; width: 2px; height: 1.05em; background: var(--green); vertical-align: -3px; margin-left: 2px; animation: caret .8s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+
+/* ---------- Escenario de la muestra ---------- */
+.visual { position: relative; min-height: 0; display: grid; place-items: center; border-radius: 26px; background: linear-gradient(160deg, rgba(15,27,46,.55), rgba(7,14,26,.35)); border: 1px solid rgba(36,57,90,.6); overflow: hidden; padding: 44px 20px 70px; }
+.visual::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(36,57,90,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(36,57,90,.25) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent); }
+.visual > * { position: relative; }
+.tag-ej { position: absolute !important; top: 14px; right: 16px; font-size: 12px; color: var(--text-3); border: 1px dashed var(--line-2); border-radius: 99px; padding: 3px 10px; }
+.demo-title { position: absolute !important; top: 14px; left: 18px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); display: flex; align-items: center; gap: 8px; }
+.demo-title i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); animation: live 1.4s infinite; }
+@keyframes live { 50% { opacity: .3; } }
+.result { position: absolute !important; left: 50%; bottom: 16px; translate: -50% 0; white-space: nowrap; padding: 10px 20px; border-radius: 99px; font-weight: 700; font-size: clamp(14px, 1.2vw, 17px); color: #04121b; background: var(--gradient); box-shadow: 0 0 40px rgba(102,222,127,.35); opacity: 0; transform: translateY(14px); }
+.scene.on .result { animation: up .6s forwards; animation-delay: var(--rd, 3.5s); }
+
+/* ---------- Panel de ventas ---------- */
+.sales { grid-column: 1 / -1; display: grid; grid-template-columns: 1.3fr 1fr 1.25fr; gap: 14px; padding-bottom: 6px; }
+.card { background: var(--glass); border: 1px solid rgba(36,57,90,.7); border-radius: 16px; padding: 14px 18px; backdrop-filter: blur(12px); }
+.card h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
+.card p { margin: 0; color: var(--text-2); font-size: 15px; line-height: 1.45; }
+.card.say p { color: var(--text); font-size: 16px; font-style: italic; }
+.card.say { border-color: rgba(102,222,127,.3); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; background: rgba(57,126,246,.12); border: 1px solid rgba(57,126,246,.35); color: #cfe0ff; }
+.sales .card { opacity: 0; transform: translateY(14px); }
+.scene.on .sales .card { animation: up .6s cubic-bezier(.2,.8,.2,1) forwards; }
+.scene.on .sales .card:nth-child(2) { animation-delay: .1s; } .scene.on .sales .card:nth-child(3) { animation-delay: .2s; }
+@keyframes up { to { opacity: 1; transform: none; } }
+
+/* ---------- Navegación ---------- */
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 32px 16px; }
+.btn { font: inherit; font-size: 15px; color: var(--text); background: rgba(15,27,46,.8); border: 1px solid var(--line-2); border-radius: 12px; padding: 9px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: border-color .2s, transform .1s; }
+.btn:hover { border-color: var(--green); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--gradient); color: #04121b; border: 0; font-weight: 700; }
+.btn[aria-pressed="true"] { border-color: var(--green); color: var(--green); }
+.btn:disabled { opacity: .35; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.nav .mid { color: var(--text-3); font-size: 13px; text-align: center; }
+.nav .mid kbd { font-family: var(--mono); border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; color: var(--text-2); }
+.nav .right { display: flex; gap: 10px; }
+
+/* ---------- Portada y cierre ---------- */
+.scene.hero { grid-template-columns: 1fr; grid-template-rows: 1fr; text-align: center; }
+.hero .story { align-items: center; }
+.hero h1 { font-size: clamp(34px, min(5vw, 8.5vh), 80px); line-height: 1; letter-spacing: -.03em; margin: 16px 0 10px; font-weight: 900; max-width: 16ch; }
+.hero h1 span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .sub { color: var(--text-2); font-size: clamp(16px, 1.5vw, 21px); margin: 0 0 min(22px, 2.5vh); max-width: 52ch; }
+.hero .glitch { width: clamp(110px, min(12vw, 20vh), 190px); }
+.hero .glitch-row { align-items: center; gap: 22px; }
+.hero .bubble { margin: 0; border-radius: 22px; max-width: 640px; min-height: 0; text-align: left; }
+.kpis { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 0 0 min(24px, 3vh); }
+.kpi { min-width: 150px; padding: 12px 18px; border-radius: 16px; border: 1px solid var(--line-2); background: rgba(9,18,33,.75); }
+.kpi .v { font-family: var(--mono); font-size: clamp(24px, 2.4vw, 34px); background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kpi .l { font-size: 13px; color: var(--text-3); }
+.logos { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: min(24px, 3vh); }
+.logos button { font: inherit; font-weight: 700; letter-spacing: .04em; font-size: 14px; color: var(--text); padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: rgba(9,18,33,.7); cursor: pointer; position: relative; padding-left: 26px; }
+.logos button::before { content: ''; position: absolute; left: 11px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); }
+.logos button:hover { border-color: var(--c); }
+.others { margin-top: 14px; color: var(--text-3); font-size: 14px; max-width: 900px; line-height: 1.6; }
+.others b { color: var(--text-2); font-weight: 500; }
+.ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: min(22px, 2.5vh); }
+
+/* ---------- Muestra 1 · TotalEnergies: manuales → plan de mantenimiento ---------- */
+.m1 { width: min(760px, 100%); display: grid; grid-template-columns: 220px 1fr; gap: 26px; align-items: center; }
+.manuals { position: relative; height: 230px; }
+.manual { position: absolute; width: 140px; height: 180px; border-radius: 8px; background: #eef2f7; color: #1b2a3f; padding: 12px; font-size: 10px; line-height: 1.5; box-shadow: 0 16px 30px rgba(0,0,0,.45); overflow: hidden; }
+.manual b { display: block; font-size: 11px; margin-bottom: 6px; }
+.manual .l { height: 5px; border-radius: 3px; background: #cbd5e3; margin: 6px 0; }
+.manual .lang { position: absolute; top: 8px; right: 8px; font-family: var(--mono); font-weight: 700; font-size: 10px; padding: 1px 6px; border-radius: 6px; background: var(--c1); color: #fff; }
+.manual:nth-child(1) { left: 0; top: 40px; rotate: -10deg; }
+.manual:nth-child(2) { left: 38px; top: 18px; rotate: -2deg; }
+.manual:nth-child(3) { left: 76px; top: 0; rotate: 7deg; filter: grayscale(.4) contrast(.9); }
+.manual .beam { position: absolute; left: 0; right: 0; height: 30px; top: -30px; background: linear-gradient(transparent, rgba(251,106,60,.5), transparent); }
+.scene.on .manual:nth-child(3) .beam { animation: beam 1.1s .4s ease-in-out 2; }
+@keyframes beam { to { top: 100%; } }
+.plan { border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.85); overflow: hidden; }
+.plan .hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 15px; }
+.plan .hd span { font-family: var(--mono); font-size: 12px; color: var(--text-3); font-weight: 400; }
+.plan table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.plan th { text-align: left; font-weight: 500; color: var(--text-3); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 8px 14px; }
+.plan td { padding: 8px 14px; border-top: 1px solid var(--line); }
+.plan td.f { font-family: var(--mono); color: #ffb79d; white-space: nowrap; }
+.plan td.r { color: var(--text-2); }
+.plan tr.row { opacity: 0; transform: translateX(14px); }
+.scene.on .plan tr.row { animation: up .45s forwards; }
+.scene.on .plan tr.row:nth-child(1) { animation-delay: 1.4s; } .scene.on .plan tr.row:nth-child(2) { animation-delay: 1.75s; }
+.scene.on .plan tr.row:nth-child(3) { animation-delay: 2.1s; } .scene.on .plan tr.row:nth-child(4) { animation-delay: 2.45s; }
+.scene.on .plan tr.row:nth-child(5) { animation-delay: 2.8s; }
+.chk { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; background: rgba(102,222,127,.18); color: var(--green); font-size: 12px; margin-right: 8px; }
+
+/* ---------- Muestra 2 · Interbank: agente de help desk ---------- */
+.chat { width: min(560px, 100%); border-radius: 18px; border: 1px solid var(--line-2); background: rgba(9,18,33,.88); overflow: hidden; }
+.chat .hd { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 700; }
+.chat .hd .av { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9cc0ff, var(--c2)); display: grid; place-items: center; font-size: 15px; }
+.chat .hd small { display: block; font-weight: 400; color: var(--green); font-size: 12px; }
+/* como un chat real: los mensajes nuevos empujan a los viejos hacia arriba */
+.chat .body { padding: 12px 14px; display: flex; flex-direction: column; justify-content: flex-end; gap: 7px; height: min(400px, 38vh); overflow: hidden; }
+.cm { display: none; flex: none; max-width: 86%; padding: 8px 12px; border-radius: 14px; font-size: 14px; line-height: 1.4; opacity: 0; transform: translateY(8px); }
+.cm.u { align-self: flex-end; background: rgba(183,194,210,.12); border: 1px solid rgba(183,194,210,.2); border-bottom-right-radius: 4px; }
+.cm.b { background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.35); border-bottom-left-radius: 4px; }
+.cm .tk { display: flex; gap: 10px; align-items: center; margin-top: 7px; padding: 8px 10px; border-radius: 10px; background: rgba(5,10,18,.6); border: 1px solid var(--line-2); font-family: var(--mono); font-size: 12.5px; }
+.cm .tk b { color: var(--green); font-weight: 700; }
+.cm .kb { display: block; margin-top: 6px; font-size: 12.5px; color: #9cc0ff; }
+.typing { align-self: flex-start; display: none; gap: 4px; padding: 10px 12px; border-radius: 12px; background: rgba(59,130,246,.1); opacity: 0; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: #9cc0ff; animation: dots 1s infinite; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes dots { 50% { transform: translateY(-4px); opacity: .5; } }
+.cm.show, .typing.show { display: block; animation: up .4s forwards; }
+.typing.show { display: flex; }
+
+/* ---------- Muestra 3 · Koaj: visión sobre las cámaras de la tienda ---------- */
+.m3 { width: min(740px, 100%); display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: center; }
+.store { position: relative; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.85); overflow: hidden; }
+.store svg { display: block; width: 100%; height: auto; }
+.store .rack { fill: #12213a; stroke: #24395a; }
+.store .zone { fill: rgba(236,72,153,.0); stroke: rgba(236,72,153,.5); stroke-dasharray: 5 5; }
+.store .hot { fill: rgba(236,72,153,.18); animation: hot 3s ease-in-out infinite; }
+@keyframes hot { 50% { fill: rgba(236,72,153,.32); } }
+.store .lbl { fill: var(--text-3); font-size: 10px; font-family: var(--font); letter-spacing: .08em; }
+.store .cash { fill: #1b2f50; stroke: var(--c3); }
+.person { fill: #f3f6fa; }
+.person.staff { fill: var(--c3); }
+.bbox { fill: none; stroke: var(--green); stroke-width: 1.2; }
+.cam { position: absolute; top: 8px; left: 10px; font-family: var(--mono); font-size: 11px; color: var(--text-2); display: flex; gap: 6px; align-items: center; }
+.cam i { width: 7px; height: 7px; border-radius: 50%; background: var(--crit); animation: live 1s infinite; }
+.kgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kt { padding: 12px; border-radius: 12px; border: 1px solid var(--line-2); background: rgba(9,18,33,.85); }
+.kt .v { font-family: var(--mono); font-size: clamp(20px, 1.9vw, 27px); }
+.kt .l { font-size: 12px; color: var(--text-3); margin-top: 2px; line-height: 1.3; }
+.kt.warn { border-color: rgba(255,181,71,.55); } .kt.warn .v { color: var(--alert); }
+.alertbox { grid-column: 1 / -1; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,181,71,.5); background: rgba(255,181,71,.08); color: #ffd9a1; font-size: 13.5px; opacity: 0; }
+.alertbox.show { animation: up .4s forwards; }
+
+/* ---------- Muestra 4 · Prima AFP: cada documento a su tecnología ---------- */
+.m4 { width: min(760px, 100%); display: grid; grid-template-columns: 150px 120px 1fr; gap: 16px; align-items: center; }
+.docs { display: flex; flex-direction: column; gap: 8px; }
+.doc { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: #eef2f7; color: #1b2a3f; font-size: 12.5px; font-weight: 700; box-shadow: 0 8px 18px rgba(0,0,0,.35); opacity: 0; transform: translateX(-20px); }
+.doc span { font-size: 16px; }
+.scene.on .doc { animation: up .4s forwards; }
+.scene.on .doc:nth-child(1) { animation-delay: .2s; } .scene.on .doc:nth-child(2) { animation-delay: .35s; } .scene.on .doc:nth-child(3) { animation-delay: .5s; }
+.scene.on .doc:nth-child(4) { animation-delay: .65s; } .scene.on .doc:nth-child(5) { animation-delay: .8s; }
+.router { height: 100%; min-height: 220px; border-radius: 16px; border: 1px solid rgba(250,204,21,.5); background: rgba(250,204,21,.07); display: grid; place-items: center; text-align: center; padding: 10px; position: relative; }
+.router b { font-size: 15px; }
+.router small { display: block; font-family: var(--mono); color: #ffe48a; font-size: 12px; margin-top: 4px; }
+.router::before { content: ''; position: absolute; inset: -6px; border-radius: 20px; border: 2px solid rgba(250,204,21,.35); animation: ring 2s infinite; }
+@keyframes ring { from { transform: scale(.92); opacity: 1; } to { transform: scale(1.12); opacity: 0; } }
+.lanes { display: flex; flex-direction: column; gap: 10px; }
+.lane { padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-2); background: rgba(9,18,33,.85); }
+.lane .t { font-size: 13px; font-weight: 700; color: #ffe48a; margin-bottom: 6px; }
+.lane .items { display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; }
+.lane .it { font-size: 12px; padding: 3px 8px; border-radius: 8px; background: rgba(102,222,127,.12); border: 1px solid rgba(102,222,127,.35); color: #c8f5d2; opacity: 0; transform: scale(.7); }
+.lane .it.show { animation: pop .35s cubic-bezier(.3,1.5,.5,1) forwards; }
+@keyframes pop { to { opacity: 1; transform: none; } }
+.json { grid-column: 1 / -1; font-family: var(--mono); font-size: 12.5px; line-height: 1.5; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: rgba(5,10,18,.85); color: var(--text-2); opacity: 0; }
+.json .k { color: #9cc0ff; } .json .s { color: #c8f5d2; } .json .ok { color: var(--green); }
+.json.show { animation: up .4s forwards; }
+
+/* ---------- Muestra 5 · Brigard & Urrutia: triage de alertas SOC ---------- */
+.m5 { width: min(760px, 100%); display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: start; }
+.inbox { border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.88); overflow: hidden; }
+.inbox .hd { padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--text-2); display: flex; justify-content: space-between; }
+.inbox .hd b { color: var(--text); }
+.inbox .list { display: flex; flex-direction: column; min-height: 300px; }
+.al { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 9px 14px; border-bottom: 1px solid var(--line); font-size: 13px; opacity: 0; transform: translateY(-8px); transition: opacity .5s, filter .5s; }
+.al small { grid-column: 1; color: var(--text-3); font-family: var(--mono); font-size: 11px; }
+.al .sev { grid-row: 1 / 3; grid-column: 2; align-self: center; font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 3px 8px; border-radius: 6px; opacity: 0; transform: scale(.6); }
+.al.show { animation: up .35s forwards; }
+.al.rated .sev { animation: pop .3s cubic-bezier(.3,1.5,.5,1) forwards; }
+.al.muted { filter: grayscale(1); opacity: .35 !important; }
+.sev.crit { background: var(--crit); color: #fff; } .sev.high { background: var(--alert); color: #241400; }
+.sev.med { background: #3b4f6e; color: var(--text); } .sev.low { background: #24395a; color: var(--text-2); } .sev.fp { background: transparent; border: 1px solid var(--line-2); color: var(--text-3); }
+.teams { border-radius: 14px; border: 1px solid rgba(168,85,247,.45); background: rgba(168,85,247,.08); padding: 12px 14px; }
+.teams .hd { font-size: 13px; color: #d8b4fe; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.teams .post { padding: 10px 12px; border-radius: 10px; background: rgba(5,10,18,.75); border-left: 3px solid var(--crit); font-size: 13.5px; line-height: 1.45; opacity: 0; transform: translateX(20px); }
+.teams .post b { color: #ffb3b3; }
+.teams .post.show { animation: up .45s forwards; }
+.teams .count { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.teams .count div { padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line-2); background: rgba(9,18,33,.8); font-size: 12px; color: var(--text-3); }
+.teams .count b { display: block; font-family: var(--mono); font-size: 22px; color: var(--text); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px), (max-height: 640px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100vh; }
+  .top { flex-wrap: wrap; padding: 12px 16px 6px; gap: 10px 16px; }
+  .top .t { display: none; }
+  .progress { flex-basis: 100%; order: 3; }
+  .scenes { padding-bottom: 24px; }
+  .scene { position: relative; inset: auto; display: none; grid-template-columns: 1fr; padding: 8px 16px 0; gap: 16px; }
+  .scene.on { display: grid; }
+  .visual { padding: 44px 10px 70px; }
+  .sales { grid-template-columns: 1fr; }
+  .bubble { min-height: 0; margin-bottom: 40px; }
+  .nav { padding: 12px 16px 18px; position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 30%); }
+  .nav .mid { display: none; }
+  .nav .btn { font-size: 14px; padding: 9px 12px; white-space: nowrap; }
+  .hero .glitch-row { flex-direction: column; }
+  .m1, .m3, .m5 { grid-template-columns: 1fr; }
+  .manuals { height: 200px; margin: 0 auto; }
+  .m4 { grid-template-columns: 1fr; } .router { min-height: 0; } .router::before { display: none; }
+  .demo-title { display: none !important; }
+  .manuals { width: 230px !important; }
+  .result { white-space: normal; text-align: center; width: calc(100% - 32px); }
+}
+/* laptops de 768 px de alto: todo un poco más compacto */
+@media (min-width: 981px) and (max-height: 820px) {
+  .top { padding-top: 12px; }
+  h2 { font-size: clamp(24px, 5vh, 40px); margin: 4px 0 12px; }
+  .org { margin-top: 6px; } .org .name { font-size: 22px; }
+  .bubble { font-size: 15.5px; min-height: 0; padding: 12px 16px; margin-bottom: 44px; }
+  .glitch { width: 92px; }
+  .card { padding: 10px 14px; } .card p { font-size: 14px; } .card.say p { font-size: 14.5px; }
+  .visual { padding: 40px 16px 64px; }
+  .plan td { padding: 6px 12px; } .plan table { font-size: 12.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="aurora" id="aurora" aria-hidden="true"></div>
+
+<div class="app">
+  <header class="top">
+    <img src="/brand/readymind-logo-dark.png" alt="Readymind" />
+    <span class="t">Casos de éxito · <b>contados por Glitch</b></span>
+    <nav class="progress" id="progress" aria-label="Casos"></nav>
+  </header>
+
+  <main class="scenes" id="scenes">
+
+    <!-- 0 · Portada -->
+    <section class="scene hero" data-c="var(--green)" data-title="Inicio">
+      <div class="story">
+        <span class="chapter">Readymind · Casos de éxito con IA en Latinoamérica</span>
+        <h1>IA que ya está <span>trabajando en empresas reales</span></h1>
+        <p class="sub">Cinco casos de éxito de Readymind, contados por Glitch, con una muestra animada de cómo funciona cada solución.</p>
+        <div class="kpis">
+          <div class="kpi"><div class="v">14</div><div class="l">casos de éxito publicados</div></div>
+          <div class="kpi"><div class="v">3</div><div class="l">países: Argentina, Colombia y Perú</div></div>
+          <div class="kpi"><div class="v">8–13 sem</div><div class="l">de implementación por proyecto</div></div>
+        </div>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="Glitch, la mascota de Readymind" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="¡Hola otra vez! Ya viste cómo armo una solución en tres minutos. Ahora te cuento cinco que ya están funcionando en empresas de verdad: energía, banca, retail, pensiones y seguridad. ¡Elige uno o vamos en orden!"><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+        <div class="logos" id="jump"></div>
+      </div>
+    </section>
+
+    <!-- 1 · TotalEnergies -->
+    <section class="scene" data-c="var(--c1)" data-title="TotalEnergies" style="--c:var(--c1)">
+      <div class="story">
+        <span class="chapter">Caso 1 · Energía · Argentina <span class="time">13 semanas</span></span>
+        <div class="org"><span class="name">TOTALENERGIES</span><span class="proj">Smart Maintenance</span></div>
+        <h2>Planes de mantenimiento <em>en minutos</em>, no en semanas</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="¿Te imaginas leer manuales de cientos de páginas, de distintos fabricantes y en varios idiomas, para cada máquina de una planta? Lo hacían a mano. Ahora la IA lee los manuales, hasta los escaneados, y arma el plan de mantenimiento completo, con checklists y repuestos."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="demo-title" style="--c:var(--c1)"><i></i>Muestra · manual técnico → plan preventivo</span>
+        <span class="tag-ej">Datos de ejemplo</span>
+        <div class="m1">
+          <div class="manuals" aria-hidden="true">
+            <div class="manual"><span class="lang">EN</span><b>Pump P-101 · Manual</b><div class="l"></div><div class="l" style="width:80%"></div><div class="l"></div><div class="l" style="width:60%"></div></div>
+            <div class="manual"><span class="lang">FR</span><b>Compresseur C-20</b><div class="l"></div><div class="l" style="width:70%"></div><div class="l"></div><div class="l" style="width:85%"></div></div>
+            <div class="manual"><span class="lang">PDF escaneado</span><b>Motor M-7</b><div class="l"></div><div class="l" style="width:75%"></div><div class="l"></div><div class="l" style="width:55%"></div><div class="beam"></div></div>
+          </div>
+          <div class="plan">
+            <div class="hd">Plan preventivo · Bomba P-101 <span>generado con Foundry</span></div>
+            <table>
+              <thead><tr><th>Tarea</th><th>Frecuencia</th><th>Repuesto</th></tr></thead>
+              <tbody>
+                <tr class="row"><td><span class="chk">✓</span>Inspección de sellos</td><td class="f">500 h</td><td class="r">Kit de sellos</td></tr>
+                <tr class="row"><td><span class="chk">✓</span>Lubricación de rodamientos</td><td class="f">1,000 h</td><td class="r">Grasa EP2</td></tr>
+                <tr class="row"><td><span class="chk">✓</span>Cambio de rodamientos</td><td class="f">8,000 h</td><td class="r">Rodamiento 6205</td></tr>
+                <tr class="row"><td><span class="chk">✓</span>Análisis de vibraciones</td><td class="f">Mensual</td><td class="r">—</td></tr>
+                <tr class="row"><td><span class="chk">✓</span>Alineación del acople</td><td class="f">Anual</td><td class="r">Calzas</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="result" style="--rd:3.4s">De semanas por equipo → minutos de procesamiento</div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"TotalEnergies armaba sus planes de mantenimiento a mano, leyendo manuales enormes. Ahora la IA lee los manuales en cualquier idioma y genera el plan, con tareas, frecuencias y repuestos, en minutos."</p></div>
+        <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Microsoft AI Foundry</span><span class="chip">Document Intelligence</span><span class="chip">OCR multiidioma</span><span class="chip">Integración CMMS/ERP</span></div></div>
+        <div class="card"><h4>📈 Resultado</h4><p>Planes siempre alineados a la documentación vigente del fabricante. El conocimiento técnico queda capturado y auditable, sin depender de la rotación del personal.</p></div>
+      </div>
+    </section>
+
+    <!-- 2 · Interbank -->
+    <section class="scene" data-c="var(--c2)" data-title="Interbank" style="--c:var(--c2)">
+      <div class="story">
+        <span class="chapter">Caso 2 · Banca · Perú <span class="time">12 semanas</span></span>
+        <div class="org"><span class="name">INTERBANK</span><span class="proj">IT Help Desk Virtual</span></div>
+        <h2>Un help desk que <em>resuelve solo</em> lo repetitivo</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="En el banco, la gente llamaba a soporte hasta para preguntar cómo iba su ticket. Ahora le escriben a un agente como si fuera un compañero, y él crea, consulta o cancela el ticket en ServiceNow. ¡Y antes busca la respuesta en la base de conocimientos!"><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="demo-title" style="--c:var(--c2)"><i></i>Muestra · conversación con el agente</span>
+        <span class="tag-ej">Conversación de ejemplo</span>
+        <div class="chat">
+          <div class="hd"><span class="av">🤖</span><span>Mesa de ayuda TI<small>● Agente en línea · Copilot Studio</small></span></div>
+          <div class="body" id="chat2">
+            <div class="cm u">No puedo entrar a la VPN desde mi casa 😩</div>
+            <div class="cm b">Probemos algo rápido: cierra sesión, actualiza el cliente de VPN y vuelve a entrar.<span class="kb">📘 Artículo de la base de conocimientos: "Acceso remoto por VPN"</span></div>
+            <div class="cm u">Sigue sin funcionar.</div>
+            <div class="cm b">Entendido, ya te abrí un ticket. Te aviso cuando haya novedades.<div class="tk">🎫 <b>INC0012345</b> · Acceso VPN · Prioridad media</div></div>
+            <div class="cm u">¿Y cómo va el de la impresora que pedí ayer?</div>
+            <div class="cm b">Va bien: ya lo tiene el equipo de soporte.<div class="tk">🎫 <b>INC0011876</b> · En progreso · Soporte N2</div></div>
+            <div class="typing"><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <div class="result" style="--rd:9.5s">Tickets creados, consultados y cancelados en lenguaje natural</div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"En Interbank, los usuarios gestionan sus tickets de TI hablando con un agente, sin llamar a soporte. El equipo humano se queda con los incidentes complejos."</p></div>
+        <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Microsoft Copilot Studio</span><span class="chip">ServiceNow</span><span class="chip">Base de conocimientos</span><span class="chip">Automatización de tickets</span></div></div>
+        <div class="card"><h4>📈 Resultado</h4><p>Reducción drástica de tickets repetitivos mediante autoservicio. Las consultas frecuentes se resuelven antes de escalar a una persona.</p></div>
+      </div>
+    </section>
+
+    <!-- 3 · Koaj Permoda -->
+    <section class="scene" data-c="var(--c3)" data-title="Koaj Permoda" style="--c:var(--c3)">
+      <div class="story">
+        <span class="chapter">Caso 3 · Retail · Colombia <span class="time">12 semanas</span></span>
+        <div class="org"><span class="name">KOAJ PERMODA</span><span class="proj">Store Intelligence</span></div>
+        <h2>Las cámaras de la tienda <em>miden el servicio</em> en tiempo real</h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="¡Este es de mis favoritos! Sin instalar cámaras nuevas, la IA mira las que ya había y mide cuánto espera la gente en la fila, cuánto tarda la atención y en qué zona se queda más tiempo. Y avisa cuando una caja se congestiona."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="demo-title" style="--c:var(--c3)"><i></i>Muestra · visión computacional sobre la tienda</span>
+        <span class="tag-ej">Datos de ejemplo</span>
+        <div class="m3">
+          <div class="store">
+            <span class="cam"><i></i>CAM 03 · Piso de ventas</span>
+            <svg viewBox="0 0 400 280" aria-label="Plano de ejemplo de una tienda con personas moviéndose">
+              <rect class="zone hot" x="40" y="60" width="140" height="90" rx="10"/><text class="lbl" x="48" y="76">ZONA A · NOVEDADES</text>
+              <rect class="zone" x="220" y="60" width="140" height="90" rx="10"/><text class="lbl" x="228" y="76">ZONA B · JEANS</text>
+              <rect class="rack" x="60" y="95" width="100" height="12" rx="3"/><rect class="rack" x="60" y="120" width="100" height="12" rx="3"/>
+              <rect class="rack" x="240" y="95" width="100" height="12" rx="3"/><rect class="rack" x="240" y="120" width="100" height="12" rx="3"/>
+              <rect class="cash" x="250" y="200" width="44" height="22" rx="4"/><text class="lbl" x="252" y="238">CAJA 1</text>
+              <rect class="cash" x="318" y="200" width="44" height="22" rx="4"/><text class="lbl" x="320" y="238">CAJA 2</text>
+              <text class="lbl" x="20" y="268">ENTRADA</text>
+              <g id="people"></g>
+            </svg>
+          </div>
+          <div class="kgrid">
+            <div class="kt" id="k-fila"><div class="v">0:00</div><div class="l">tiempo en fila (caja 2)</div></div>
+            <div class="kt"><div class="v" id="k-aten">0:00</div><div class="l">atención promedio por operador</div></div>
+            <div class="kt"><div class="v" id="k-perm">0:00</div><div class="l">permanencia en zona A</div></div>
+            <div class="kt"><div class="v" id="k-pers">0</div><div class="l">personas en tienda</div></div>
+            <div class="alertbox" id="k-alert">⚠ Congestión en caja 2: la fila supera el objetivo. Sugerencia: abrir otra caja.</div>
+          </div>
+        </div>
+        <div class="result" style="--rd:4.5s">KPIs de servicio objetivos y continuos, con las cámaras existentes</div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Con las cámaras que ya tenían, Koaj mide en tiempo real filas, atención y permanencia, y decide cuánta gente poner en cada turno con datos, no a ojo."</p></div>
+        <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Azure AI Vision</span><span class="chip">Visión computacional</span><span class="chip">People tracking</span><span class="chip">Dashboard en tiempo real</span></div></div>
+        <div class="card"><h4>📈 Resultado</h4><p>Identificación automática de puntos de congestión. Decisiones de staffing basadas en datos reales, no en estimaciones subjetivas.</p></div>
+      </div>
+    </section>
+
+    <!-- 4 · Prima AFP -->
+    <section class="scene" data-c="var(--c4)" data-title="Prima AFP" style="--c:var(--c4)">
+      <div class="story">
+        <span class="chapter">Caso 4 · Seguros y pensiones · Perú <span class="time">10 semanas</span></span>
+        <div class="org"><span class="name">PRIMA AFP</span><span class="proj">PRIMA API</span></div>
+        <h2>Cada documento del trámite, <em>leído sin teclear</em></h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Un trámite de pensión puede traer de 3 a 15 documentos: DNI, pasaporte, informes médicos, certificados del consulado… La API reconoce cada uno y lo manda a la herramienta que mejor lo lee. ¡Cero tecleo y todo queda trazado!"><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="demo-title" style="--c:var(--c4)"><i></i>Muestra · un trámite entra a la API</span>
+        <span class="tag-ej">Datos de ejemplo</span>
+        <div class="m4">
+          <div class="docs">
+            <div class="doc"><span>🪪</span>DNI</div>
+            <div class="doc"><span>🛂</span>Pasaporte</div>
+            <div class="doc"><span>🩺</span>Informe médico</div>
+            <div class="doc"><span>📑</span>Anexo 18</div>
+            <div class="doc"><span>🏛</span>Cert. consular</div>
+          </div>
+          <div class="router"><div><b>PRIMA API</b><small>15 endpoints<br/>.NET 9</small></div></div>
+          <div class="lanes">
+            <div class="lane"><div class="t">Doc Intelligence · prebuilt</div><div class="items"><span class="it" data-t="1.6">🪪 DNI ✓</span><span class="it" data-t="2">🛂 Pasaporte ✓</span></div></div>
+            <div class="lane"><div class="t">AI Content Understanding</div><div class="items"><span class="it" data-t="2.4">🩺 Informe médico ✓</span><span class="it" data-t="2.8">📑 Anexo 18 ✓</span></div></div>
+            <div class="lane"><div class="t">GPT-4o + OCR layout</div><div class="items"><span class="it" data-t="3.2">🏛 Cert. consular ✓</span></div></div>
+          </div>
+          <div class="json" id="json4"><span class="k">"tramite"</span>: <span class="s">"PEN-2026-04812"</span>, <span class="k">"documentos"</span>: 5, <span class="k">"titular"</span>: { <span class="k">"nombre"</span>: <span class="s">"Ana Ruiz Quispe"</span>, <span class="k">"dni"</span>: <span class="s">"4*******"</span> }, <span class="k">"validado"</span>: <span class="ok">true</span></div>
+        </div>
+        <div class="result" style="--rd:4.6s">Cero carga manual en documentos previsionales</div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Prima AFP procesa trámites de 3 a 15 documentos sin carga manual: cada tipo de documento va a la tecnología que mejor lo lee."</p></div>
+        <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">.NET 9 · 15 endpoints</span><span class="chip">Azure Doc Intelligence</span><span class="chip">AI Content Understanding</span><span class="chip">GPT-4o</span></div></div>
+        <div class="card"><h4>📈 Resultado</h4><p>Reducción significativa del tiempo de procesamiento por trámite, con trazabilidad completa y auditable por solicitud.</p></div>
+      </div>
+    </section>
+
+    <!-- 5 · Brigard & Urrutia -->
+    <section class="scene" data-c="var(--c5)" data-title="Brigard & Urrutia" style="--c:var(--c5)">
+      <div class="story">
+        <span class="chapter">Caso 5 · Ciberseguridad · Colombia <span class="time">9 semanas</span></span>
+        <div class="org"><span class="name">BRIGARD &amp; URRUTIA</span><span class="proj">SOC Classifier</span></div>
+        <h2>Alertas de seguridad: <em>de horas a segundos</em></h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Decenas de alertas de seguridad al día, todas en un mismo correo. Alguien tenía que leerlas una por una. Ahora un agente las lee en tiempo real, descarta las falsas alarmas y avisa en Teams solo lo crítico. ¡Nada grave se queda sin atender!"><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="demo-title" style="--c:var(--c5)"><i></i>Muestra · triage de la casilla SOC</span>
+        <span class="tag-ej">Alertas de ejemplo</span>
+        <div class="m5">
+          <div class="inbox">
+            <div class="hd"><b>📥 soc-alertas@</b><span id="n5">0 alertas</span></div>
+            <div class="list">
+              <div class="al" data-sev="low">Inicio de sesión desde nueva IP<small>08:02 · Azure AD</small><span class="sev low">BAJA</span></div>
+              <div class="al" data-sev="fp">Escaneo de puertos bloqueado<small>08:04 · Firewall</small><span class="sev fp">FALSO +</span></div>
+              <div class="al" data-sev="med">Macro en adjunto de correo<small>08:05 · Defender</small><span class="sev med">MEDIA</span></div>
+              <div class="al" data-sev="crit">Ransomware detectado en equipo de un usuario<small>08:06 · EDR</small><span class="sev crit">CRÍTICA</span></div>
+              <div class="al" data-sev="fp">Certificado próximo a vencer<small>08:07 · Monitoreo</small><span class="sev fp">FALSO +</span></div>
+              <div class="al" data-sev="high">Reenvío masivo de correos a dominio externo<small>08:09 · Exchange</small><span class="sev high">ALTA</span></div>
+            </div>
+          </div>
+          <div class="teams">
+            <div class="hd">💬 Teams · #respuesta-incidentes</div>
+            <div class="post" id="post5"><b>🚨 CRÍTICA · Ransomware</b><br/>Equipo de un usuario de la firma. Origen: EDR · 08:06. Acción sugerida: aislar el equipo.</div>
+            <div class="count"><div><b id="c5a">0</b>leídas por el agente</div><div><b id="c5b">0</b>escaladas a personas</div></div>
+          </div>
+        </div>
+        <div class="result" style="--rd:5.4s">Solo lo crítico llega a una persona, en segundos</div>
+      </div>
+      <div class="sales">
+        <div class="card say"><h4>💬 Dilo así</h4><p>"Brigard &amp; Urrutia pasó de leer cada alerta de seguridad a mano a recibir en Teams solo las críticas, en segundos. El equipo trabaja enfocado, sin ruido."</p></div>
+        <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Azure OpenAI GPT-4o</span><span class="chip">Python</span><span class="chip">Microsoft Teams</span><span class="chip">Monitoreo en tiempo real</span></div></div>
+        <div class="card"><h4>📈 Resultado</h4><p>Triage de alertas de horas a segundos. Cero alertas graves sin atender. Los falsos positivos se filtran solos.</p></div>
+      </div>
+    </section>
+
+    <!-- 6 · Cierre -->
+    <section class="scene hero" data-c="var(--green)" data-title="¿Y el tuyo?">
+      <div class="story">
+        <span class="chapter">Tu caso puede ser el siguiente</span>
+        <h1>¿Cuál se parece <span>a tu problema?</span></h1>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Estos son solo cinco de catorce. Todos empezaron igual: alguien contó un problema lento, manual o caro. ¿Me cuentas el tuyo? En tres minutos te armo la solución en la pantalla de al lado."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+        <p class="others"><b>Más casos de Readymind:</b> LOMA (conciliación de extractos con OCR) · Procesos Inteligentes (recetas médicas) · Prisma Medios de Pago (documentos AFIP) · Provincia ART (auditoría clínica) · TotalEnergies (búsqueda técnica RAG) · Contraloría (validación de citas legales) · Wizenz (alertas vehiculares) · Brigard &amp; Urrutia (auditoría de prompts) · GrupoExpress (daños en buses)</p>
+        <div class="ctas">
+          <a class="btn primary" href="/">🎙 Contarle mi problema a la demo</a>
+          <a class="btn" href="/story/">Cómo funciona la demo</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="nav">
+    <button class="btn" id="prev">← Anterior</button>
+    <span class="mid"><kbd>←</kbd> <kbd>→</kbd> navegar · <kbd>A</kbd> automático · <kbd>F</kbd> pantalla completa · clic en la burbuja para terminar de leer</span>
+    <span class="right">
+      <button class="btn" id="auto" aria-pressed="false" title="Avanza solo: útil en una tablet o un monitor del stand">▶ Automático</button>
+      <button class="btn primary" id="next">Siguiente →</button>
+    </span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const scenes = [...document.querySelectorAll('.scene')]
+  const progress = document.getElementById('progress')
+  const prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next'), autoBtn = document.getElementById('auto')
+  let cur = -1, typing = null, autoTimer = null, auto = false, timers = [], loops = []
+
+  // Barra de progreso y accesos directos de la portada
+  const jump = document.getElementById('jump')
+  scenes.forEach((s, i) => {
+    const b = document.createElement('button')
+    b.style.setProperty('--c', s.dataset.c)
+    b.title = s.dataset.title
+    b.setAttribute('aria-label', `${i + 1}: ${s.dataset.title}`)
+    b.onclick = () => go(i)
+    progress.appendChild(b)
+    if (i > 0 && i < scenes.length - 1) {
+      const j = document.createElement('button')
+      j.style.setProperty('--c', s.dataset.c)
+      j.textContent = s.dataset.title
+      j.onclick = () => go(i)
+      jump.appendChild(j)
+    }
+  })
+
+  setInterval(() => {
+    const g = scenes[cur]?.querySelector('.glitch'); if (!g) return
+    g.classList.add('blinking'); setTimeout(() => g.classList.remove('blinking'), 140)
+  }, 3200)
+
+  const later = (fn, ms) => timers.push(setTimeout(fn, reduce ? 0 : ms))
+  const every = (fn, ms) => loops.push(setInterval(fn, ms))
+  const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
+
+  function typeBubble(scene) {
+    const bubble = scene.querySelector('.bubble'); if (!bubble) return
+    const txt = bubble.querySelector('.txt'), full = bubble.dataset.say, glitch = scene.querySelector('.glitch')
+    clearInterval(typing)
+    const finish = () => { clearInterval(typing); typing = null; txt.textContent = full; glitch?.classList.remove('talk'); scheduleAuto() }
+    bubble.onclick = finish
+    if (reduce) return finish()
+    let i = 0
+    glitch?.classList.add('talk')
+    typing = setInterval(() => {
+      i += 1
+      txt.textContent = full.slice(0, i); const c = document.createElement('span'); c.className = 'caret'; txt.append(c)
+      if (i >= full.length) finish()
+    }, 24)
+  }
+
+  // Muestras: cada una se reinicia al entrar a su escena
+  const enter = {
+    2: (s) => {
+      const items = [...s.querySelectorAll('#chat2 .cm')], dots = s.querySelector('#chat2 .typing')
+      items.forEach((m) => m.classList.remove('show')); dots.classList.remove('show')
+      let t = 300
+      items.forEach((m) => {
+        if (m.classList.contains('b')) {
+          later(() => { dots.classList.add('show'); m.before(dots) }, t); t += 1100
+          later(() => { dots.classList.remove('show'); m.classList.add('show') }, t)
+        } else later(() => m.classList.add('show'), t)
+        t += 1200
+      })
+    },
+    3: (s) => {
+      // personas que recorren la tienda (puntos con su caja de detección)
+      const g = s.querySelector('#people'); g.innerHTML = ''
+      const paths = [
+        [[30, 260], [90, 150], [120, 140], [270, 160], [325, 190]],
+        [[30, 260], [70, 140], [150, 145], [110, 150]],
+        [[30, 260], [230, 150], [300, 140], [272, 190]],
+        [[30, 260], [130, 150], [320, 150], [340, 190]],
+        [[30, 260], [60, 145], [140, 115], [90, 140]],
+      ]
+      const queue = [[340, 190], [340, 176], [340, 162]]
+      const ns = 'http://www.w3.org/2000/svg'
+      const mk = (x, y, staff) => {
+        const p = document.createElementNS(ns, 'g')
+        p.innerHTML = `<rect class="bbox" x="-8" y="-11" width="16" height="22" rx="3"/><circle class="person${staff ? ' staff' : ''}" r="5"/>`
+        p.setAttribute('transform', `translate(${x} ${y})`)
+        g.appendChild(p); return p
+      }
+      mk(272, 230, true); mk(340, 230, true) // operadores en caja
+      queue.forEach(([x, y]) => mk(x, y))
+      paths.forEach((pts, k) => {
+        const p = mk(...pts[0]); let seg = 0, t = 0
+        const step = () => {
+          t += .012
+          if (t >= 1) { t = 0; seg = (seg + 1) % (pts.length - 1) }
+          const [ax, ay] = pts[seg], [bx, by] = pts[seg + 1]
+          p.setAttribute('transform', `translate(${ax + (bx - ax) * t} ${ay + (by - ay) * t})`)
+        }
+        for (let i = 0; i < k * 18; i++) step()
+        if (!reduce) every(step, 40)
+      })
+      const fila = s.querySelector('#k-fila'), aten = s.querySelector('#k-aten'), perm = s.querySelector('#k-perm'), pers = s.querySelector('#k-pers'), alert = s.querySelector('#k-alert')
+      fila.classList.remove('warn'); alert.classList.remove('show')
+      let sec = 0
+      const tick = () => {
+        sec += 1
+        fila.querySelector('.v').textContent = mmss(150 + sec * 3)
+        aten.textContent = mmss(128 + (sec % 7))
+        perm.textContent = mmss(372 + sec)
+        pers.textContent = 21 + (sec % 4)
+        if (sec === 6) { fila.classList.add('warn'); alert.classList.add('show') }
+      }
+      tick(); every(tick, reduce ? 99999 : 700)
+    },
+    4: (s) => {
+      s.querySelectorAll('.lane .it').forEach((it) => { it.classList.remove('show'); later(() => it.classList.add('show'), +it.dataset.t * 1000) })
+      const j = s.querySelector('#json4'); j.classList.remove('show'); later(() => j.classList.add('show'), 3800)
+    },
+    5: (s) => {
+      const rows = [...s.querySelectorAll('.al')], post = s.querySelector('#post5')
+      const n = s.querySelector('#n5'), ca = s.querySelector('#c5a'), cb = s.querySelector('#c5b')
+      rows.forEach((r) => r.classList.remove('show', 'rated', 'muted')); post.classList.remove('show')
+      n.textContent = '0 alertas'; ca.textContent = '0'; cb.textContent = '0'
+      rows.forEach((r, i) => later(() => { r.classList.add('show'); n.textContent = `${i + 1} alertas` }, 300 + i * 450))
+      rows.forEach((r, i) => later(() => {
+        r.classList.add('rated'); ca.textContent = i + 1
+        if (['low', 'fp'].includes(r.dataset.sev)) later(() => r.classList.add('muted'), 500)
+        if (r.dataset.sev === 'crit') { post.classList.add('show'); cb.textContent = 1 }
+      }, 3000 + i * 300))
+    },
+  }
+
+  function scheduleAuto() {
+    clearTimeout(autoTimer)
+    if (auto) autoTimer = setTimeout(() => go(cur === scenes.length - 1 ? 0 : cur + 1), cur === 2 ? 10000 : 8000)
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(scenes.length - 1, i))
+    if (i === cur) return
+    const back = i < cur
+    timers.forEach(clearTimeout); loops.forEach(clearInterval); timers = []; loops = []
+    clearTimeout(autoTimer); clearInterval(typing)
+    scenes.forEach((s) => s.classList.remove('on', 'left'))
+    const s = scenes[i]
+    if (back) s.classList.add('left')
+    void s.offsetWidth // reinicia las animaciones de la escena
+    s.classList.add('on'); s.classList.remove('left')
+    cur = i
+    progress.querySelectorAll('button').forEach((b, k) => { b.classList.toggle('done', k <= i); b.setAttribute('aria-current', k === i ? 'step' : 'false') })
+    document.getElementById('aurora').style.background =
+      `radial-gradient(40% 35% at 20% 30%, color-mix(in srgb, ${s.dataset.c} 22%, transparent), transparent 70%), radial-gradient(35% 30% at 80% 70%, rgba(57,126,246,.18), transparent 70%)`
+    prevBtn.disabled = i === 0
+    nextBtn.textContent = i === scenes.length - 1 ? '↺ Volver a empezar' : (i === 0 ? 'Ver los casos →' : 'Siguiente →')
+    history.replaceState(null, '', '#' + i)
+    typeBubble(s)
+    enter[i]?.(s)
+    if (innerWidth <= 980) scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  prevBtn.onclick = () => go(cur - 1)
+  nextBtn.onclick = () => (cur === scenes.length - 1 ? go(0) : go(cur + 1))
+  const toggleAuto = () => { auto = !auto; autoBtn.setAttribute('aria-pressed', auto); autoBtn.textContent = auto ? '❚❚ Pausar' : '▶ Automático'; if (auto && !typing) scheduleAuto(); if (!auto) clearTimeout(autoTimer) }
+  autoBtn.onclick = toggleAuto
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); nextBtn.click() }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(cur - 1) }
+    else if (e.key === 'Home') go(0)
+    else if (e.key === 'End') go(scenes.length - 1)
+    else if (e.key.toLowerCase() === 'a') toggleAuto()
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.()
+  })
+  let x0 = null
+  addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX }, { passive: true })
+  addEventListener('touchend', (e) => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 60) go(cur + (dx < 0 ? 1 : -1)); x0 = null })
+
+  // Estrellas de fondo (como la escena del stand)
+  const cv = document.getElementById('stars'), ctx = cv.getContext('2d')
+  let stars = []
+  const resize = () => {
+    cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio
+    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 5000) }, () => ({ x: Math.random() * cv.width, y: Math.random() * cv.height, r: Math.random() * 1.3 + .2, s: Math.random() * .25 + .05, p: Math.random() * 6.28 }))
+  }
+  const draw = (t) => {
+    ctx.clearRect(0, 0, cv.width, cv.height)
+    for (const st of stars) {
+      if (!reduce) { st.x -= st.s * devicePixelRatio; if (st.x < 0) st.x = cv.width }
+      ctx.globalAlpha = .35 + .45 * Math.abs(Math.sin(t / 1400 + st.p))
+      ctx.fillStyle = '#cfe0ff'; ctx.beginPath(); ctx.arc(st.x, st.y, st.r * devicePixelRatio, 0, 6.28); ctx.fill()
+    }
+    requestAnimationFrame(draw)
+  }
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw)
+
+  const start = parseInt(location.hash.slice(1), 10)
+  go(Number.isFinite(start) ? start : 0)
+})()
+</script>
+</body>
+</html>
