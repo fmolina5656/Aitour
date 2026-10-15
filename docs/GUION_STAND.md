@@ -6,9 +6,10 @@
 > Para aprenderlo de forma visual, el mismo recorrido contado por Glitch está en `https://<app>/story`
 > (flechas para avanzar, `A` para modo automático, `F` pantalla completa).
 >
-> Para mostrar experiencia real: `https://<app>/casos` tiene 5 casos de éxito de Readymind (TotalEnergies, Interbank,
-> Koaj Permoda, Prima AFP y Brigard & Urrutia) con una muestra animada de cada solución. Sirve en una tablet en modo
-> automático o para responder "¿y esto ya lo hicieron en algún lado?".
+> Para mostrar experiencia real: `https://<app>/casos` tiene 5 proyectos de Readymind en producción (FinancialOCR,
+> Smart Maintenance, Store Intelligence, la API documental de pensiones y SOC Classifier), con una muestra animada de
+> cada solución. Sirve en una tablet en modo automático o para responder "¿y esto ya lo hicieron en algún lado?".
+> **No se nombran clientes:** si preguntan, se habla de la industria y el país.
 
 ## 0:00 – 0:30 · Enganche
 

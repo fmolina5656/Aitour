@@ -85,8 +85,8 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .card { background: var(--glass); border: 1px solid rgba(36,57,90,.7); border-radius: 16px; padding: 14px 18px; backdrop-filter: blur(12px); }
 .card h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
 .card p { margin: 0; color: var(--text-2); font-size: 15px; line-height: 1.45; }
-.card.say p { color: var(--text); font-size: 16px; font-style: italic; }
-.card.say { border-color: rgba(102,222,127,.3); }
+.card.now { border-color: rgba(102,222,127,.35); background: linear-gradient(160deg, rgba(102,222,127,.08), rgba(9,18,33,.66)); }
+.card.now p { color: var(--text); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; background: rgba(57,126,246,.12); border: 1px solid rgba(57,126,246,.35); color: #cfe0ff; }
 .sales .card { opacity: 0; transform: translateY(14px); }
@@ -128,7 +128,40 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .others b { color: var(--text-2); font-weight: 500; }
 .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: min(22px, 2.5vh); }
 
-/* ---------- Muestra 1 · TotalEnergies: manuales → plan de mantenimiento ---------- */
+/* ---------- Muestra 1 · FinancialOCR: extractos de 9 brokers → Excel para SAP ---------- */
+.m0 { width: min(760px, 100%); display: grid; grid-template-columns: 230px 1fr; gap: 20px; align-items: center; }
+.brokers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bk { position: relative; aspect-ratio: .78; border-radius: 8px; background: #eef2f7; padding: 8px 7px; box-shadow: 0 8px 18px rgba(0,0,0,.4); overflow: hidden; transition: box-shadow .3s; }
+.bk b { display: block; font-size: 10px; color: #1b2a3f; margin-bottom: 5px; }
+.bk i { display: block; height: 4px; border-radius: 2px; background: #cbd5e3; margin: 4px 0; }
+.bk:nth-child(3n+1) i:nth-child(odd) { width: 70%; } .bk:nth-child(3n+2) i:nth-child(even) { width: 55%; margin-left: 30%; } .bk:nth-child(3n) i { width: 85%; }
+.bk .ok { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(102,222,127,.82); color: #04121b; font-weight: 900; font-size: 20px; opacity: 0; transform: scale(.6); transition: opacity .25s, transform .25s; }
+.bk.done { box-shadow: 0 0 0 2px var(--green), 0 8px 18px rgba(0,0,0,.4); }
+.bk.done .ok { opacity: 1; transform: none; }
+.counter { grid-column: 1; text-align: center; font-family: var(--mono); font-size: 13px; color: var(--text-2); margin-top: 4px; }
+.counter b { color: var(--green); font-size: 18px; }
+.ledger { border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.88); overflow: hidden; }
+.ledger .hd { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 14.5px; }
+.ledger .hd span { font-family: var(--mono); font-size: 12px; color: var(--text-3); font-weight: 400; }
+.ledger table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ledger th { text-align: left; font-weight: 500; color: var(--text-3); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 7px 14px; }
+.ledger td { padding: 7px 14px; border-top: 1px solid var(--line); }
+.ledger td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+.ledger td.neg { color: #ff9b9b; } .ledger td.pos { color: #c8f5d2; }
+.ledger tr.row { opacity: 0; transform: translateX(14px); }
+.scene.on .ledger tr.row { animation: up .4s forwards; }
+.scene.on .ledger tr.row:nth-child(1) { animation-delay: 1.2s; } .scene.on .ledger tr.row:nth-child(2) { animation-delay: 1.5s; }
+.scene.on .ledger tr.row:nth-child(3) { animation-delay: 1.8s; } .scene.on .ledger tr.row:nth-child(4) { animation-delay: 2.1s; }
+.checks { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--line); }
+.checks span { font-size: 12px; padding: 3px 9px; border-radius: 99px; background: rgba(102,222,127,.12); border: 1px solid rgba(102,222,127,.35); color: #c8f5d2; opacity: 0; }
+.scene.on .checks span { animation: up .35s forwards; }
+.scene.on .checks span:nth-child(1) { animation-delay: 2.6s; } .scene.on .checks span:nth-child(2) { animation-delay: 2.8s; } .scene.on .checks span:nth-child(3) { animation-delay: 3s; }
+.xlsx { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(59,130,246,.45); background: rgba(59,130,246,.1); font-size: 13.5px; opacity: 0; }
+.xlsx .ic { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; background: #1d6f42; color: #fff; font-weight: 900; font-size: 13px; }
+.xlsx small { display: block; color: var(--text-3); font-size: 12px; }
+.scene.on .xlsx { animation: up .45s 3.4s forwards; }
+
+/* ---------- Muestra 2 · Smart Maintenance: manuales → plan de mantenimiento ---------- */
 .m1 { width: min(760px, 100%); display: grid; grid-template-columns: 220px 1fr; gap: 26px; align-items: center; }
 .manuals { position: relative; height: 230px; }
 .manual { position: absolute; width: 140px; height: 180px; border-radius: 8px; background: #eef2f7; color: #1b2a3f; padding: 12px; font-size: 10px; line-height: 1.5; box-shadow: 0 16px 30px rgba(0,0,0,.45); overflow: hidden; }
@@ -156,27 +189,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .scene.on .plan tr.row:nth-child(5) { animation-delay: 2.8s; }
 .chk { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; background: rgba(102,222,127,.18); color: var(--green); font-size: 12px; margin-right: 8px; }
 
-/* ---------- Muestra 2 · Interbank: agente de help desk ---------- */
-.chat { width: min(560px, 100%); border-radius: 18px; border: 1px solid var(--line-2); background: rgba(9,18,33,.88); overflow: hidden; }
-.chat .hd { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 700; }
-.chat .hd .av { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9cc0ff, var(--c2)); display: grid; place-items: center; font-size: 15px; }
-.chat .hd small { display: block; font-weight: 400; color: var(--green); font-size: 12px; }
-/* como un chat real: los mensajes nuevos empujan a los viejos hacia arriba */
-.chat .body { padding: 12px 14px; display: flex; flex-direction: column; justify-content: flex-end; gap: 7px; height: min(400px, 38vh); overflow: hidden; }
-.cm { display: none; flex: none; max-width: 86%; padding: 8px 12px; border-radius: 14px; font-size: 14px; line-height: 1.4; opacity: 0; transform: translateY(8px); }
-.cm.u { align-self: flex-end; background: rgba(183,194,210,.12); border: 1px solid rgba(183,194,210,.2); border-bottom-right-radius: 4px; }
-.cm.b { background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.35); border-bottom-left-radius: 4px; }
-.cm .tk { display: flex; gap: 10px; align-items: center; margin-top: 7px; padding: 8px 10px; border-radius: 10px; background: rgba(5,10,18,.6); border: 1px solid var(--line-2); font-family: var(--mono); font-size: 12.5px; }
-.cm .tk b { color: var(--green); font-weight: 700; }
-.cm .kb { display: block; margin-top: 6px; font-size: 12.5px; color: #9cc0ff; }
-.typing { align-self: flex-start; display: none; gap: 4px; padding: 10px 12px; border-radius: 12px; background: rgba(59,130,246,.1); opacity: 0; }
-.typing i { width: 6px; height: 6px; border-radius: 50%; background: #9cc0ff; animation: dots 1s infinite; }
-.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
-@keyframes dots { 50% { transform: translateY(-4px); opacity: .5; } }
-.cm.show, .typing.show { display: block; animation: up .4s forwards; }
-.typing.show { display: flex; }
-
-/* ---------- Muestra 3 · Koaj: visión sobre las cámaras de la tienda ---------- */
+/* ---------- Muestra 3 · Store Intelligence: visión sobre las cámaras de la tienda ---------- */
 .m3 { width: min(740px, 100%); display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: center; }
 .store { position: relative; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.85); overflow: hidden; }
 .store svg { display: block; width: 100%; height: auto; }
@@ -199,7 +212,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .alertbox { grid-column: 1 / -1; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,181,71,.5); background: rgba(255,181,71,.08); color: #ffd9a1; font-size: 13.5px; opacity: 0; }
 .alertbox.show { animation: up .4s forwards; }
 
-/* ---------- Muestra 4 · Prima AFP: cada documento a su tecnología ---------- */
+/* ---------- Muestra 4 · API documental: cada documento a su tecnología ---------- */
 .m4 { width: min(760px, 100%); display: grid; grid-template-columns: 150px 120px 1fr; gap: 16px; align-items: center; }
 .docs { display: flex; flex-direction: column; gap: 8px; }
 .doc { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: #eef2f7; color: #1b2a3f; font-size: 12.5px; font-weight: 700; box-shadow: 0 8px 18px rgba(0,0,0,.35); opacity: 0; transform: translateX(-20px); }
@@ -223,7 +236,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .json .k { color: #9cc0ff; } .json .s { color: #c8f5d2; } .json .ok { color: var(--green); }
 .json.show { animation: up .4s forwards; }
 
-/* ---------- Muestra 5 · Brigard & Urrutia: triage de alertas SOC ---------- */
+/* ---------- Muestra 5 · SOC Classifier: triage de alertas SOC ---------- */
 .m5 { width: min(760px, 100%); display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: start; }
 .inbox { border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.88); overflow: hidden; }
 .inbox .hd { padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--text-2); display: flex; justify-content: space-between; }
@@ -277,7 +290,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   .org { margin-top: 6px; } .org .name { font-size: 22px; }
   .bubble { font-size: 15.5px; min-height: 0; padding: 12px 16px; margin-bottom: 44px; }
   .glitch { width: 92px; }
-  .card { padding: 10px 14px; } .card p { font-size: 14px; } .card.say p { font-size: 14.5px; }
+  .card { padding: 10px 14px; } .card p { font-size: 14px; }
   .visual { padding: 40px 16px 64px; }
   .plan td { padding: 6px 12px; } .plan table { font-size: 12.5px; }
 }
@@ -304,7 +317,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
       <div class="story">
         <span class="chapter">Readymind · Casos de éxito con IA en Latinoamérica</span>
         <h1>IA que ya está <span>trabajando en empresas reales</span></h1>
-        <p class="sub">Cinco casos de éxito de Readymind, contados por Glitch, con una muestra animada de cómo funciona cada solución.</p>
+        <p class="sub">Cinco proyectos de Readymind en producción, contados por Glitch, con una muestra animada de cómo funciona cada solución.</p>
         <div class="kpis">
           <div class="kpi"><div class="v">14</div><div class="l">casos de éxito publicados</div></div>
           <div class="kpi"><div class="v">3</div><div class="l">países: Argentina, Colombia y Perú</div></div>
@@ -312,17 +325,72 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         </div>
         <div class="glitch-row">
           <div class="glitch"><img src="/brand/glitch-open.webp" alt="Glitch, la mascota de Readymind" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
-          <div class="bubble" data-say="¡Hola otra vez! Ya viste cómo armo una solución en tres minutos. Ahora te cuento cinco que ya están funcionando en empresas de verdad: energía, banca, retail, pensiones y seguridad. ¡Elige uno o vamos en orden!"><span class="who">Glitch</span><span class="txt"></span></div>
+          <div class="bubble" data-say="¡Hola otra vez! Ya viste cómo armo una solución en tres minutos. Ahora te cuento cinco que ya están funcionando en empresas de verdad: finanzas, energía, retail, pensiones y seguridad. ¡Elige uno o vamos en orden!"><span class="who">Glitch</span><span class="txt"></span></div>
         </div>
         <div class="logos" id="jump"></div>
       </div>
     </section>
 
-    <!-- 1 · TotalEnergies -->
-    <section class="scene" data-c="var(--c1)" data-title="TotalEnergies" style="--c:var(--c1)">
+    <!-- 1 · FinancialOCR -->
+    <section class="scene" data-c="var(--c2)" data-title="FinancialOCR" style="--c:var(--c2)">
       <div class="story">
-        <span class="chapter">Caso 1 · Energía · Argentina <span class="time">13 semanas</span></span>
-        <div class="org"><span class="name">TOTALENERGIES</span><span class="proj">Smart Maintenance</span></div>
+        <span class="chapter">Caso 1 · Servicios financieros · Argentina <span class="time">10 semanas</span></span>
+        <div class="org"><span class="name">FINANCIAL OCR</span><span class="proj">Conciliación contable con IA</span></div>
+        <h2>El cierre contable, <em>sin tipear un solo extracto</em></h2>
+        <div class="glitch-row">
+          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+          <div class="bubble" data-say="Imagínate recibir extractos de nueve brokers distintos, cada uno con su propio PDF y su propio formato, y tener que pasarlos a mano a SAP. ¡Un signo mal puesto y el cierre no cuadra! Ahora la IA entiende el formato de cada broker y entrega el Excel listo para SAP."><span class="who">Glitch</span><span class="txt"></span></div>
+        </div>
+      </div>
+      <div class="visual">
+        <span class="demo-title" style="--c:var(--c2)"><i></i>Muestra · extractos de 9 brokers → Excel para SAP</span>
+        <span class="tag-ej">Datos de ejemplo</span>
+        <div class="m0">
+          <div>
+            <div class="brokers" id="bk1">
+              <div class="bk"><b>ALYC 1</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+              <div class="bk"><b>ALYC 2</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+              <div class="bk"><b>ALYC 3</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+              <div class="bk"><b>ALYC 4</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+              <div class="bk"><b>ALYC 5</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+              <div class="bk"><b>ALYC 6</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+              <div class="bk"><b>ALYC 7</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+              <div class="bk"><b>ALYC 8</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+              <div class="bk"><b>ALYC 9</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
+            </div>
+            <div class="counter"><b id="bkn">0</b> / 9 extractos interpretados</div>
+          </div>
+          <div>
+            <div class="ledger">
+              <div class="hd">Movimientos · ALYC 7 <span>formato propio del broker</span></div>
+              <table>
+                <thead><tr><th>Fecha</th><th>Concepto</th><th style="text-align:right">Importe (ARS)</th></tr></thead>
+                <tbody>
+                  <tr class="row"><td>03/10</td><td>Compra de bonos</td><td class="n neg">−1,250,000.00</td></tr>
+                  <tr class="row"><td>06/10</td><td>Cobro de cupón</td><td class="n pos">+84,320.50</td></tr>
+                  <tr class="row"><td>08/10</td><td>Venta de acciones</td><td class="n pos">+512,000.00</td></tr>
+                  <tr class="row"><td>08/10</td><td>Comisiones y derechos</td><td class="n neg">−3,415.20</td></tr>
+                </tbody>
+              </table>
+              <div class="checks"><span>✓ Importes</span><span>✓ Fechas</span><span>✓ Signos</span></div>
+            </div>
+            <div class="xlsx"><span class="ic">XLS</span><span>Conciliacion_ALYC_07.xlsx<small>Compatible con SAP HANA · guardado en Blob Storage</small></span></div>
+          </div>
+        </div>
+        <div class="result" style="--rd:4.2s">Los 9 brokers en minutos · cero errores de ingreso</div>
+      </div>
+      <div class="sales">
+        <div class="card"><h4>⏮ Antes</h4><p>Extractos en PDF de 9 brokers, cada uno con su formato. La conciliación en SAP HANA era manual, con riesgo de error en importes, fechas y signos, y dependía de personal especializado.</p></div>
+        <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Azure Document Intelligence</span><span class="chip">GPT-4o</span><span class="chip">.NET 9</span><span class="chip">SAP HANA</span><span class="chip">Cosmos DB</span></div></div>
+        <div class="card now"><h4>🚀 Después</h4><p>Los 9 brokers procesados en minutos, eliminando horas de trabajo manual. Cero errores de ingreso y cierre contable con trazabilidad completa.</p></div>
+      </div>
+    </section>
+
+    <!-- 2 · Smart Maintenance -->
+    <section class="scene" data-c="var(--c1)" data-title="Smart Maintenance" style="--c:var(--c1)">
+      <div class="story">
+        <span class="chapter">Caso 2 · Energía · Argentina <span class="time">13 semanas</span></span>
+        <div class="org"><span class="name">SMART MAINTENANCE</span><span class="proj">Mantenimiento industrial con IA</span></div>
         <h2>Planes de mantenimiento <em>en minutos</em>, no en semanas</h2>
         <div class="glitch-row">
           <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
@@ -355,52 +423,17 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <div class="result" style="--rd:3.4s">De semanas por equipo → minutos de procesamiento</div>
       </div>
       <div class="sales">
-        <div class="card say"><h4>💬 Dilo así</h4><p>"TotalEnergies armaba sus planes de mantenimiento a mano, leyendo manuales enormes. Ahora la IA lee los manuales en cualquier idioma y genera el plan, con tareas, frecuencias y repuestos, en minutos."</p></div>
+        <div class="card"><h4>⏮ Antes</h4><p>Planes de mantenimiento escritos a mano a partir de manuales de cientos de páginas, de distintos fabricantes e idiomas. Se desactualizaban con cada equipo nuevo y el conocimiento quedaba en los técnicos más antiguos.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Microsoft AI Foundry</span><span class="chip">Document Intelligence</span><span class="chip">OCR multiidioma</span><span class="chip">Integración CMMS/ERP</span></div></div>
-        <div class="card"><h4>📈 Resultado</h4><p>Planes siempre alineados a la documentación vigente del fabricante. El conocimiento técnico queda capturado y auditable, sin depender de la rotación del personal.</p></div>
+        <div class="card now"><h4>🚀 Después</h4><p>Planes siempre alineados a la documentación vigente del fabricante. El conocimiento técnico queda capturado y auditable, sin depender de la rotación del personal.</p></div>
       </div>
     </section>
 
-    <!-- 2 · Interbank -->
-    <section class="scene" data-c="var(--c2)" data-title="Interbank" style="--c:var(--c2)">
-      <div class="story">
-        <span class="chapter">Caso 2 · Banca · Perú <span class="time">12 semanas</span></span>
-        <div class="org"><span class="name">INTERBANK</span><span class="proj">IT Help Desk Virtual</span></div>
-        <h2>Un help desk que <em>resuelve solo</em> lo repetitivo</h2>
-        <div class="glitch-row">
-          <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
-          <div class="bubble" data-say="En el banco, la gente llamaba a soporte hasta para preguntar cómo iba su ticket. Ahora le escriben a un agente como si fuera un compañero, y él crea, consulta o cancela el ticket en ServiceNow. ¡Y antes busca la respuesta en la base de conocimientos!"><span class="who">Glitch</span><span class="txt"></span></div>
-        </div>
-      </div>
-      <div class="visual">
-        <span class="demo-title" style="--c:var(--c2)"><i></i>Muestra · conversación con el agente</span>
-        <span class="tag-ej">Conversación de ejemplo</span>
-        <div class="chat">
-          <div class="hd"><span class="av">🤖</span><span>Mesa de ayuda TI<small>● Agente en línea · Copilot Studio</small></span></div>
-          <div class="body" id="chat2">
-            <div class="cm u">No puedo entrar a la VPN desde mi casa 😩</div>
-            <div class="cm b">Probemos algo rápido: cierra sesión, actualiza el cliente de VPN y vuelve a entrar.<span class="kb">📘 Artículo de la base de conocimientos: "Acceso remoto por VPN"</span></div>
-            <div class="cm u">Sigue sin funcionar.</div>
-            <div class="cm b">Entendido, ya te abrí un ticket. Te aviso cuando haya novedades.<div class="tk">🎫 <b>INC0012345</b> · Acceso VPN · Prioridad media</div></div>
-            <div class="cm u">¿Y cómo va el de la impresora que pedí ayer?</div>
-            <div class="cm b">Va bien: ya lo tiene el equipo de soporte.<div class="tk">🎫 <b>INC0011876</b> · En progreso · Soporte N2</div></div>
-            <div class="typing"><i></i><i></i><i></i></div>
-          </div>
-        </div>
-        <div class="result" style="--rd:9.5s">Tickets creados, consultados y cancelados en lenguaje natural</div>
-      </div>
-      <div class="sales">
-        <div class="card say"><h4>💬 Dilo así</h4><p>"En Interbank, los usuarios gestionan sus tickets de TI hablando con un agente, sin llamar a soporte. El equipo humano se queda con los incidentes complejos."</p></div>
-        <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Microsoft Copilot Studio</span><span class="chip">ServiceNow</span><span class="chip">Base de conocimientos</span><span class="chip">Automatización de tickets</span></div></div>
-        <div class="card"><h4>📈 Resultado</h4><p>Reducción drástica de tickets repetitivos mediante autoservicio. Las consultas frecuentes se resuelven antes de escalar a una persona.</p></div>
-      </div>
-    </section>
-
-    <!-- 3 · Koaj Permoda -->
-    <section class="scene" data-c="var(--c3)" data-title="Koaj Permoda" style="--c:var(--c3)">
+    <!-- 3 · Store Intelligence -->
+    <section class="scene" data-c="var(--c3)" data-title="Store Intelligence" style="--c:var(--c3)">
       <div class="story">
         <span class="chapter">Caso 3 · Retail · Colombia <span class="time">12 semanas</span></span>
-        <div class="org"><span class="name">KOAJ PERMODA</span><span class="proj">Store Intelligence</span></div>
+        <div class="org"><span class="name">STORE INTELLIGENCE</span><span class="proj">Visión computacional en tiendas</span></div>
         <h2>Las cámaras de la tienda <em>miden el servicio</em> en tiempo real</h2>
         <div class="glitch-row">
           <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
@@ -435,17 +468,17 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <div class="result" style="--rd:4.5s">KPIs de servicio objetivos y continuos, con las cámaras existentes</div>
       </div>
       <div class="sales">
-        <div class="card say"><h4>💬 Dilo así</h4><p>"Con las cámaras que ya tenían, Koaj mide en tiempo real filas, atención y permanencia, y decide cuánta gente poner en cada turno con datos, no a ojo."</p></div>
+        <div class="card"><h4>⏮ Antes</h4><p>Medir filas, tiempos de atención y permanencia de clientes era difícil de capturar en tiempo real. Poca visibilidad sobre el nivel de servicio y los cuellos de botella.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Azure AI Vision</span><span class="chip">Visión computacional</span><span class="chip">People tracking</span><span class="chip">Dashboard en tiempo real</span></div></div>
-        <div class="card"><h4>📈 Resultado</h4><p>Identificación automática de puntos de congestión. Decisiones de staffing basadas en datos reales, no en estimaciones subjetivas.</p></div>
+        <div class="card now"><h4>🚀 Después</h4><p>Identificación automática de puntos de congestión. Decisiones de staffing basadas en datos reales, no en estimaciones subjetivas.</p></div>
       </div>
     </section>
 
-    <!-- 4 · Prima AFP -->
-    <section class="scene" data-c="var(--c4)" data-title="Prima AFP" style="--c:var(--c4)">
+    <!-- 4 · Trámites previsionales -->
+    <section class="scene" data-c="var(--c4)" data-title="Trámites previsionales" style="--c:var(--c4)">
       <div class="story">
         <span class="chapter">Caso 4 · Seguros y pensiones · Perú <span class="time">10 semanas</span></span>
-        <div class="org"><span class="name">PRIMA AFP</span><span class="proj">PRIMA API</span></div>
+        <div class="org"><span class="name">API DOCUMENTAL</span><span class="proj">Trámites de pensiones</span></div>
         <h2>Cada documento del trámite, <em>leído sin teclear</em></h2>
         <div class="glitch-row">
           <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
@@ -463,7 +496,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
             <div class="doc"><span>📑</span>Anexo 18</div>
             <div class="doc"><span>🏛</span>Cert. consular</div>
           </div>
-          <div class="router"><div><b>PRIMA API</b><small>15 endpoints<br/>.NET 9</small></div></div>
+          <div class="router"><div><b>API documental</b><small>15 endpoints<br/>.NET 9</small></div></div>
           <div class="lanes">
             <div class="lane"><div class="t">Doc Intelligence · prebuilt</div><div class="items"><span class="it" data-t="1.6">🪪 DNI ✓</span><span class="it" data-t="2">🛂 Pasaporte ✓</span></div></div>
             <div class="lane"><div class="t">AI Content Understanding</div><div class="items"><span class="it" data-t="2.4">🩺 Informe médico ✓</span><span class="it" data-t="2.8">📑 Anexo 18 ✓</span></div></div>
@@ -474,17 +507,17 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <div class="result" style="--rd:4.6s">Cero carga manual en documentos previsionales</div>
       </div>
       <div class="sales">
-        <div class="card say"><h4>💬 Dilo así</h4><p>"Prima AFP procesa trámites de 3 a 15 documentos sin carga manual: cada tipo de documento va a la tecnología que mejor lo lee."</p></div>
+        <div class="card"><h4>⏮ Antes</h4><p>Cada trámite trae de 3 a 15 documentos distintos (DNI, pasaportes, certificados consulares, informes médicos, Anexo 18). La carga manual generaba demoras, errores en datos de identidad y poca trazabilidad.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">.NET 9 · 15 endpoints</span><span class="chip">Azure Doc Intelligence</span><span class="chip">AI Content Understanding</span><span class="chip">GPT-4o</span></div></div>
-        <div class="card"><h4>📈 Resultado</h4><p>Reducción significativa del tiempo de procesamiento por trámite, con trazabilidad completa y auditable por solicitud.</p></div>
+        <div class="card now"><h4>🚀 Después</h4><p>Reducción significativa del tiempo de procesamiento por trámite, con trazabilidad completa y auditable por solicitud.</p></div>
       </div>
     </section>
 
-    <!-- 5 · Brigard & Urrutia -->
-    <section class="scene" data-c="var(--c5)" data-title="Brigard & Urrutia" style="--c:var(--c5)">
+    <!-- 5 · SOC Classifier -->
+    <section class="scene" data-c="var(--c5)" data-title="SOC Classifier" style="--c:var(--c5)">
       <div class="story">
         <span class="chapter">Caso 5 · Ciberseguridad · Colombia <span class="time">9 semanas</span></span>
-        <div class="org"><span class="name">BRIGARD &amp; URRUTIA</span><span class="proj">SOC Classifier</span></div>
+        <div class="org"><span class="name">SOC CLASSIFIER</span><span class="proj">Triage de seguridad con agentes</span></div>
         <h2>Alertas de seguridad: <em>de horas a segundos</em></h2>
         <div class="glitch-row">
           <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
@@ -508,16 +541,16 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
           </div>
           <div class="teams">
             <div class="hd">💬 Teams · #respuesta-incidentes</div>
-            <div class="post" id="post5"><b>🚨 CRÍTICA · Ransomware</b><br/>Equipo de un usuario de la firma. Origen: EDR · 08:06. Acción sugerida: aislar el equipo.</div>
+            <div class="post" id="post5"><b>🚨 CRÍTICA · Ransomware</b><br/>Equipo de un usuario. Origen: EDR · 08:06. Acción sugerida: aislar el equipo.</div>
             <div class="count"><div><b id="c5a">0</b>leídas por el agente</div><div><b id="c5b">0</b>escaladas a personas</div></div>
           </div>
         </div>
         <div class="result" style="--rd:5.4s">Solo lo crítico llega a una persona, en segundos</div>
       </div>
       <div class="sales">
-        <div class="card say"><h4>💬 Dilo así</h4><p>"Brigard &amp; Urrutia pasó de leer cada alerta de seguridad a mano a recibir en Teams solo las críticas, en segundos. El equipo trabaja enfocado, sin ruido."</p></div>
+        <div class="card"><h4>⏮ Antes</h4><p>Decenas de alertas de seguridad diarias en una sola casilla de correo, sin prioridad. Los analistas leían cada una a mano, con riesgo de dejar pasar un incidente crítico.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Azure OpenAI GPT-4o</span><span class="chip">Python</span><span class="chip">Microsoft Teams</span><span class="chip">Monitoreo en tiempo real</span></div></div>
-        <div class="card"><h4>📈 Resultado</h4><p>Triage de alertas de horas a segundos. Cero alertas graves sin atender. Los falsos positivos se filtran solos.</p></div>
+        <div class="card now"><h4>🚀 Después</h4><p>Triage de alertas de horas a segundos. Cero alertas graves sin atender. Los falsos positivos se filtran solos.</p></div>
       </div>
     </section>
 
@@ -528,9 +561,9 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <h1>¿Cuál se parece <span>a tu problema?</span></h1>
         <div class="glitch-row">
           <div class="glitch"><img src="/brand/glitch-open.webp" alt="" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
-          <div class="bubble" data-say="Estos son solo cinco de catorce. Todos empezaron igual: alguien contó un problema lento, manual o caro. ¿Me cuentas el tuyo? En tres minutos te armo la solución en la pantalla de al lado."><span class="who">Glitch</span><span class="txt"></span></div>
+          <div class="bubble" data-say="Estos son solo cinco de catorce proyectos. Todos empezaron igual: alguien contó un problema lento, manual o caro. ¿Me cuentas el tuyo? En tres minutos te armo la solución en la pantalla de al lado."><span class="who">Glitch</span><span class="txt"></span></div>
         </div>
-        <p class="others"><b>Más casos de Readymind:</b> LOMA (conciliación de extractos con OCR) · Procesos Inteligentes (recetas médicas) · Prisma Medios de Pago (documentos AFIP) · Provincia ART (auditoría clínica) · TotalEnergies (búsqueda técnica RAG) · Contraloría (validación de citas legales) · Wizenz (alertas vehiculares) · Brigard &amp; Urrutia (auditoría de prompts) · GrupoExpress (daños en buses)</p>
+        <p class="others"><b>Otros proyectos de Readymind:</b> help desk de TI con Copilot Studio (banca) · recetas médicas por lotes (salud) · documentos fiscales y societarios (compliance) · auditoría clínica automática (seguros) · búsqueda técnica con RAG (energía) · validación de citas legales (sector público) · priorización de alertas vehiculares (movilidad) · auditoría del uso de IA (legal) · detección de daños en buses (transporte)</p>
         <div class="ctas">
           <a class="btn primary" href="/">🎙 Contarle mi problema a la demo</a>
           <a class="btn" href="/story/">Cómo funciona la demo</a>
@@ -602,17 +635,10 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 
   // Muestras: cada una se reinicia al entrar a su escena
   const enter = {
-    2: (s) => {
-      const items = [...s.querySelectorAll('#chat2 .cm')], dots = s.querySelector('#chat2 .typing')
-      items.forEach((m) => m.classList.remove('show')); dots.classList.remove('show')
-      let t = 300
-      items.forEach((m) => {
-        if (m.classList.contains('b')) {
-          later(() => { dots.classList.add('show'); m.before(dots) }, t); t += 1100
-          later(() => { dots.classList.remove('show'); m.classList.add('show') }, t)
-        } else later(() => m.classList.add('show'), t)
-        t += 1200
-      })
+    1: (s) => {
+      const tiles = [...s.querySelectorAll('#bk1 .bk')], n = s.querySelector('#bkn')
+      tiles.forEach((t) => t.classList.remove('done')); n.textContent = '0'
+      tiles.forEach((t, i) => later(() => { t.classList.add('done'); n.textContent = i + 1 }, 400 + i * 380))
     },
     3: (s) => {
       // personas que recorren la tienda (puntos con su caja de detección)
@@ -678,7 +704,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 
   function scheduleAuto() {
     clearTimeout(autoTimer)
-    if (auto) autoTimer = setTimeout(() => go(cur === scenes.length - 1 ? 0 : cur + 1), cur === 2 ? 10000 : 8000)
+    if (auto) autoTimer = setTimeout(() => go(cur === scenes.length - 1 ? 0 : cur + 1), 8000)
   }
 
   function go(i) {
