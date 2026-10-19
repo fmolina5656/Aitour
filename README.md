@@ -16,6 +16,9 @@ Todo se ve en una escena 3D (Three.js) pensada para una pantalla de 1920×1080 v
 > - Guion de 5 minutos: [docs/GUION_STAND.md](docs/GUION_STAND.md)
 > - **Recorrido para ventas, contado por Glitch:** `https://<app>/story` (`frontend/public/story/index.html`)
 > - **Casos de éxito con muestras animadas, contados por Glitch:** `https://<app>/casos` (`frontend/public/casos/index.html`)
+> - **Lector de documentos en vivo:** `https://<app>/ocr` — la cámara lee un documento y Glitch dice qué es, qué datos tiene
+>   y si algo no cuadra (`POST /api/ocr`, `backend/app/ocr.py`). Kit de documentos ficticios para imprimir:
+>   `https://<app>/ocr/muestras`.
 > - Correo con Power Automate: [docs/POWER_AUTOMATE.md](docs/POWER_AUTOMATE.md)
 
 ## Entorno en Azure

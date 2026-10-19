@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lector de documentos</title>
+<meta name="description" content="Glitch lee documentos en vivo con la cámara: los clasifica, extrae sus datos y los valida con IA de Microsoft Foundry." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
+<style>
+/* Lector de documentos en vivo: misma marca que /story y /casos. El backend es POST /api/ocr (backend/app/ocr.py). */
+:root {
+  --green: #66de7f; --teal: #53b6ad; --blue: #397ef6;
+  --gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
+  --bg: #050a12; --line: #1f3150; --line-2: #24395a;
+  --glass: rgba(9, 18, 33, .66); --glass-border: rgba(102, 222, 127, .12);
+  --text: #f3f6fa; --text-2: #b7c2d2; --text-3: #6f7f95;
+  --alert: #ffb547; --bad: #ff7a7a;
+  --font: 'Satoshi', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+#stars { position: fixed; inset: 0; z-index: 0; }
+.aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(80px); opacity: .55; animation: drift 24s ease-in-out infinite alternate;
+  background: radial-gradient(40% 35% at 20% 30%, rgba(102,222,127,.16), transparent 70%), radial-gradient(35% 30% at 80% 70%, rgba(57,126,246,.18), transparent 70%); }
+@keyframes drift { to { transform: translate(4%, -3%) rotate(6deg); } }
+@keyframes up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+.app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr; }
+.top { display: flex; align-items: center; gap: 24px; padding: 16px 32px 10px; }
+.top img { height: 30px; }
+.top .t { font-size: 16px; color: var(--text-2); }
+.top .t b { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; }
+.top .links { margin-left: auto; display: flex; gap: 8px; }
+.top .links a { color: var(--text-2); text-decoration: none; font-size: 14px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line-2); }
+.top .links a:hover { border-color: var(--green); color: var(--text); }
+
+.main { min-height: 0; padding: 8px 32px 0; display: grid; grid-template-columns: minmax(340px, 5fr) 7fr; grid-template-rows: minmax(0, 1fr) auto; gap: 18px 36px; }
+
+/* ---------- Glitch ---------- */
+.story { display: flex; flex-direction: column; justify-content: safe center; min-height: 0; }
+.chapter { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--green); }
+.chapter .live { display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); border: 1px solid var(--line-2); padding: 2px 9px; border-radius: 99px; letter-spacing: 0; text-transform: none; }
+.chapter .live i { width: 8px; height: 8px; border-radius: 50%; background: #ff5d5d; box-shadow: 0 0 10px #ff5d5d; animation: blinkdot 1.2s infinite; }
+@keyframes blinkdot { 50% { opacity: .3; } }
+h1 { font-size: clamp(30px, min(3.4vw, 6vh), 54px); line-height: 1.04; letter-spacing: -.02em; margin: 12px 0 20px; font-weight: 900; }
+h1 em { font-style: normal; background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.glitch-row { display: flex; align-items: flex-end; gap: 6px; }
+.glitch { width: clamp(96px, 9vw, 146px); flex: none; position: relative; animation: bob 3.2s ease-in-out infinite; }
+.glitch img { width: 100%; display: block; filter: drop-shadow(0 10px 28px rgba(102,222,127,.35)); }
+.glitch img.blink { position: absolute; inset: 0; opacity: 0; }
+.glitch.blinking img.blink { opacity: 1; }
+.glitch::after { content: ''; position: absolute; left: 18%; right: 18%; bottom: -14px; height: 12px; border-radius: 50%; background: rgba(102,222,127,.18); filter: blur(6px); }
+.glitch.talk { animation: bob 3.2s ease-in-out infinite, wiggle .5s ease-in-out infinite; }
+.glitch.think { animation: bob 1s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-10px); } }
+@keyframes wiggle { 25% { rotate: -2.5deg; } 75% { rotate: 2.5deg; } }
+.bubble { position: relative; margin-bottom: 56px; background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(14px); border-radius: 22px 22px 22px 6px; padding: 16px 20px; font-size: clamp(16px, 1.3vw, 20px); line-height: 1.45; min-height: 6.6em; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+.bubble .who { display: block; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: 6px; }
+.bubble .caret { display: inline-block; width: 2px; height: 1.05em; background: var(--green); vertical-align: -3px; margin-left: 2px; animation: caret .8s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+.types { display: flex; flex-wrap: wrap; gap: 7px; }
+.types span { font-size: 13.5px; padding: 6px 11px; border-radius: 99px; border: 1px solid var(--line-2); background: rgba(9,18,33,.7); color: var(--text-2); transition: all .35s; }
+.types span.hit { border-color: var(--green); color: #04121b; background: var(--green); box-shadow: 0 0 24px rgba(102,222,127,.5); transform: scale(1.06); }
+.prod { margin-top: 14px; font-size: 14px; color: var(--text-3); }
+.prod a { color: var(--text-2); }
+
+/* ---------- Panel de cámara ---------- */
+.panel { position: relative; min-height: 0; display: flex; flex-direction: column; border-radius: 26px; background: linear-gradient(160deg, rgba(15,27,46,.65), rgba(7,14,26,.45)); border: 1px solid rgba(36,57,90,.7); overflow: hidden; }
+.panel .hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--text-3); letter-spacing: .1em; text-transform: uppercase; }
+.pill { font-family: var(--mono); letter-spacing: 0; text-transform: none; font-size: 12px; padding: 3px 10px; border-radius: 99px; border: 1px solid var(--line-2); color: var(--text-2); }
+.pill.on { border-color: rgba(102,222,127,.5); color: var(--green); }
+.pill.busy { border-color: rgba(57,126,246,.6); color: #9cc0ff; }
+.stage { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; background: #02060c; }
+.stage video, .stage .shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.stage .shot { display: none; }
+.frame { position: absolute; inset: 9% 14%; pointer-events: none; display: none; }
+.frame i { position: absolute; width: 38px; height: 38px; border: 4px solid var(--green); filter: drop-shadow(0 0 8px rgba(102,222,127,.7)); }
+.frame i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; border-radius: 12px 0 0 0; }
+.frame i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; border-radius: 0 12px 0 0; }
+.frame i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; border-radius: 0 0 0 12px; }
+.frame i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; border-radius: 0 0 12px 0; }
+.frame span { position: absolute; left: 50%; bottom: -34px; translate: -50% 0; white-space: nowrap; font-size: 13px; color: var(--text-2); background: rgba(5,10,18,.7); padding: 4px 10px; border-radius: 99px; }
+.beam { position: absolute; left: 0; right: 0; height: 90px; top: -90px; display: none; background: linear-gradient(transparent, rgba(102,222,127,.35), transparent); border-bottom: 2px solid var(--green); box-shadow: 0 6px 24px rgba(102,222,127,.4); }
+.placeholder { text-align: center; padding: 24px; max-width: 460px; }
+.placeholder .big { font-size: 64px; line-height: 1; margin-bottom: 12px; }
+.placeholder p { color: var(--text-2); margin: 0 0 6px; font-size: 16px; }
+.privacy { font-size: 13px; color: var(--text-3); margin-top: 12px; line-height: 1.5; }
+
+/* estados */
+.panel[data-state="live"] .placeholder, .panel[data-state="reading"] .placeholder, .panel[data-state="result"] .placeholder { display: none; }
+.panel[data-state="live"] .frame { display: block; }
+.panel[data-state="reading"] .shot { display: block; filter: blur(3px) brightness(.8); }
+.panel[data-state="reading"] video { display: none; }
+.panel[data-state="reading"] .beam { display: block; animation: beam 1.3s ease-in-out infinite alternate; }
+@keyframes beam { to { top: calc(100% - 0px); } }
+.panel[data-state="result"] video { display: none; }
+.panel:not([data-state="live"]) video { visibility: hidden; }
+
+/* resultado */
+.result { position: absolute; inset: 0; display: none; grid-template-columns: 34% 1fr; gap: 18px; padding: 18px; overflow: auto; background: rgba(5,10,18,.92); }
+.panel[data-state="result"] .result { display: grid; animation: up .45s; }
+.thumb { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line-2); align-self: start; background: #02060c; }
+.thumb img { display: block; width: 100%; filter: blur(5px) saturate(.8); transform: scale(1.06); }
+.thumb span { position: absolute; left: 8px; bottom: 8px; font-size: 11px; color: var(--text-2); background: rgba(5,10,18,.8); padding: 3px 8px; border-radius: 8px; }
+.r-type { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.r-type .ic { font-size: 30px; }
+.r-type b { font-size: clamp(22px, 2vw, 30px); font-weight: 900; }
+.badge { font-size: 12px; padding: 3px 9px; border-radius: 99px; border: 1px dashed var(--line-2); color: var(--text-3); }
+.conf { display: flex; align-items: center; gap: 10px; margin: 8px 0 6px; font-family: var(--mono); font-size: 12.5px; color: var(--text-3); }
+.conf .bar { flex: 1; max-width: 220px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.conf .bar i { display: block; height: 100%; width: 0; background: var(--gradient); transition: width 1s cubic-bezier(.2,.8,.2,1); }
+.r-sum { color: var(--text-2); font-size: 15px; margin: 0 0 12px; line-height: 1.45; }
+.fields { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 12px; }
+.fields td { padding: 7px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+.fields td:first-child { color: var(--text-3); width: 38%; }
+.fields tr { opacity: 0; animation: up .35s forwards; }
+.fields .lock { font-size: 11px; margin-left: 6px; color: var(--alert); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.checks div { display: flex; gap: 8px; align-items: center; font-size: 14px; padding: 7px 11px; border-radius: 10px; opacity: 0; animation: up .35s forwards; }
+.checks .ok { background: rgba(102,222,127,.1); border: 1px solid rgba(102,222,127,.35); color: #c8f5d2; }
+.checks .bad { background: rgba(255,122,122,.08); border: 1px solid rgba(255,122,122,.45); color: #ffc2c2; }
+.checks .hd2, .r-sec { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); margin: 4px 0 2px; }
+.meta { font-family: var(--mono); font-size: 12px; color: var(--text-3); }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; padding: 12px 16px; border-top: 1px solid var(--line); }
+.btn { font: inherit; font-size: 15px; color: var(--text); background: rgba(15,27,46,.85); border: 1px solid var(--line-2); border-radius: 12px; padding: 10px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: border-color .2s, transform .1s; }
+.btn:hover { border-color: var(--green); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--gradient); color: #04121b; border: 0; font-weight: 700; }
+.btn.big { font-size: 18px; padding: 13px 24px; }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.btn[hidden] { display: none; }
+
+/* ---------- Tarjetas ---------- */
+.cards { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 14px; }
+.card { background: var(--glass); border: 1px solid rgba(36,57,90,.7); border-radius: 16px; padding: 12px 16px; backdrop-filter: blur(12px); }
+.card h4 { margin: 0 0 5px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
+.card p { margin: 0; color: var(--text-2); font-size: 14.5px; line-height: 1.45; }
+.card p b { color: var(--text); font-weight: 500; }
+
+@media (max-width: 980px), (max-height: 640px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100vh; }
+  .top { flex-wrap: wrap; padding: 12px 16px 6px; gap: 10px 16px; }
+  .top .t { display: none; }
+  .main { grid-template-columns: 1fr; padding: 8px 16px 0; }
+  .panel { min-height: 70vh; }
+  .bubble { min-height: 0; margin-bottom: 40px; }
+  .panel[data-state="result"] .result { position: static; grid-template-columns: 1fr; overflow: visible; }
+  .thumb { display: none; }
+  .cards { grid-template-columns: 1fr; }
+}
+@media (min-width: 981px) and (max-height: 820px) {
+  h1 { margin: 6px 0 12px; }
+  .bubble { font-size: 15.5px; min-height: 0; padding: 12px 16px; margin-bottom: 44px; }
+  .glitch { width: 92px; }
+  .card p { font-size: 13.5px; }
+  .types span { font-size: 12.5px; padding: 4px 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="aurora" aria-hidden="true"></div>
+
+<div class="app">
+  <header class="top">
+    <img src="/brand/readymind-logo-dark.png" alt="Readymind" />
+    <span class="t">Lector de documentos · <b>con Glitch</b></span>
+    <nav class="links"><a href="/ocr/muestras/" target="_blank">🖨 Muestras para imprimir</a><a href="/casos/">Casos de éxito</a><a href="/story/">Cómo funciona la demo</a></nav>
+  </header>
+
+  <main class="main">
+    <section class="story">
+      <span class="chapter">Microsoft Foundry · visión <span class="live"><i></i>en vivo</span></span>
+      <h1>Muéstrame un documento y <em>te digo qué dice</em></h1>
+      <div class="glitch-row">
+        <div class="glitch" id="glitch"><img src="/brand/glitch-open.webp" alt="Glitch, la mascota de Readymind" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+        <div class="bubble" aria-live="polite"><span class="who">Glitch</span><span class="txt" id="say"></span></div>
+      </div>
+      <div class="types" id="types">
+        <span data-t="identificacion">🪪 Identificación</span>
+        <span data-t="factura_cfdi">🧾 Factura CFDI</span>
+        <span data-t="constancia_fiscal">🏛 Constancia fiscal</span>
+        <span data-t="comprobante_domicilio">🏠 Comprobante de domicilio</span>
+        <span data-t="estado_cuenta">🏦 Estado de cuenta</span>
+        <span data-t="receta_medica">🩺 Receta médica</span>
+        <span data-t="otro">📄 Otros</span>
+      </div>
+      <p class="prod">Esto mismo ya funciona en producción: <a href="/casos/#1">conciliación de extractos</a> y <a href="/casos/#4">trámites de pensiones</a>.</p>
+    </section>
+
+    <section class="panel" id="panel" data-state="idle">
+      <div class="hd"><span>📷 Cámara</span><span class="pill" id="pill">apagada</span></div>
+      <div class="stage">
+        <video id="video" playsinline muted></video>
+        <img class="shot" id="shot" alt="" />
+        <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i><span>Pon el documento dentro del marco</span></div>
+        <div class="beam" aria-hidden="true"></div>
+        <div class="placeholder">
+          <div class="big">📄📷</div>
+          <p><b>Activa la cámara</b> y muéstrame un documento, o sube una foto.</p>
+          <p class="privacy">🔒 La imagen no se guarda en ningún lado y los datos personales se muestran ocultos.<br/>Usa uno de los <b>documentos de muestra</b> del stand.</p>
+        </div>
+        <div class="result" id="result"></div>
+      </div>
+      <div class="controls">
+        <button class="btn primary big" id="bCam">📷 Activar cámara</button>
+        <button class="btn primary big" id="bRead" hidden>🔍 Leer documento</button>
+        <button class="btn primary big" id="bAgain" hidden>↺ Leer otro</button>
+        <button class="btn" id="bUp">⬆️ Subir una foto</button>
+        <button class="btn" id="bOff" hidden>✕ Apagar cámara</button>
+        <input type="file" id="file" accept="image/jpeg,image/png,image/webp" hidden />
+      </div>
+    </section>
+
+    <div class="cards">
+      <div class="card"><h4>🧭 Clasifica</h4><p>Reconoce <b>qué documento es</b> entre identificaciones, facturas, constancias del SAT, comprobantes, estados de cuenta y recetas, y dice qué tan seguro está.</p></div>
+      <div class="card"><h4>🔎 Extrae</h4><p>Saca los <b>datos clave</b> (emisor, fechas, montos, RFC…) listos para un sistema. Los datos personales se muestran ocultos.</p></div>
+      <div class="card"><h4>✅ Valida</h4><p>Revisa el <b>RFC</b>, el dígito verificador de la <b>CURP</b>, que <b>la factura cuadre</b> y la <b>vigencia</b>. Lo valida el código, no el modelo: sin inventos.</p></div>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const panel = $('panel'), video = $('video'), shot = $('shot'), pill = $('pill'), result = $('result'), sayEl = $('say'), glitch = $('glitch')
+  const bCam = $('bCam'), bRead = $('bRead'), bAgain = $('bAgain'), bUp = $('bUp'), bOff = $('bOff'), file = $('file')
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  let stream = null, typing = null, idleTimer = null
+
+  const LINES = {
+    idle: 'Soy bueno leyendo papeles 🤓. Muéstrame un documento y te digo qué es, qué datos tiene y si algo no cuadra: identificaciones, facturas, constancias del SAT, comprobantes de domicilio, estados de cuenta y recetas. ¿Me prestas tu cámara?',
+    live: '¡Te veo! Pon el documento dentro del marco, que se vea completo y sin reflejos, y toca «Leer documento».',
+    denied: 'No tengo permiso para usar la cámara. Puedes darme permiso en el candado de la barra de direcciones, o subir una foto del documento.',
+    nocam: 'Este dispositivo no me deja usar la cámara. ¡No pasa nada! Sube una foto del documento y lo leo igual.',
+    reading: 'Leyendo… Estoy reconociendo el tipo de documento, extrayendo los datos y validándolos. Dame unos segundos.',
+    next: 'Listo para el siguiente documento. Borré el anterior de la pantalla 🧹.',
+  }
+  const ART = {
+    identificacion: 'una identificación oficial', factura_cfdi: 'una factura CFDI', constancia_fiscal: 'una constancia de situación fiscal',
+    comprobante_domicilio: 'un comprobante de domicilio', estado_cuenta: 'un estado de cuenta bancario', receta_medica: 'una receta o informe médico',
+  }
+  const ICON = { identificacion: '🪪', factura_cfdi: '🧾', constancia_fiscal: '🏛', comprobante_domicilio: '🏠', estado_cuenta: '🏦', receta_medica: '🩺', otro: '📄', ilegible: '🤔' }
+
+  function say(text, mood = 'talk') {
+    clearInterval(typing)
+    glitch.classList.remove('talk', 'think')
+    glitch.classList.add(mood)
+    if (reduce) { sayEl.textContent = text; glitch.classList.remove('talk'); return }
+    let i = 0
+    typing = setInterval(() => {
+      i += 1
+      sayEl.textContent = text.slice(0, i)
+      const c = document.createElement('span'); c.className = 'caret'; sayEl.append(c)
+      if (i >= text.length) { clearInterval(typing); sayEl.textContent = text; if (mood === 'talk') glitch.classList.remove('talk') }
+    }, 22)
+  }
+
+  function setState(s) {
+    panel.dataset.state = s
+    const live = !!stream
+    bCam.hidden = live || s === 'reading'
+    bRead.hidden = !(live && s === 'live')
+    bAgain.hidden = s !== 'result'
+    bOff.hidden = !live || s === 'reading'
+    bUp.disabled = s === 'reading'
+    pill.className = 'pill' + (s === 'reading' ? ' busy' : live ? ' on' : '')
+    pill.textContent = s === 'reading' ? 'leyendo…' : live ? 'encendida' : 'apagada'
+  }
+
+  async function startCamera() {
+    if (!navigator.mediaDevices?.getUserMedia) { say(LINES.nocam); return }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false })
+      video.srcObject = stream
+      await video.play()
+      setState('live'); say(LINES.live)
+    } catch (e) {
+      stream = null; setState('idle')
+      say(e && e.name === 'NotAllowedError' ? LINES.denied : LINES.nocam)
+    }
+  }
+
+  function stopCamera() {
+    stream?.getTracks().forEach((t) => t.stop())
+    stream = null; video.srcObject = null
+    if (panel.dataset.state !== 'result') { setState('idle'); say(LINES.idle) } else setState('result')
+  }
+
+  // Foto a JPEG de hasta 1600 px: suficiente para leer y liviana para la red del evento
+  function toJpeg(source, w, h) {
+    const k = Math.min(1, 1600 / Math.max(w, h))
+    const c = document.createElement('canvas')
+    c.width = Math.round(w * k); c.height = Math.round(h * k)
+    c.getContext('2d').drawImage(source, 0, 0, c.width, c.height)
+    return c.toDataURL('image/jpeg', 0.85)
+  }
+
+  async function read(dataUrl) {
+    clearTimeout(idleTimer)
+    shot.src = dataUrl
+    setState('reading'); say(LINES.reading, 'think')
+    document.querySelectorAll('#types span').forEach((s) => s.classList.remove('hit'))
+    try {
+      const r = await fetch('/api/ocr', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: dataUrl }) })
+      const body = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error(body.detail || 'No pude leer el documento. Prueba con más luz o acércalo un poco.')
+      show(body, dataUrl)
+    } catch (e) {
+      setState(stream ? 'live' : 'idle')
+      say(`Uy 😅 ${e.message}`)
+    }
+  }
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+
+  function show(r, dataUrl) {
+    const fields = r.campos.map((c, i) => `<tr style="animation-delay:${.15 + i * .08}s"><td>${esc(c.etiqueta)}</td><td>${esc(c.valor)}${c.sensible ? '<span class="lock">🔒 oculto</span>' : ''}</td></tr>`).join('')
+    const checks = r.validaciones.map((v, i) => `<div class="${v.ok ? 'ok' : 'bad'}" style="animation-delay:${.5 + i * .12}s">${v.ok ? '✅' : '⚠️'} ${esc(v.texto)}</div>`).join('')
+    result.innerHTML = `
+      <div class="thumb"><img src="${dataUrl}" alt="" /><span>Imagen difuminada · no se guarda</span></div>
+      <div>
+        <div class="r-type"><span class="ic">${ICON[r.tipo] || '📄'}</span><b>${esc(r.tipo_label)}</b>${r.es_muestra ? '<span class="badge">Documento de muestra</span>' : ''}</div>
+        <div class="conf">confianza <span class="bar"><i id="confbar"></i></span> ${Math.round(r.confianza * 100)} %</div>
+        <p class="r-sum">${esc(r.resumen)}</p>
+        ${fields ? `<div class="r-sec">Datos extraídos</div><table class="fields">${fields}</table>` : ''}
+        ${checks ? `<div class="r-sec">Validaciones</div><div class="checks">${checks}</div>` : ''}
+        <div class="meta">Leído en ${(r.ms / 1000).toFixed(1)} s · ${esc(r.modelo)} · Microsoft Foundry</div>
+      </div>`
+    setState('result')
+    requestAnimationFrame(() => { const b = $('confbar'); if (b) b.style.width = Math.round(r.confianza * 100) + '%' })
+    document.querySelector(`#types span[data-t="${r.tipo}"]`)?.classList.add('hit')
+    say(line(r))
+    // privacidad: el resultado no se queda en la pantalla pública
+    idleTimer = setTimeout(clearResult, 60000)
+  }
+
+  // minúscula inicial, salvo siglas (RFC, CURP, IVA)
+  const lc = (s) => (/^[A-ZÁÉÍÓÚÑ]{2}/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1))
+
+  function line(r) {
+    if (r.tipo === 'ilegible') return 'No alcancé a leerlo 🤔. Prueba con más luz, sin reflejos y con el documento completo dentro del marco.'
+    let t = r.tipo === 'otro' ? `No está en mi lista, pero igual lo leí: ${lc(r.resumen)}` : `¡Es ${ART[r.tipo]}! `
+    const bad = r.validaciones.find((v) => !v.ok), good = r.validaciones.find((v) => v.ok)
+    if (bad) t += ` Ojo: ${lc(bad.texto)}.`
+    else if (good) t += ` Todo en orden: ${lc(good.texto)}.`
+    if (r.campos.some((c) => c.sensible)) t += ' Los datos personales los dejé ocultos 🔒.'
+    return t
+  }
+
+  function clearResult() {
+    clearTimeout(idleTimer)
+    result.innerHTML = ''; shot.removeAttribute('src')
+    document.querySelectorAll('#types span').forEach((s) => s.classList.remove('hit'))
+    if (stream) { setState('live'); say(LINES.next) } else { setState('idle'); say(LINES.idle) }
+  }
+
+  bCam.onclick = startCamera
+  bOff.onclick = stopCamera
+  bAgain.onclick = clearResult
+  bRead.onclick = () => { if (video.videoWidth) read(toJpeg(video, video.videoWidth, video.videoHeight)) }
+  bUp.onclick = () => file.click()
+  file.onchange = () => {
+    const f = file.files?.[0]; file.value = ''
+    if (!f) return
+    const img = new Image()
+    img.onload = () => { read(toJpeg(img, img.naturalWidth, img.naturalHeight)); URL.revokeObjectURL(img.src) }
+    img.onerror = () => say('Uy 😅 Ese archivo no lo puedo abrir. Prueba con una foto JPG o PNG.')
+    img.src = URL.createObjectURL(f)
+  }
+  addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') { if (!bRead.hidden) { e.preventDefault(); bRead.click() } else if (!bAgain.hidden) { e.preventDefault(); bAgain.click() } }
+    else if (e.key.toLowerCase() === 'r') clearResult()
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.()
+  })
+  addEventListener('pagehide', () => stream?.getTracks().forEach((t) => t.stop()))
+
+  setInterval(() => { glitch.classList.add('blinking'); setTimeout(() => glitch.classList.remove('blinking'), 140) }, 3200)
+  setState('idle'); say(LINES.idle)
+
+  // Estrellas de fondo
+  const cv = $('stars'), ctx = cv.getContext('2d')
+  let stars = []
+  const resize = () => {
+    cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio
+    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 5000) }, () => ({ x: Math.random() * cv.width, y: Math.random() * cv.height, r: Math.random() * 1.3 + .2, s: Math.random() * .25 + .05, p: Math.random() * 6.28 }))
+  }
+  const draw = (t) => {
+    ctx.clearRect(0, 0, cv.width, cv.height)
+    for (const st of stars) {
+      if (!reduce) { st.x -= st.s * devicePixelRatio; if (st.x < 0) st.x = cv.width }
+      ctx.globalAlpha = .35 + .45 * Math.abs(Math.sin(t / 1400 + st.p))
+      ctx.fillStyle = '#cfe0ff'; ctx.beginPath(); ctx.arc(st.x, st.y, st.r * devicePixelRatio, 0, 6.28); ctx.fill()
+    }
+    requestAnimationFrame(draw)
+  }
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw)
+})()
+</script>
+</body>
+</html>

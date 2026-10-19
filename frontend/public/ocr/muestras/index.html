@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Documentos de muestra</title>
+<meta name="description" content="Kit de documentos ficticios para imprimir y probar el lector de documentos del stand (/ocr)." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+/* Documentos FICTICIOS para el lector de /ocr. Datos inventados con formato válido (RFC, CURP con dígito
+   verificador correcto); ningún logo ni diseño oficial. Se imprimen en carta: Ctrl+P, sin márgenes del navegador. */
+:root { --ink: #16202e; --muted: #5b6b80; --line: #c9d3e0; --accent: #2c68f5; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #d9dee6; font-family: 'Segoe UI', Arial, sans-serif; color: var(--ink); }
+.page { position: relative; width: 8.5in; min-height: 11in; margin: 24px auto; padding: .7in .75in; background: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.18); overflow: hidden; page-break-after: always; break-after: page; }
+.page:not(.nowm)::before { content: 'MUESTRA'; position: absolute; left: 50%; top: 50%; translate: -50% -50%; rotate: -30deg; font-size: 150px; font-weight: 900; letter-spacing: .08em; color: rgba(220, 38, 38, .09); pointer-events: none; white-space: nowrap; }
+.tag { position: absolute; top: .3in; right: .75in; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #b91c1c; border: 1.5px solid #b91c1c; border-radius: 4px; padding: 2px 8px; }
+h1 { font-size: 24px; margin: 0 0 4px; }
+h2 { font-size: 15px; margin: 22px 0 8px; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.sub { color: var(--muted); font-size: 13px; }
+.row { display: flex; justify-content: space-between; gap: 24px; }
+.box { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; font-size: 13.5px; line-height: 1.6; flex: 1; }
+.box b { display: inline-block; min-width: 150px; color: var(--muted); font-weight: 600; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 6px; }
+th { text-align: left; background: #eef2f7; padding: 8px 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.totals { margin-left: auto; width: 300px; margin-top: 10px; font-size: 14px; }
+.totals div { display: flex; justify-content: space-between; padding: 5px 10px; }
+.totals .t { font-weight: 800; font-size: 17px; border-top: 2px solid var(--ink); margin-top: 4px; }
+.mono { font-family: Consolas, 'Courier New', monospace; }
+.foot { position: absolute; left: .75in; right: .75in; bottom: .45in; font-size: 10.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.brand .logo { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 18px; }
+.qr { width: 92px; height: 92px; background: repeating-conic-gradient(#16202e 0 25%, #fff 0 50%) 0 0 / 12px 12px; border: 6px solid #fff; outline: 1px solid var(--line); }
+/* credencial: tamaño tarjeta escalado al doble para que la cámara la lea bien */
+.card { position: relative; width: 6.74in; height: 4.25in; margin: 30px auto 0; border-radius: 18px; border: 2px solid #94a3b8; background: linear-gradient(135deg, #f1f5f9, #e0e7ff); padding: 22px 26px; overflow: hidden; }
+.card::after { content: 'MUESTRA'; position: absolute; right: -10px; bottom: 10px; rotate: -18deg; font-size: 64px; font-weight: 900; color: rgba(220,38,38,.18); }
+.card .photo { position: absolute; left: 26px; top: 80px; width: 1.45in; height: 1.85in; border-radius: 10px; background: #cbd5e1; display: grid; place-items: end center; overflow: hidden; }
+.card .photo::before { content: ''; width: 64%; height: 64%; border-radius: 50% 50% 0 0; background: #94a3b8; }
+.card .data { position: absolute; left: calc(1.45in + 50px); top: 80px; right: 24px; font-size: 14px; line-height: 1.55; }
+.card .data b { display: block; font-size: 10.5px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.cover h1 { font-size: 30px; }
+.cover ol { font-size: 15px; line-height: 1.9; }
+.cover li b { color: var(--accent); }
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; box-shadow: none; }
+  .noprint { display: none; }
+  @page { size: letter; margin: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Portada / instrucciones -->
+<section class="page cover">
+  <h1>Documentos de muestra · Lector de documentos</h1>
+  <p class="sub">Readymind · Microsoft AI Tour México. Todos los datos son <b>ficticios</b>: nombres, RFC, CURP, cuentas y folios son inventados (con formato válido para que las validaciones funcionen).</p>
+  <h2>Cómo usarlos en el stand</h2>
+  <ol>
+    <li>Imprimir este kit en hoja carta (<b>Ctrl+P</b>, márgenes: ninguno). Recortar la credencial de la página 8.</li>
+    <li>Abrir <b>/ocr</b> en la tablet o la PC y tocar <b>Activar cámara</b>.</li>
+    <li>Ofrecerle al visitante un documento y que lo ponga dentro del marco verde, con buena luz y sin reflejos.</li>
+    <li>Tocar <b>Leer documento</b>: Glitch dice qué es, muestra los datos y las validaciones.</li>
+  </ol>
+  <h2>Qué muestra cada uno</h2>
+  <table>
+    <tr><th>Pág.</th><th>Documento</th><th>Qué se luce</th></tr>
+    <tr><td>2</td><td>Factura CFDI</td><td>Extrae emisor, receptor y montos · <b>los importes cuadran</b> · RFC válido</td></tr>
+    <tr><td>3</td><td>Factura CFDI con error</td><td>⚠️ <b>Detecta que el total no cuadra</b> con subtotal + IVA (error a propósito)</td></tr>
+    <tr><td>4</td><td>Constancia de situación fiscal</td><td>RFC y <b>CURP con dígito verificador</b> · datos personales ocultos</td></tr>
+    <tr><td>5</td><td>Comprobante de domicilio</td><td>Revisa que tenga <b>menos de 3 meses</b> · domicilio oculto</td></tr>
+    <tr><td>6</td><td>Estado de cuenta bancario</td><td>Cuenta y CLABE ocultas · saldos y periodo</td></tr>
+    <tr><td>7</td><td>Receta médica</td><td>Diagnóstico y paciente ocultos · medicamentos</td></tr>
+    <tr><td>8</td><td>Credencial de identificación</td><td>CURP válida · <b>vigencia</b></td></tr>
+  </table>
+  <p class="sub" style="margin-top:18px">Si alguien quiere usar un documento propio, se puede: la imagen no se guarda y los datos personales salen ocultos en pantalla. Igual conviene ofrecer primero estas muestras.</p>
+</section>
+
+<!-- Factura que cuadra -->
+<section class="page">
+  <span class="tag">DOCUMENTO DE MUESTRA</span>
+  <div class="brand"><div class="logo" style="background:#2c68f5">SE</div><div><h1>Factura</h1><div class="sub">Comprobante Fiscal Digital por Internet (CFDI 4.0)</div></div></div>
+  <div class="row">
+    <div class="box"><b>Emisor</b> Servicios Ejemplo SA de CV<br/><b>RFC</b> <span class="mono">SEJ190312AB4</span><br/><b>Régimen fiscal</b> 601 General de Ley Personas Morales<br/><b>Lugar de expedición</b> 06600</div>
+    <div class="box"><b>Folio fiscal (UUID)</b> <span class="mono">6F1C2B9A-4D3E-4A55-9B8E-2C7D1E0F9A31</span><br/><b>Serie y folio</b> A-1027<br/><b>Fecha de emisión</b> 2026-10-02 11:42:10<br/><b>Uso CFDI</b> G03 Gastos en general</div>
+  </div>
+  <div class="box" style="margin-top:12px"><b>Receptor</b> Tecnología Ejemplar SA de CV<br/><b>RFC</b> <span class="mono">TEM150601QH7</span><br/><b>Domicilio fiscal</b> 03100</div>
+  <h2>Conceptos</h2>
+  <table>
+    <tr><th>Cant.</th><th>Clave</th><th>Descripción</th><th class="n">Precio unitario</th><th class="n">Importe</th></tr>
+    <tr><td>1</td><td class="mono">80101500</td><td>Consultoría en automatización de procesos con IA</td><td class="n">$8,000.00</td><td class="n">$8,000.00</td></tr>
+    <tr><td>1</td><td class="mono">86101700</td><td>Taller de definición de casos de uso (2 horas)</td><td class="n">$2,000.00</td><td class="n">$2,000.00</td></tr>
+  </table>
+  <div class="totals"><div><span>Subtotal</span><span>$10,000.00</span></div><div><span>IVA trasladado 16 %</span><span>$1,600.00</span></div><div class="t"><span>Total</span><span>$11,600.00 MXN</span></div></div>
+  <div class="row" style="margin-top:26px;align-items:flex-end"><div class="sub">Forma de pago: 03 Transferencia · Método: PUE · Moneda: MXN<br/>Sello digital: <span class="mono">QmVzdCBzZWFsIGV2ZXI…ZXhhbXBsZQ==</span></div><div class="qr"></div></div>
+  <div class="foot">Este documento es una representación impresa de un CFDI de EJEMPLO. Datos ficticios para demostración.</div>
+</section>
+
+<!-- Factura con error -->
+<section class="page">
+  <span class="tag">DOCUMENTO DE MUESTRA · B</span>
+  <div class="brand"><div class="logo" style="background:#0f766e">CE</div><div><h1>Factura</h1><div class="sub">Comprobante Fiscal Digital por Internet (CFDI 4.0)</div></div></div>
+  <div class="row">
+    <div class="box"><b>Emisor</b> Comercializadora Logística Ejemplo SA de CV<br/><b>RFC</b> <span class="mono">CLE120220JK8</span><br/><b>Régimen fiscal</b> 601 General de Ley Personas Morales<br/><b>Lugar de expedición</b> 44100</div>
+    <div class="box"><b>Folio fiscal (UUID)</b> <span class="mono">9A0B7C21-55E4-4F3B-8C1D-77A2E5B4C690</span><br/><b>Serie y folio</b> F-3318<br/><b>Fecha de emisión</b> 2026-10-08 16:05:44<br/><b>Uso CFDI</b> G01 Adquisición de mercancías</div>
+  </div>
+  <div class="box" style="margin-top:12px"><b>Receptor</b> Tecnología Ejemplar SA de CV<br/><b>RFC</b> <span class="mono">TEM150601QH7</span><br/><b>Domicilio fiscal</b> 03100</div>
+  <h2>Conceptos</h2>
+  <table>
+    <tr><th>Cant.</th><th>Clave</th><th>Descripción</th><th class="n">Precio unitario</th><th class="n">Importe</th></tr>
+    <tr><td>40</td><td class="mono">24112400</td><td>Caja de cartón corrugado 60×40×40 cm</td><td class="n">$85.00</td><td class="n">$3,400.00</td></tr>
+    <tr><td>10</td><td class="mono">24121500</td><td>Rollo de película estirable 18"</td><td class="n">$260.00</td><td class="n">$2,600.00</td></tr>
+    <tr><td>1</td><td class="mono">78101800</td><td>Flete local</td><td class="n">$1,500.00</td><td class="n">$1,500.00</td></tr>
+  </table>
+  <div class="totals"><div><span>Subtotal</span><span>$7,500.00</span></div><div><span>IVA trasladado 16 %</span><span>$1,200.00</span></div><div class="t"><span>Total</span><span>$9,700.00 MXN</span></div></div>
+  <div class="row" style="margin-top:26px;align-items:flex-end"><div class="sub">Forma de pago: 99 Por definir · Método: PPD · Moneda: MXN<br/>Sello digital: <span class="mono">RXJyb3IgYSBwcm9ww7NzaXRv…Zw==</span></div><div class="qr"></div></div>
+  <div class="foot">Muestra B: el total tiene un error a propósito (debería ser $8,700.00) para mostrar la validación. Datos ficticios.</div>
+</section>
+
+<!-- Constancia de situación fiscal -->
+<section class="page">
+  <span class="tag">DOCUMENTO DE MUESTRA</span>
+  <h1>Constancia de situación fiscal</h1>
+  <div class="sub">Cédula de identificación fiscal · Lugar y fecha de emisión: Ciudad de México, a 01 de octubre de 2026</div>
+  <h2>Datos de identificación del contribuyente</h2>
+  <div class="box"><b>RFC</b> <span class="mono">GOMR880415KX3</span><br/><b>CURP</b> <span class="mono">GOMR880415MDFNRS09</span><br/><b>Nombre(s)</b> Rosa<br/><b>Primer apellido</b> Gómez<br/><b>Segundo apellido</b> Martínez<br/><b>Fecha de inicio de operaciones</b> 15 de enero de 2019<br/><b>Estatus en el padrón</b> ACTIVO</div>
+  <h2>Datos del domicilio registrado</h2>
+  <div class="box"><b>Código postal</b> 03100<br/><b>Vialidad</b> Calle Ficticia 245, Int. 3<br/><b>Colonia</b> Del Valle Ejemplo<br/><b>Municipio o demarcación</b> Benito Juárez<br/><b>Entidad federativa</b> Ciudad de México</div>
+  <h2>Regímenes</h2>
+  <table><tr><th>Régimen</th><th>Fecha inicio</th></tr><tr><td>Régimen Simplificado de Confianza</td><td>15/01/2019</td></tr></table>
+  <h2>Obligaciones</h2>
+  <table><tr><th>Descripción</th><th>Vencimiento</th></tr><tr><td>Pago definitivo mensual de ISR</td><td>A más tardar el día 17 del mes inmediato posterior</td></tr><tr><td>Declaración mensual de IVA</td><td>A más tardar el día 17 del mes inmediato posterior</td></tr></table>
+  <div class="foot">Documento de EJEMPLO para demostración. No es una constancia oficial. Datos ficticios.</div>
+</section>
+
+<!-- Comprobante de domicilio -->
+<section class="page">
+  <span class="tag">DOCUMENTO DE MUESTRA</span>
+  <div class="brand"><div class="logo" style="background:#ca8a04">⚡</div><div><h1>Compañía de Luz de Ejemplo</h1><div class="sub">Aviso-recibo de suministro eléctrico</div></div></div>
+  <div class="row">
+    <div class="box"><b>Titular</b> Jorge Pérez López<br/><b>Domicilio</b> Av. Imaginaria 1180, Col. Centro Ejemplo<br/><b>Ciudad</b> Guadalajara, Jalisco, CP 44100<br/><b>Número de servicio</b> <span class="mono">5502 1188 4321</span></div>
+    <div class="box"><b>Fecha de emisión</b> 2026-09-20<br/><b>Periodo facturado</b> 18 JUL 2026 – 18 SEP 2026<br/><b>Fecha límite de pago</b> 2026-10-05<br/><b>Tarifa</b> Doméstica 1</div>
+  </div>
+  <h2>Consumo</h2>
+  <table><tr><th>Concepto</th><th class="n">kWh</th><th class="n">Importe</th></tr>
+    <tr><td>Básico</td><td class="n">150</td><td class="n">$151.50</td></tr><tr><td>Intermedio</td><td class="n">130</td><td class="n">$183.30</td></tr><tr><td>Excedente</td><td class="n">22</td><td class="n">$79.20</td></tr></table>
+  <div class="totals"><div><span>Subtotal</span><span>$414.00</span></div><div><span>IVA 16 %</span><span>$66.24</span></div><div class="t"><span>Total a pagar</span><span>$480.24</span></div></div>
+  <div class="foot">Documento de EJEMPLO para demostración. Empresa, titular y domicilio ficticios.</div>
+</section>
+
+<!-- Estado de cuenta -->
+<section class="page">
+  <span class="tag">DOCUMENTO DE MUESTRA</span>
+  <div class="brand"><div class="logo" style="background:#1e3a8a">BE</div><div><h1>Banco de Ejemplo</h1><div class="sub">Estado de cuenta · Cuenta de cheques</div></div></div>
+  <div class="row">
+    <div class="box"><b>Cliente</b> Rosa Gómez Martínez<br/><b>RFC</b> <span class="mono">GOMR880415KX3</span><br/><b>Número de cuenta</b> <span class="mono">0123 4567 8901</span><br/><b>CLABE</b> <span class="mono">002180012345678901</span></div>
+    <div class="box"><b>Periodo</b> 01/09/2026 al 30/09/2026<br/><b>Fecha de corte</b> 2026-09-30<br/><b>Saldo anterior</b> $24,310.55<br/><b>Saldo al corte</b> $34,875.15</div>
+  </div>
+  <h2>Movimientos</h2>
+  <table><tr><th>Fecha</th><th>Descripción</th><th class="n">Cargos</th><th class="n">Abonos</th></tr>
+    <tr><td>02/09</td><td>Depósito de nómina</td><td class="n"></td><td class="n">$18,500.00</td></tr>
+    <tr><td>05/09</td><td>Pago de servicios · luz</td><td class="n">$480.24</td><td class="n"></td></tr>
+    <tr><td>11/09</td><td>Compra con tarjeta · supermercado</td><td class="n">$2,315.16</td><td class="n"></td></tr>
+    <tr><td>18/09</td><td>Transferencia enviada</td><td class="n">$5,000.00</td><td class="n"></td></tr>
+    <tr><td>30/09</td><td>Comisión por manejo de cuenta</td><td class="n">$140.00</td><td class="n"></td></tr></table>
+  <div class="totals"><div><span>Total cargos</span><span>$7,935.40</span></div><div><span>Total abonos</span><span>$18,500.00</span></div><div class="t"><span>Saldo al corte</span><span>$34,875.15</span></div></div>
+  <div class="foot">Documento de EJEMPLO para demostración. Banco, cliente y cuentas ficticios.</div>
+</section>
+
+<!-- Receta médica -->
+<section class="page">
+  <span class="tag">DOCUMENTO DE MUESTRA</span>
+  <div class="brand"><div class="logo" style="background:#0891b2">+</div><div><h1>Clínica Ejemplo</h1><div class="sub">Dr. Luis Hernández Ruiz · Medicina general · Cédula profesional 1234567</div></div></div>
+  <div class="row">
+    <div class="box"><b>Paciente</b> Jorge Pérez López<br/><b>Edad</b> 36 años<br/><b>Fecha</b> 2026-10-10</div>
+    <div class="box"><b>Diagnóstico</b> Faringitis aguda<br/><b>Peso</b> 78 kg · <b>Talla</b> 1.75 m<br/><b>TA</b> 120/80 mmHg</div>
+  </div>
+  <h2>Rx</h2>
+  <table><tr><th>Medicamento</th><th>Indicación</th><th>Duración</th></tr>
+    <tr><td>Paracetamol 500 mg, tabletas</td><td>1 tableta cada 8 horas si hay dolor o fiebre</td><td>3 días</td></tr>
+    <tr><td>Amoxicilina 500 mg, cápsulas</td><td>1 cápsula cada 8 horas</td><td>7 días</td></tr>
+    <tr><td>Pastillas para la garganta</td><td>1 cada 4 horas</td><td>5 días</td></tr></table>
+  <p style="margin-top:22px;font-size:14px">Indicaciones: abundantes líquidos, reposo relativo. Volver a consulta si la fiebre dura más de 3 días.</p>
+  <p style="margin-top:50px;text-align:right;font-size:13px">______________________________<br/>Dr. Luis Hernández Ruiz</p>
+  <div class="foot">Documento de EJEMPLO para demostración. Clínica, médico y paciente ficticios. No es una receta válida.</div>
+</section>
+
+<!-- Credencial -->
+<section class="page nowm">
+  <span class="tag">DOCUMENTO DE MUESTRA</span>
+  <h1>Credencial de identificación</h1>
+  <div class="sub">Recortar por el borde. Diseño genérico de ejemplo: no reproduce ninguna identificación oficial.</div>
+  <div class="card">
+    <div style="font-weight:900;font-size:20px;letter-spacing:.04em">CREDENCIAL DE IDENTIFICACIÓN</div>
+    <div style="font-size:12px;color:#5b6b80;letter-spacing:.1em">DOCUMENTO DE MUESTRA · NO OFICIAL</div>
+    <div class="photo"></div>
+    <div class="data">
+      <b>Nombre</b>Jorge Pérez López
+      <b>Domicilio</b>Av. Imaginaria 1180, Col. Centro Ejemplo, Guadalajara, Jal.
+      <b>CURP</b><span class="mono">PELJ900721HJCRPN07</span>
+      <div style="display:flex;gap:28px"><span><b>Fecha de nacimiento</b>21/07/1990</span><span><b>Vigencia</b>2031-12-31</span></div>
+    </div>
+  </div>
+  <div class="foot">Credencial FICTICIA para demostrar el lector de documentos. Nombre, CURP y domicilio inventados.</div>
+</section>
+
+</body>
+</html>

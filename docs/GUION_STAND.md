@@ -10,6 +10,11 @@
 > Smart Maintenance, Store Intelligence, la API documental de pensiones y SOC Classifier), con una muestra animada de
 > cada solución. Sirve en una tablet en modo automático o para responder "¿y esto ya lo hicieron en algún lado?".
 > **No se nombran clientes:** si preguntan, se habla de la industria y el país.
+>
+> Para que el visitante lo pruebe con sus manos: `https://<app>/ocr`. Dale una hoja del **kit de muestras** impreso
+> (`/ocr/muestras`), que la ponga frente a la cámara y toque «Leer documento». La **factura B** tiene un error a propósito:
+> *"Mira, se dio cuenta de que el total no cuadra"*. Si alguien quiere usar un documento propio, se puede: la imagen
+> no se guarda y los datos personales salen ocultos, pero ofrece primero las muestras.
 
 ## 0:00 – 0:30 · Enganche
 

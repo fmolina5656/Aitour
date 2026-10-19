@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from . import ocr as ocr_mod
 from . import telemetry
 from .config import get_settings
 from .events import Event, EventBus
@@ -156,6 +157,19 @@ async def start_text_session(req: TextSessionRequest, sala: str | None = None) -
     brief = Brief(problema=req.problema[:600], industria=req.industria[:80], volumen=req.volumen[:120], datos=req.datos[:200])
     session_id = await s.sessions.start(brief)
     return {"session_id": session_id, "mode": settings.demo_mode, "sala": s.name}
+
+
+class OcrRequest(BaseModel):
+    image: str  # data URL (image/jpeg|png|webp;base64)
+
+
+@app.post("/api/ocr")
+async def ocr(req: OcrRequest) -> dict:
+    """Lector de documentos de /ocr: clasifica, extrae y valida. La imagen no se guarda en ningún lado."""
+    try:
+        return await ocr_mod.leer_documento(req.image, settings)
+    except ocr_mod.OcrError as exc:
+        raise HTTPException(exc.status, exc.mensaje) from None
 
 
 @app.post("/api/reset")

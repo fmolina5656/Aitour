@@ -67,6 +67,13 @@ commiteadas en `claude/readymind-aitour-demo`.
       referenciales.
 - [ ] Política de retención de grabaciones y leads (las grabaciones contienen lo que cuentan los visitantes).
 
+## 4b. Lector de documentos (`/ocr`)
+
+- [ ] Primera lectura real contra Foundry (`gpt-5.4-mini` con visión): solo se probó en simulado. Leer las 8 hojas del kit
+      y revisar tipo, datos y validaciones. Si `gpt-5.4-mini` se equivoca seguido, probar `MODEL_OCR=gpt-5.4`.
+- [ ] Validar con legal el aviso de privacidad del lector: la imagen no se guarda ni se loguea, y los datos sensibles se
+      enmascaran en pantalla, pero un visitante podría mostrar su identificación real.
+
 ## 5. Marca
 
 - [ ] `Satoshi-Variable.woff2` en `frontend/public/fonts/`, para no depender de Fontshare en el stand.

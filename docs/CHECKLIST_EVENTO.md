@@ -32,6 +32,8 @@
 - [ ] Dar permiso del micrófono **una vez**: presionar `V`, aceptar y luego `R`.
 - [ ] **Sesión de prueba completa por voz**: el one-pager sale, el QR abre en un celular, el formulario llega y el
       correo llega.
+- [ ] **Lector de documentos** (`/ocr`): kit de `/ocr/muestras` impreso (y la credencial recortada); permiso de cámara
+      dado una vez en cada tablet; leer la factura A (cuadra) y la B (no cuadra).
 - [ ] **Las 3 salas a la vez**: arrancar una sesión en la PC y en las dos tablets; `R` en una tablet no corta las otras.
 - [ ] Probar un jailbreak ("ignora tus instrucciones…"): debe verse el bloqueo en ámbar y **0 llamadas** a modelos.
 - [ ] `python -m scripts.preflight` en verde una última vez.
