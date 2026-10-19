@@ -125,7 +125,7 @@ select.btn { appearance: none; max-width: 230px; }
       <video id="video" playsinline muted></video>
       <canvas id="heat"></canvas>
       <canvas id="overlay"></canvas>
-      <div class="hud"><span id="hudModel">modelo: cargando…</span><span id="hudFps">— fps</span></div>
+      <div class="hud"><span id="hudModel">modelo: cargando…</span><span id="hudFps">— fps</span><span id="hudThr">umbral —</span></div>
       <div class="editbar">✏️ Arrastra para dibujar una zona · toca una zona para borrarla <button class="btn" id="bDone">Listo</button></div>
       <div class="msg" id="msg"><div>
         <div class="big">📹</div>
@@ -135,6 +135,8 @@ select.btn { appearance: none; max-width: 230px; }
       <div class="privacy">🔒 Todo se procesa en este dispositivo · no se graban imágenes · no se identifica a nadie</div>
       <div class="tools" id="tools">
         <select class="btn" id="selCam" title="Cámara"><option value="">Cámara…</option></select>
+        <select class="btn" id="selModel" title="Modelo de detección"><option value="lite0">⚡ Modelo rápido</option><option value="lite2">🎯 Modelo preciso</option></select>
+        <button class="btn" id="bDebug" title="Diagnóstico (D): todo lo que ve el modelo y su confianza · + y − ajustan el umbral">🩺 Diagnóstico</button>
         <button class="btn" id="bZones" title="Dibujar zonas (Z)">✏️ Zonas</button>
         <button class="btn" id="bHeat" title="Mapa de calor (H)">🔥 Mapa de calor</button>
         <button class="btn" id="bReset" title="Reiniciar los números del día">↺ Nuevo día</button>
@@ -180,8 +182,8 @@ function freshDay() { return { day: today(), entries: 0, max: 0, dwellSum: 0, dw
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY) || '{}')
-    return { zones: s.zones || [], camId: s.camId || '', stats: s.stats?.day === today() ? s.stats : freshDay() }
-  } catch { return { zones: [], camId: '', stats: freshDay() } }
+    return { zones: s.zones || [], camId: s.camId || '', model: s.model || 'lite0', minScore: s.minScore ?? 0.3, delegate: s.delegate || 'CPU', stats: s.stats?.day === today() ? s.stats : freshDay() }
+  } catch { return { zones: [], camId: '', model: 'lite0', minScore: 0.3, delegate: 'CPU', stats: freshDay() } }
 }
 const store = load()
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)) } catch { /* sin almacenamiento: el día vale para esta carga */ } }
@@ -237,8 +239,8 @@ function update(dets, t) {
   const st = store.stats
   for (let i = tracks.length - 1; i >= 0; i--) {
     const tr = tracks[i]
-    if (!tr.id && tr.hits >= 6) { tr.id = nextId++; st.entries += 1; bump('kInBox') } // confirmada: ~0.5 s viéndola
-    if (t - tr.last > 1.6) { // se fue
+    if (!tr.id && tr.hits >= 4) { tr.id = nextId++; st.entries += 1; bump('kInBox') } // confirmada: ~0.3 s viéndola
+    if (t - tr.last > 2.5) { // se fue (2.5 s sin verla: tolera parpadeos de la detección)
       if (tr.id) {
         const dwell = tr.last - tr.first
         if (dwell >= 3) { st.dwellSum += dwell; st.dwellN += 1; st.longest = Math.max(st.longest, dwell) }
@@ -248,7 +250,7 @@ function update(dets, t) {
     }
   }
   // zonas y mapa de calor
-  const active = tracks.filter((tr) => tr.id && t - tr.last < 0.4)
+  const active = tracks.filter((tr) => tr.id && t - tr.last < 1.2) // sigue en pantalla aunque la detección parpadee
   for (const tr of active) {
     const f = foot(tr.box)
     const gx = Math.min(GW - 1, Math.max(0, Math.floor(f.x * GW))), gy = Math.min(GH - 1, Math.max(0, Math.floor(f.y * GH)))
@@ -298,6 +300,7 @@ function draw(active, t) {
   for (const tr of active) {
     const b = tr.box, x = v.ox + b.x * v.w, y = v.oy + b.y * v.h, w = b.w * v.w, h = b.h * v.h
     const fresh = t - tr.first < 1.2
+    ctx.globalAlpha = t - tr.last > 0.35 ? 0.45 : 1 // la detección parpadeó: se mantiene, más tenue
     ctx.strokeStyle = fresh ? '#ffffff' : '#66de7f'; ctx.lineWidth = 3 * dpr
     const k = Math.min(w, h) * 0.22 // esquinas, más limpio que un rectángulo completo
     ctx.beginPath()
@@ -310,6 +313,15 @@ function draw(active, t) {
     label(`#${tr.id} · ${mmss(t - tr.first)}`, x, y - 26 * dpr, '#66de7f', '#04121b')
     const f = foot(b)
     ctx.fillStyle = '#66de7f'; ctx.beginPath(); ctx.arc(v.ox + f.x * v.w, v.oy + f.y * v.h, 4 * dpr, 0, 6.28); ctx.fill()
+    ctx.globalAlpha = 1
+  }
+  if (debug) { // diagnóstico (D): todo lo que ve el modelo, con su confianza
+    for (const d of rawDets) {
+      const ok = d.score >= store.minScore
+      ctx.setLineDash(ok ? [] : [5 * dpr, 5 * dpr]); ctx.strokeStyle = ok ? '#66de7f' : '#ffb547'; ctx.lineWidth = 1.5 * dpr
+      ctx.strokeRect(v.ox + d.x * v.w, v.oy + d.y * v.h, d.w * v.w, d.h * v.h); ctx.setLineDash([])
+      label(d.score.toFixed(2), v.ox + d.x * v.w + d.w * v.w - 46 * dpr, v.oy + d.y * v.h + 4 * dpr, ok ? '#66de7f' : '#ffb547', '#04121b')
+    }
   }
 }
 function label(text, x, y, bg, fg) {
@@ -409,17 +421,24 @@ overlay.addEventListener('pointerup', () => {
 const toggleEdit = () => { stage.classList.toggle('editing'); $('bZones').classList.toggle('on', stage.classList.contains('editing')) }
 
 // ---------- Cámara y detección ----------
-let detector = null, running = false, lastDet = 0, frames = 0, fpsT = now()
+let detector = null, running = false, lastDet = 0, frames = 0, fpsT = now(), debug = false, rawDets = []
+const MODELS = { lite0: ['efficientdet_lite0.tflite', 'rápido'], lite2: ['efficientdet_lite2.tflite', 'preciso'] }
+const hud = () => { $('hudModel').textContent = SIM ? 'modo simulado' : `MediaPipe ${MODELS[store.model][1]} · ${detDelegate}`; $('hudThr').textContent = `umbral ${store.minScore.toFixed(2)}` }
+let detDelegate = ''
 
 async function loadModel() {
-  if (SIM) { $('hudModel').textContent = 'modo simulado'; return }
+  if (SIM) { hud(); return }
   const files = await FilesetResolver.forVisionTasks('/vision/lib/wasm')
+  // el modelo devuelve desde 0.15 de confianza; el umbral para contar se ajusta en vivo con + y −
   const opts = (delegate) => ({
-    baseOptions: { modelAssetPath: '/vision/models/efficientdet_lite0.tflite', delegate },
-    runningMode: 'VIDEO', scoreThreshold: 0.42, maxResults: 25, categoryAllowlist: ['person'],
+    baseOptions: { modelAssetPath: '/vision/models/' + MODELS[store.model][0], delegate },
+    runningMode: 'VIDEO', scoreThreshold: 0.15, maxResults: 25, categoryAllowlist: ['person'],
   })
-  try { detector = await ObjectDetector.createFromOptions(files, opts('GPU')); $('hudModel').textContent = 'MediaPipe · GPU' }
-  catch { detector = await ObjectDetector.createFromOptions(files, opts('CPU')); $('hudModel').textContent = 'MediaPipe · CPU' }
+  detector?.close()
+  const useGpu = store.delegate === 'GPU' // CPU por defecto: en varias GPU de tablets y notebooks el detector devolvía cero personas
+  try { detector = await ObjectDetector.createFromOptions(files, opts(useGpu ? 'GPU' : 'CPU')); detDelegate = useGpu ? 'GPU' : 'CPU' }
+  catch { detector = await ObjectDetector.createFromOptions(files, opts('CPU')); detDelegate = 'CPU' }
+  hud()
 }
 
 async function listCameras() {
@@ -460,7 +479,8 @@ function loop() {
     if (SIM) dets = simDetections()
     else if (detector && video.readyState >= 2) {
       const r = detector.detectForVideo(video, performance.now())
-      dets = r.detections.map((d) => ({ x: d.boundingBox.originX / vw, y: d.boundingBox.originY / vh, w: d.boundingBox.width / vw, h: d.boundingBox.height / vh }))
+      rawDets = r.detections.map((d) => ({ x: d.boundingBox.originX / vw, y: d.boundingBox.originY / vh, w: d.boundingBox.width / vw, h: d.boundingBox.height / vh, score: d.categories[0]?.score ?? 0 }))
+      dets = rawDets.filter((d) => d.score >= store.minScore)
     }
     active = lastActive = update(dets, t)
     frames += 1
@@ -489,6 +509,11 @@ async function start() {
 
 $('bStart').onclick = start
 $('selCam').onchange = (e) => { if (e.target.value) startCamera(e.target.value).catch(() => say('No pude abrir esa cámara. 😕')) }
+$('selModel').value = store.model
+$('selModel').onchange = async (e) => { store.model = e.target.value; save(); if (!SIM && running) { $('hudModel').textContent = 'cargando modelo…'; await loadModel() } }
+const toggleDebug = () => { debug = !debug; $('bDebug').classList.toggle('on', debug) }
+const setThr = (d) => { store.minScore = Math.round(Math.min(0.8, Math.max(0.15, store.minScore + d)) * 100) / 100; save(); hud() }
+$('bDebug').onclick = toggleDebug
 $('bZones').onclick = toggleEdit
 $('bDone').onclick = toggleEdit
 $('bHeat').onclick = () => { stage.classList.toggle('heat'); $('bHeat').classList.toggle('on', stage.classList.contains('heat')); drawHeat() }
@@ -498,6 +523,8 @@ addEventListener('keydown', (e) => {
   if (e.target instanceof HTMLSelectElement) return
   const k = e.key.toLowerCase()
   if (k === 'z') toggleEdit(); else if (k === 'h') $('bHeat').click(); else if (k === 'f') $('bFull').click()
+  else if (k === 'g') { store.delegate = store.delegate === 'GPU' ? 'CPU' : 'GPU'; save(); if (running && !SIM) loadModel() } // probar GPU/CPU
+  else if (k === 'd') toggleDebug(); else if (k === '+' || k === '=') setThr(0.05); else if (k === '-') setThr(-0.05)
 })
 // los controles se esconden solos para que en el monitor se vea limpio
 let uiTimer
