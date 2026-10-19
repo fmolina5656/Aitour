@@ -22,6 +22,9 @@ Todo se ve en una escena 3D (Three.js) pensada para una pantalla de 1920×1080 v
 > - **Visión del stand (Store Intelligence en vivo):** `https://<app>/vision` — una webcam en trípode cuenta personas,
 >   permanencia, filas por zona y mapa de calor, todo en el navegador con MediaPipe (`frontend/public/vision/`). Letrero
 >   para imprimir: `/vision/letrero`. Para ensayar sin cámara: `/vision/?simulado`.
+> - **Smart Maintenance con capturas reales:** `https://<app>/mantenimiento` — Glitch recorre la plataforma en producción
+>   (de un manual técnico al plan y el catálogo de repuestos). Capturas en `frontend/public/mantenimiento/img/`, recortadas
+>   sin la barra del navegador ni la URL del cliente.
 > - Correo con Power Automate: [docs/POWER_AUTOMATE.md](docs/POWER_AUTOMATE.md)
 
 ## Entorno en Azure

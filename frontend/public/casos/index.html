@@ -161,33 +161,16 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .xlsx small { display: block; color: var(--text-3); font-size: 12px; }
 .scene.on .xlsx { animation: up .45s 3.4s forwards; }
 
-/* ---------- Muestra 2 · Smart Maintenance: manuales → plan de mantenimiento ---------- */
-.m1 { width: min(760px, 100%); display: grid; grid-template-columns: 220px 1fr; gap: 26px; align-items: center; }
-.manuals { position: relative; height: 230px; }
-.manual { position: absolute; width: 140px; height: 180px; border-radius: 8px; background: #eef2f7; color: #1b2a3f; padding: 12px; font-size: 10px; line-height: 1.5; box-shadow: 0 16px 30px rgba(0,0,0,.45); overflow: hidden; }
-.manual b { display: block; font-size: 11px; margin-bottom: 6px; }
-.manual .l { height: 5px; border-radius: 3px; background: #cbd5e3; margin: 6px 0; }
-.manual .lang { position: absolute; top: 8px; right: 8px; font-family: var(--mono); font-weight: 700; font-size: 10px; padding: 1px 6px; border-radius: 6px; background: var(--c1); color: #fff; }
-.manual:nth-child(1) { left: 0; top: 40px; rotate: -10deg; }
-.manual:nth-child(2) { left: 38px; top: 18px; rotate: -2deg; }
-.manual:nth-child(3) { left: 76px; top: 0; rotate: 7deg; filter: grayscale(.4) contrast(.9); }
-.manual .beam { position: absolute; left: 0; right: 0; height: 30px; top: -30px; background: linear-gradient(transparent, rgba(251,106,60,.5), transparent); }
-.scene.on .manual:nth-child(3) .beam { animation: beam 1.1s .4s ease-in-out 2; }
-@keyframes beam { to { top: 100%; } }
-.plan { border-radius: 14px; border: 1px solid var(--line-2); background: rgba(9,18,33,.85); overflow: hidden; }
-.plan .hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 15px; }
-.plan .hd span { font-family: var(--mono); font-size: 12px; color: var(--text-3); font-weight: 400; }
-.plan table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.plan th { text-align: left; font-weight: 500; color: var(--text-3); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 8px 14px; }
-.plan td { padding: 8px 14px; border-top: 1px solid var(--line); }
-.plan td.f { font-family: var(--mono); color: #ffb79d; white-space: nowrap; }
-.plan td.r { color: var(--text-2); }
-.plan tr.row { opacity: 0; transform: translateX(14px); }
-.scene.on .plan tr.row { animation: up .45s forwards; }
-.scene.on .plan tr.row:nth-child(1) { animation-delay: 1.4s; } .scene.on .plan tr.row:nth-child(2) { animation-delay: 1.75s; }
-.scene.on .plan tr.row:nth-child(3) { animation-delay: 2.1s; } .scene.on .plan tr.row:nth-child(4) { animation-delay: 2.45s; }
-.scene.on .plan tr.row:nth-child(5) { animation-delay: 2.8s; }
-.chk { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; background: rgba(102,222,127,.18); color: var(--green); font-size: 12px; margin-right: 8px; }
+/* ---------- Muestra 2 · Smart Maintenance: captura real ---------- */
+.realshot { margin: 0; width: min(760px, 100%); border-radius: 12px; overflow: hidden; border: 1px solid var(--line-2); background: #fff; box-shadow: 0 24px 60px rgba(0,0,0,.5); opacity: 0; transform: translateY(14px) scale(.98); }
+.scene.on .realshot { animation: up .7s .3s forwards; }
+.realshot .bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: #111c2e; border-bottom: 1px solid var(--line-2); }
+.realshot .bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; } .realshot .bar i:nth-child(2) { background: #febc2e; } .realshot .bar i:nth-child(3) { background: #28c840; }
+.realshot .bar span { margin-left: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--text-2); }
+.realshot img { display: block; width: 100%; }
+.tag-ej.real { color: #04121b; background: var(--green); border: 0; font-weight: 700; }
+.more { position: absolute !important; right: 16px; top: 46px; font-size: 14px; font-weight: 700; color: var(--text); text-decoration: none; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(251,106,60,.6); background: rgba(9,18,33,.85); }
+.more:hover { border-color: var(--c1); }
 
 /* ---------- Muestra 3 · Store Intelligence: visión sobre las cámaras de la tienda ---------- */
 .m3 { width: min(740px, 100%); display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: center; }
@@ -276,11 +259,10 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   .nav .mid { display: none; }
   .nav .btn { font-size: 14px; padding: 9px 12px; white-space: nowrap; }
   .hero .glitch-row { flex-direction: column; }
-  .m1, .m3, .m5 { grid-template-columns: 1fr; }
-  .manuals { height: 200px; margin: 0 auto; }
+  .m3, .m5 { grid-template-columns: 1fr; }
+  .more { position: static !important; display: inline-block; margin-top: 12px; }
   .m4 { grid-template-columns: 1fr; } .router { min-height: 0; } .router::before { display: none; }
   .demo-title { display: none !important; }
-  .manuals { width: 230px !important; }
   .result { white-space: normal; text-align: center; width: calc(100% - 32px); }
 }
 /* laptops de 768 px de alto: todo un poco más compacto */
@@ -292,7 +274,6 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   .glitch { width: 92px; }
   .card { padding: 10px 14px; } .card p { font-size: 14px; }
   .visual { padding: 40px 16px 64px; }
-  .plan td { padding: 6px 12px; } .plan table { font-size: 12.5px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -398,29 +379,14 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         </div>
       </div>
       <div class="visual">
-        <span class="demo-title" style="--c:var(--c1)"><i></i>Muestra · manual técnico → plan preventivo</span>
-        <span class="tag-ej">Datos de ejemplo</span>
-        <div class="m1">
-          <div class="manuals" aria-hidden="true">
-            <div class="manual"><span class="lang">EN</span><b>Pump P-101 · Manual</b><div class="l"></div><div class="l" style="width:80%"></div><div class="l"></div><div class="l" style="width:60%"></div></div>
-            <div class="manual"><span class="lang">FR</span><b>Compresseur C-20</b><div class="l"></div><div class="l" style="width:70%"></div><div class="l"></div><div class="l" style="width:85%"></div></div>
-            <div class="manual"><span class="lang">PDF escaneado</span><b>Motor M-7</b><div class="l"></div><div class="l" style="width:75%"></div><div class="l"></div><div class="l" style="width:55%"></div><div class="beam"></div></div>
-          </div>
-          <div class="plan">
-            <div class="hd">Plan preventivo · Bomba P-101 <span>generado con Foundry</span></div>
-            <table>
-              <thead><tr><th>Tarea</th><th>Frecuencia</th><th>Repuesto</th></tr></thead>
-              <tbody>
-                <tr class="row"><td><span class="chk">✓</span>Inspección de sellos</td><td class="f">500 h</td><td class="r">Kit de sellos</td></tr>
-                <tr class="row"><td><span class="chk">✓</span>Lubricación de rodamientos</td><td class="f">1,000 h</td><td class="r">Grasa EP2</td></tr>
-                <tr class="row"><td><span class="chk">✓</span>Cambio de rodamientos</td><td class="f">8,000 h</td><td class="r">Rodamiento 6205</td></tr>
-                <tr class="row"><td><span class="chk">✓</span>Análisis de vibraciones</td><td class="f">Mensual</td><td class="r">—</td></tr>
-                <tr class="row"><td><span class="chk">✓</span>Alineación del acople</td><td class="f">Anual</td><td class="r">Calzas</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="result" style="--rd:3.4s">De semanas por equipo → minutos de procesamiento</div>
+        <span class="demo-title" style="--c:var(--c1)"><i></i>Captura real · plan generado por la plataforma</span>
+        <span class="tag-ej real">📸 Captura real</span>
+        <figure class="realshot">
+          <div class="bar"><i></i><i></i><i></i><span>Plan de mantenimiento · GE-GAS 30000GN.xlsx</span></div>
+          <img src="/mantenimiento/img/4-plan.webp" alt="Plan de mantenimiento generado por la IA para un generador a gas" />
+        </figure>
+        <a class="more" href="/mantenimiento/">Ver el recorrido completo por la plataforma →</a>
+        <div class="result" style="--rd:2.4s">De semanas por equipo → minutos de procesamiento</div>
       </div>
       <div class="sales">
         <div class="card"><h4>⏮ Antes</h4><p>Planes de mantenimiento escritos a mano a partir de manuales de cientos de páginas, de distintos fabricantes e idiomas. Se desactualizaban con cada equipo nuevo y el conocimiento quedaba en los técnicos más antiguos.</p></div>

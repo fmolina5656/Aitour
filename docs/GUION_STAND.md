@@ -19,6 +19,10 @@
 > **El stand se mide a sí mismo:** `https://<app>/vision` en la tablet del trípode. Señala el monitor: *"Esto es lo
 > mismo que hicimos en tiendas de moda: con una cámara contamos cuánta gente hay, cuánto se queda y cuánto espera en la
 > fila. No grabamos ni reconocemos caras: solo números."* Teclas: **Z** zonas, **H** mapa de calor, **F** pantalla completa.
+>
+> **Para un prospecto industrial:** `https://<app>/mantenimiento` muestra la plataforma real de Smart Maintenance en 6
+> pasos, con capturas de producción: *"Esto no es un prototipo: así se ve la herramienta que usa hoy el equipo de
+> mantenimiento"*. Sin nombrar al cliente: energía, Argentina.
 
 ## 0:00 – 0:30 · Enganche
 
