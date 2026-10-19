@@ -6,6 +6,7 @@ Cada pantalla (PC y tablets) es una sala con su propio bus y su propia sesión: 
 import asyncio
 import contextlib
 import logging
+import mimetypes
 import os
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -33,6 +34,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 # a Application Insights): tapa los logs útiles y suma costo en Log Analytics.
 for _noisy in ("azure.core.pipeline.policies.http_logging_policy", "azure.monitor.opentelemetry.exporter", "azure.identity"):
     logging.getLogger(_noisy).setLevel(logging.WARNING)
+
+# /vision carga MediaPipe como módulo ES + WASM: el navegador exige estos tipos exactos
+mimetypes.add_type("text/javascript", ".mjs")
+mimetypes.add_type("application/wasm", ".wasm")
 
 settings = get_settings()
 telemetry.setup(settings)

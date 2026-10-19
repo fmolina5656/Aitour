@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# MediaPipe se copia desde node_modules en cada build (scripts/copy-mediapipe.mjs)
+public/vision/lib/

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Letrero de visión</title>
+<meta name="description" content="Letrero para imprimir: el stand mide su afluencia con visión computacional, sin grabar imágenes ni identificar personas." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+/* Se imprime en carta horizontal (Ctrl+P · márgenes: ninguno) y va junto a la cámara del stand. */
+* { box-sizing: border-box; }
+body { margin: 0; background: #d9dee6; font-family: 'Segoe UI', Arial, sans-serif; color: #11243e; }
+.page { width: 11in; height: 8.5in; margin: 24px auto; background: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.18); padding: .7in .8in; display: grid; grid-template-columns: 1fr 2.6in; gap: .5in; align-items: center; }
+.k { font-size: 18px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #2c68f5; }
+h1 { font-size: 54px; line-height: 1.05; margin: 14px 0 22px; }
+h1 span { color: #1f9d55; }
+p { font-size: 22px; line-height: 1.45; margin: 0 0 22px; color: #2d3b4f; }
+ul { list-style: none; padding: 0; margin: 0 0 26px; font-size: 24px; line-height: 1.9; font-weight: 600; }
+.foot { display: flex; align-items: center; gap: 18px; font-size: 15px; color: #5b6b80; }
+.foot img { height: 34px; }
+.side { text-align: center; }
+.side img { width: 100%; }
+.side b { display: block; font-size: 20px; margin-top: 10px; }
+@media print { body { background: #fff; } .page { margin: 0; box-shadow: none; } @page { size: letter landscape; margin: 0; } }
+</style>
+</head>
+<body>
+<section class="page">
+  <div>
+    <div class="k">📹 Visión computacional en vivo</div>
+    <h1>Este stand mide su afluencia con <span>inteligencia artificial</span></h1>
+    <p>Una cámara cuenta cuántas personas hay, cuánto tiempo se quedan y dónde se juntan, para mostrar cómo funciona la visión computacional en tiendas.</p>
+    <ul>
+      <li>🚫 No grabamos imágenes ni video</li>
+      <li>🙂 No reconocemos caras ni identificamos a nadie</li>
+      <li>🔒 Todo se procesa en este dispositivo: nada sale a internet</li>
+    </ul>
+    <div class="foot"><img src="/brand/readymind-logo.png" alt="Readymind" /> Aviso de privacidad del stand: escanea el QR de la demo o pregúntanos.</div>
+  </div>
+  <div class="side"><img src="/brand/glitch-open.webp" alt="Glitch" /><b>¡Glitch te está contando! 👋</b></div>
+</section>
+</body>
+</html>

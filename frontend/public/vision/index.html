@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visión del stand</title>
+<meta name="description" content="El stand se mide a sí mismo: visión computacional en el navegador que cuenta personas, tiempos y filas, contada por Glitch." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
+<style>
+/* Visión del stand (caso Store Intelligence en vivo). La detección corre en el navegador con MediaPipe
+   (servido desde /vision/lib y /vision/models): el video no sale de la tablet ni se graba. */
+:root {
+  --green: #66de7f; --teal: #53b6ad; --blue: #397ef6;
+  --gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
+  --bg: #050a12; --line: #1f3150; --line-2: #24395a;
+  --glass: rgba(9, 18, 33, .72); --glass-border: rgba(102, 222, 127, .12);
+  --text: #f3f6fa; --text-2: #b7c2d2; --text-3: #6f7f95;
+  --alert: #ffb547; --pink: #ec4899;
+  --font: 'Satoshi', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+@keyframes up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.app { height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr; }
+.top { display: flex; align-items: center; gap: 20px; padding: 14px 24px 10px; }
+.top img { height: 28px; }
+.top .t { font-size: 16px; color: var(--text-2); }
+.top .t b { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; color: var(--text-2); border: 1px solid var(--line-2); padding: 3px 10px; border-radius: 99px; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: #ff5d5d; box-shadow: 0 0 10px #ff5d5d; animation: blinkdot 1.2s infinite; }
+@keyframes blinkdot { 50% { opacity: .3; } }
+.top .links { margin-left: auto; display: flex; gap: 8px; }
+.top .links a { color: var(--text-2); text-decoration: none; font-size: 14px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line-2); }
+.top .links a:hover { border-color: var(--green); color: var(--text); }
+
+.main { min-height: 0; display: grid; grid-template-columns: 1fr 400px; gap: 18px; padding: 4px 24px 18px; }
+
+/* ---------- Cámara ---------- */
+.stage { position: relative; min-height: 0; border-radius: 22px; overflow: hidden; background: #02060c; border: 1px solid var(--line-2); }
+.stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#heat { opacity: .62; mix-blend-mode: screen; pointer-events: none; display: none; }
+.stage.heat #heat { display: block; }
+#overlay { pointer-events: none; }
+.stage.editing #overlay { pointer-events: auto; cursor: crosshair; }
+.msg { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; }
+.msg div { max-width: 460px; }
+.msg .big { font-size: 60px; margin-bottom: 10px; }
+.msg p { color: var(--text-2); margin: 0 0 14px; font-size: 16px; line-height: 1.5; }
+.stage.running .msg { display: none; }
+.hud { position: absolute; left: 14px; top: 14px; display: flex; gap: 8px; flex-wrap: wrap; pointer-events: none; }
+.hud span { font-family: var(--mono); font-size: 12px; padding: 4px 10px; border-radius: 99px; background: rgba(5,10,18,.75); color: var(--text-2); border: 1px solid var(--line-2); }
+.privacy { position: absolute; left: 14px; bottom: 12px; font-size: 12.5px; color: var(--text-2); background: rgba(5,10,18,.75); padding: 5px 10px; border-radius: 10px; pointer-events: none; }
+.tools { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; transition: opacity .4s; }
+.stage.idle-ui .tools { opacity: 0; }
+.stage.idle-ui:hover .tools { opacity: 1; }
+.btn { font: inherit; font-size: 14px; color: var(--text); background: rgba(9,18,33,.88); border: 1px solid var(--line-2); border-radius: 11px; padding: 8px 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { border-color: var(--green); }
+.btn.on { border-color: var(--green); color: var(--green); }
+.btn.primary { background: var(--gradient); color: #04121b; border: 0; font-weight: 700; font-size: 17px; padding: 12px 22px; }
+select.btn { appearance: none; max-width: 230px; }
+.editbar { position: absolute; left: 50%; top: 14px; translate: -50% 0; display: none; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 12px; background: rgba(5,10,18,.9); border: 1px solid var(--green); font-size: 14px; }
+.stage.editing .editbar { display: flex; }
+
+/* ---------- Columna derecha ---------- */
+.side { min-height: 0; display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+.glitch-row { display: flex; align-items: flex-end; gap: 6px; }
+.glitch { width: 84px; flex: none; position: relative; animation: bob 3.2s ease-in-out infinite; }
+.glitch img { width: 100%; display: block; filter: drop-shadow(0 8px 20px rgba(102,222,127,.35)); }
+.glitch img.blink { position: absolute; inset: 0; opacity: 0; }
+.glitch.blinking img.blink { opacity: 1; }
+.glitch.talk { animation: bob 3.2s ease-in-out infinite, wiggle .5s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-8px); } }
+@keyframes wiggle { 25% { rotate: -2.5deg; } 75% { rotate: 2.5deg; } }
+.bubble { flex: 1; margin-bottom: 36px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 18px 18px 18px 6px; padding: 12px 15px; font-size: 15.5px; line-height: 1.45; min-height: 5.6em; }
+.bubble .who { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: 4px; }
+.bubble .caret { display: inline-block; width: 2px; height: 1em; background: var(--green); vertical-align: -2px; margin-left: 2px; animation: caret .8s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kpi { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line-2); background: var(--glass); }
+.kpi .v { font-family: var(--mono); font-size: 30px; line-height: 1.1; }
+.kpi .l { font-size: 12.5px; color: var(--text-3); margin-top: 3px; }
+.kpi.now { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; border-color: rgba(102,222,127,.4); }
+.kpi.now .v { font-size: 54px; background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kpi.bump { animation: bump .5s; }
+@keyframes bump { 40% { transform: scale(1.04); border-color: var(--green); } }
+.sec { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); margin: 4px 0 -4px; }
+.zones { display: flex; flex-direction: column; gap: 8px; }
+.zone { display: grid; grid-template-columns: 1fr auto auto; gap: 4px 12px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--glass); border-left: 4px solid var(--zc); }
+.zone b { font-size: 14.5px; }
+.zone .n { font-family: var(--mono); font-size: 22px; }
+.zone .t { font-family: var(--mono); font-size: 13px; color: var(--text-2); text-align: right; }
+.zone small { grid-column: 1 / -1; color: var(--text-3); font-size: 12px; }
+.zone.warn { border-color: rgba(255,181,71,.6); background: rgba(255,181,71,.08); }
+.empty { font-size: 13.5px; color: var(--text-3); padding: 10px 12px; border: 1px dashed var(--line-2); border-radius: 12px; }
+.alert { display: none; padding: 11px 13px; border-radius: 12px; border: 1px solid rgba(255,181,71,.6); background: rgba(255,181,71,.1); color: #ffd9a1; font-size: 14.5px; animation: up .4s; }
+.alert.show { display: block; }
+.foot { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+@media (max-width: 1000px) {
+  body { overflow: auto; }
+  .app { height: auto; }
+  .main { grid-template-columns: 1fr; }
+  .stage { aspect-ratio: 4 / 3; }
+  .top .links { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <img src="/brand/readymind-logo-dark.png" alt="Readymind" />
+    <span class="t">Visión del stand · <b>Store Intelligence en vivo</b></span>
+    <span class="live"><i></i>en vivo</span>
+    <nav class="links"><a href="/vision/letrero/" target="_blank">🖨 Letrero</a><a href="/casos/#3">El caso real</a><a href="/ocr/">Lector de documentos</a></nav>
+  </header>
+
+  <main class="main">
+    <section class="stage" id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="heat"></canvas>
+      <canvas id="overlay"></canvas>
+      <div class="hud"><span id="hudModel">modelo: cargando…</span><span id="hudFps">— fps</span></div>
+      <div class="editbar">✏️ Arrastra para dibujar una zona · toca una zona para borrarla <button class="btn" id="bDone">Listo</button></div>
+      <div class="msg" id="msg"><div>
+        <div class="big">📹</div>
+        <p id="msgText">Activa la cámara del stand. La detección corre en este dispositivo: el video no se envía ni se graba.</p>
+        <button class="btn primary" id="bStart">📹 Activar cámara</button>
+      </div></div>
+      <div class="privacy">🔒 Todo se procesa en este dispositivo · no se graban imágenes · no se identifica a nadie</div>
+      <div class="tools" id="tools">
+        <select class="btn" id="selCam" title="Cámara"><option value="">Cámara…</option></select>
+        <button class="btn" id="bZones" title="Dibujar zonas (Z)">✏️ Zonas</button>
+        <button class="btn" id="bHeat" title="Mapa de calor (H)">🔥 Mapa de calor</button>
+        <button class="btn" id="bReset" title="Reiniciar los números del día">↺ Nuevo día</button>
+        <button class="btn" id="bFull" title="Pantalla completa (F)">⛶</button>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="glitch-row">
+        <div class="glitch" id="glitch"><img src="/brand/glitch-open.webp" alt="Glitch" /><img class="blink" src="/brand/glitch-blink.webp" alt="" /></div>
+        <div class="bubble" aria-live="polite"><span class="who">Glitch</span><span id="say"></span></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi now" id="kNowBox"><div><div class="l">Personas en el stand ahora</div></div><div class="v" id="kNow">0</div></div>
+        <div class="kpi" id="kInBox"><div class="v" id="kIn">0</div><div class="l">entradas hoy</div></div>
+        <div class="kpi"><div class="v" id="kMax">0</div><div class="l">máximo a la vez</div></div>
+        <div class="kpi"><div class="v" id="kDwell">0:00</div><div class="l">permanencia promedio</div></div>
+        <div class="kpi"><div class="v" id="kLong">0:00</div><div class="l">la visita más larga</div></div>
+      </div>
+      <div class="alert" id="alert"></div>
+      <div class="sec">Zonas</div>
+      <div class="zones" id="zones"></div>
+      <p class="foot">Visión computacional con MediaPipe en el navegador. En producción, la misma idea corre con <b>Azure AI Vision</b> sobre las cámaras existentes de cada tienda. Las cifras son aproximadas: si alguien sale y vuelve a entrar, cuenta dos veces.</p>
+    </aside>
+  </main>
+</div>
+
+<script type="module">
+import { FilesetResolver, ObjectDetector } from '/vision/lib/vision_bundle.mjs'
+
+const $ = (id) => document.getElementById(id)
+const stage = $('stage'), video = $('video'), overlay = $('overlay'), heatCv = $('heat'), sayEl = $('say'), glitch = $('glitch')
+const ctx = overlay.getContext('2d'), hctx = heatCv.getContext('2d')
+const SIM = new URLSearchParams(location.search).has('simulado') // personas simuladas: para probar sin cámara
+const KEY = 'aitour.vision'
+const ZONE_COLORS = ['#ec4899', '#facc15', '#3b82f6', '#a855f7']
+const QUEUE_LIMIT = 4, QUEUE_WAIT_S = 180
+
+// ---------- Estado persistente del día (sobrevive a recargas de la tablet) ----------
+const today = () => new Date().toISOString().slice(0, 10)
+const GW = 64, GH = 36 // grilla del mapa de calor
+function freshDay() { return { day: today(), entries: 0, max: 0, dwellSum: 0, dwellN: 0, longest: 0, heat: new Array(GW * GH).fill(0), zoneStats: {} } }
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || '{}')
+    return { zones: s.zones || [], camId: s.camId || '', stats: s.stats?.day === today() ? s.stats : freshDay() }
+  } catch { return { zones: [], camId: '', stats: freshDay() } }
+}
+const store = load()
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)) } catch { /* sin almacenamiento: el día vale para esta carga */ } }
+setInterval(save, 10000)
+
+// ---------- Utilidades ----------
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
+const now = () => performance.now() / 1000
+
+let typing = null
+function say(text) {
+  clearInterval(typing); glitch.classList.add('talk')
+  let i = 0
+  typing = setInterval(() => {
+    i += 1; sayEl.textContent = text.slice(0, i)
+    const c = document.createElement('span'); c.className = 'caret'; sayEl.append(c)
+    if (i >= text.length) { clearInterval(typing); sayEl.textContent = text; glitch.classList.remove('talk') }
+  }, 22)
+}
+setInterval(() => { glitch.classList.add('blinking'); setTimeout(() => glitch.classList.remove('blinking'), 140) }, 3200)
+
+// ---------- Seguimiento: cada persona conserva su número mientras se mueve ----------
+let nextId = 1
+const tracks = []
+const iou = (a, b) => {
+  const x1 = Math.max(a.x, b.x), y1 = Math.max(a.y, b.y), x2 = Math.min(a.x + a.w, b.x + b.w), y2 = Math.min(a.y + a.h, b.y + b.h)
+  const inter = Math.max(0, x2 - x1) * Math.max(0, y2 - y1)
+  return inter / (a.w * a.h + b.w * b.h - inter || 1)
+}
+const foot = (b) => ({ x: b.x + b.w / 2, y: b.y + b.h * 0.92 }) // dónde está parada la persona (normalizado 0-1)
+const inZone = (p, z) => p.x >= z.x && p.x <= z.x + z.w && p.y >= z.y && p.y <= z.y + z.h
+
+function update(dets, t) {
+  // emparejamiento voraz por IoU, con respaldo por cercanía del centro
+  const pairs = []
+  tracks.forEach((tr, ti) => dets.forEach((d, di) => {
+    const s = iou(tr.box, d)
+    const dist = Math.hypot(tr.box.x + tr.box.w / 2 - (d.x + d.w / 2), tr.box.y + tr.box.h / 2 - (d.y + d.h / 2))
+    const score = s > 0.15 ? s : dist < 0.08 ? 0.15 - dist : -1
+    if (score > 0) pairs.push([score, ti, di])
+  }))
+  pairs.sort((a, b) => b[0] - a[0])
+  const usedT = new Set(), usedD = new Set()
+  for (const [, ti, di] of pairs) {
+    if (usedT.has(ti) || usedD.has(di)) continue
+    usedT.add(ti); usedD.add(di)
+    const tr = tracks[ti], d = dets[di], k = 0.55
+    tr.box = { x: tr.box.x + (d.x - tr.box.x) * k, y: tr.box.y + (d.y - tr.box.y) * k, w: tr.box.w + (d.w - tr.box.w) * k, h: tr.box.h + (d.h - tr.box.h) * k }
+    tr.last = t; tr.hits += 1
+  }
+  dets.forEach((d, di) => { if (!usedD.has(di)) tracks.push({ id: 0, box: { ...d }, first: t, last: t, hits: 1, zones: {} }) })
+
+  const st = store.stats
+  for (let i = tracks.length - 1; i >= 0; i--) {
+    const tr = tracks[i]
+    if (!tr.id && tr.hits >= 6) { tr.id = nextId++; st.entries += 1; bump('kInBox') } // confirmada: ~0.5 s viéndola
+    if (t - tr.last > 1.6) { // se fue
+      if (tr.id) {
+        const dwell = tr.last - tr.first
+        if (dwell >= 3) { st.dwellSum += dwell; st.dwellN += 1; st.longest = Math.max(st.longest, dwell) }
+        for (const [zid, z] of Object.entries(tr.zones)) if (z.total >= 2) addZoneVisit(zid, z.total)
+      }
+      tracks.splice(i, 1)
+    }
+  }
+  // zonas y mapa de calor
+  const active = tracks.filter((tr) => tr.id && t - tr.last < 0.4)
+  for (const tr of active) {
+    const f = foot(tr.box)
+    const gx = Math.min(GW - 1, Math.max(0, Math.floor(f.x * GW))), gy = Math.min(GH - 1, Math.max(0, Math.floor(f.y * GH)))
+    st.heat[gy * GW + gx] += 1
+    for (const z of store.zones) {
+      const zs = tr.zones[z.id] || (tr.zones[z.id] = { since: null, total: 0 })
+      if (inZone(f, z)) { if (zs.since === null) zs.since = t } else if (zs.since !== null) { zs.total += t - zs.since; zs.since = null }
+    }
+  }
+  st.max = Math.max(st.max, active.length)
+  return active
+}
+function addZoneVisit(zid, secs) {
+  const zs = store.stats.zoneStats[zid] || (store.stats.zoneStats[zid] = { n: 0, sum: 0 })
+  zs.n += 1; zs.sum += secs
+}
+function bump(id) { const el = $(id); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump') }
+
+// ---------- Dibujo ----------
+let vw = 16, vh = 9 // proporción del video, para ubicar los cuadros sobre la imagen con object-fit: contain
+function viewRect() {
+  const W = overlay.width, H = overlay.height, r = Math.min(W / vw, H / vh)
+  return { ox: (W - vw * r) / 2, oy: (H - vh * r) / 2, w: vw * r, h: vh * r }
+}
+function resize() {
+  const r = stage.getBoundingClientRect(), dpr = devicePixelRatio || 1
+  overlay.width = heatCv.width = Math.round(r.width * dpr); overlay.height = heatCv.height = Math.round(r.height * dpr)
+}
+addEventListener('resize', resize)
+
+function draw(active, t) {
+  const v = viewRect(), dpr = devicePixelRatio || 1
+  ctx.clearRect(0, 0, overlay.width, overlay.height)
+  // zonas
+  store.zones.forEach((z, i) => {
+    const c = ZONE_COLORS[i % ZONE_COLORS.length]
+    const x = v.ox + z.x * v.w, y = v.oy + z.y * v.h, w = z.w * v.w, h = z.h * v.h
+    ctx.fillStyle = c + '22'; ctx.fillRect(x, y, w, h)
+    ctx.setLineDash([10 * dpr, 7 * dpr]); ctx.strokeStyle = c; ctx.lineWidth = 2 * dpr; ctx.strokeRect(x, y, w, h); ctx.setLineDash([])
+    label(z.name, x + 8 * dpr, y + 8 * dpr, c, '#04121b')
+  })
+  if (drag) {
+    ctx.setLineDash([6 * dpr, 6 * dpr]); ctx.strokeStyle = '#66de7f'; ctx.lineWidth = 2 * dpr
+    ctx.strokeRect(v.ox + drag.x * v.w, v.oy + drag.y * v.h, drag.w * v.w, drag.h * v.h); ctx.setLineDash([])
+  }
+  // personas
+  for (const tr of active) {
+    const b = tr.box, x = v.ox + b.x * v.w, y = v.oy + b.y * v.h, w = b.w * v.w, h = b.h * v.h
+    const fresh = t - tr.first < 1.2
+    ctx.strokeStyle = fresh ? '#ffffff' : '#66de7f'; ctx.lineWidth = 3 * dpr
+    const k = Math.min(w, h) * 0.22 // esquinas, más limpio que un rectángulo completo
+    ctx.beginPath()
+    ctx.moveTo(x, y + k); ctx.lineTo(x, y); ctx.lineTo(x + k, y)
+    ctx.moveTo(x + w - k, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + k)
+    ctx.moveTo(x, y + h - k); ctx.lineTo(x, y + h); ctx.lineTo(x + k, y + h)
+    ctx.moveTo(x + w - k, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - k)
+    ctx.stroke()
+    ctx.strokeStyle = 'rgba(102,222,127,.35)'; ctx.lineWidth = 1 * dpr; ctx.strokeRect(x, y, w, h)
+    label(`#${tr.id} · ${mmss(t - tr.first)}`, x, y - 26 * dpr, '#66de7f', '#04121b')
+    const f = foot(b)
+    ctx.fillStyle = '#66de7f'; ctx.beginPath(); ctx.arc(v.ox + f.x * v.w, v.oy + f.y * v.h, 4 * dpr, 0, 6.28); ctx.fill()
+  }
+}
+function label(text, x, y, bg, fg) {
+  const dpr = devicePixelRatio || 1
+  ctx.font = `700 ${13 * dpr}px Satoshi, Segoe UI, sans-serif`
+  const w = ctx.measureText(text).width + 14 * dpr, h = 22 * dpr
+  ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect(x, Math.max(0, y), w, h, 6 * dpr); ctx.fill()
+  ctx.fillStyle = fg; ctx.fillText(text, x + 7 * dpr, Math.max(0, y) + 15.5 * dpr)
+}
+function drawHeat() {
+  const heat = store.stats.heat, max = Math.max(1, ...heat), v = viewRect()
+  hctx.clearRect(0, 0, heatCv.width, heatCv.height)
+  const cw = v.w / GW, ch = v.h / GH
+  hctx.filter = `blur(${Math.round(cw * 1.2)}px)`
+  for (let i = 0; i < heat.length; i++) {
+    if (!heat[i]) continue
+    const k = Math.pow(heat[i] / max, 0.5)
+    hctx.fillStyle = `hsla(${(1 - k) * 220}, 95%, 55%, ${0.25 + k * 0.6})`
+    hctx.fillRect(v.ox + (i % GW) * cw, v.oy + Math.floor(i / GW) * ch, cw + 1, ch + 1)
+  }
+  hctx.filter = 'none'
+}
+
+// ---------- Panel ----------
+function panel(active, t) {
+  const st = store.stats
+  $('kNow').textContent = active.length
+  $('kIn').textContent = st.entries
+  $('kMax').textContent = st.max
+  $('kDwell').textContent = mmss(st.dwellN ? st.dwellSum / st.dwellN : 0)
+  $('kLong').textContent = mmss(Math.max(st.longest, ...active.map((tr) => t - tr.first), 0))
+  const zl = $('zones')
+  if (!store.zones.length) { zl.innerHTML = '<div class="empty">Sin zonas. Toca «✏️ Zonas» y dibuja la fila de la demo, la pantalla principal o a Glitch.</div>'; setAlert(''); return }
+  let alertTxt = ''
+  zl.innerHTML = store.zones.map((z, i) => {
+    const inside = active.filter((tr) => inZone(foot(tr.box), z))
+    const cur = inside.map((tr) => t - (tr.zones[z.id]?.since ?? t))
+    const zs = st.zoneStats[z.id]
+    const avg = zs?.n ? zs.sum / zs.n : 0
+    const queue = /^fila/i.test(z.name)
+    const longest = cur.length ? Math.max(...cur) : 0
+    const warn = queue && (inside.length >= QUEUE_LIMIT || longest >= QUEUE_WAIT_S)
+    if (warn) alertTxt = `⚠️ ${inside.length} personas en «${z.name}» y la espera va en ${mmss(longest)}. Ofrezcan una tablet libre o la PC de al lado.`
+    return `<div class="zone${warn ? ' warn' : ''}" style="--zc:${ZONE_COLORS[i % ZONE_COLORS.length]}">
+      <b>${z.name.replace(/</g, '&lt;')}</b><span class="n">${inside.length}</span><span class="t">${queue ? 'espera' : 'promedio'} ${mmss(queue ? longest || avg : avg)}</span>
+      <small>${zs?.n || 0} visitas hoy · promedio ${mmss(avg)}</small></div>`
+  }).join('')
+  setAlert(alertTxt)
+}
+function setAlert(txt) { const a = $('alert'); a.textContent = txt; a.classList.toggle('show', !!txt) }
+
+// ---------- Glitch comenta los números ----------
+let lastActive = [], lineIdx = 0
+function narrate() {
+  const st = store.stats, n = lastActive.length, t = now()
+  const q = store.zones.find((z) => /^fila/i.test(z.name))
+  const qn = q ? lastActive.filter((tr) => inZone(foot(tr.box), q)).length : 0
+  const lines = [
+    n === 0 ? 'No veo a nadie en el stand… ¿alguien se anima a probar la demo? 👀' : `Ahora mismo hay ${n} ${n === 1 ? 'persona' : 'personas'} en el stand. ¡Hola! 👋`,
+    `Ya van ${st.entries} entradas hoy, y el récord fue de ${st.max} personas a la vez.`,
+    st.dwellN ? `En promedio la gente se queda ${mmss(st.dwellSum / st.dwellN)} en el stand. ¡Eso quiere decir que les gusta! 😄` : 'Todavía estoy midiendo cuánto se queda la gente en el stand. ⏱️',
+    'Esto es visión computacional: la misma idea con la que medimos filas, atención y permanencia en tiendas de moda, con las cámaras que ya tenían.',
+    'Tranquilos: no guardo imágenes ni reconozco caras. Solo cuento personas y tiempos. 🔒',
+  ]
+  if (q) lines.push(qn ? `En «${q.name}» hay ${qn} ${qn === 1 ? 'persona' : 'personas'} esperando.` : `«${q.name}» está libre: ¡es buen momento para probar la demo!`)
+  if ($('alert').classList.contains('show')) { say('¡Se juntó gente en la fila! Ofrezcan una tablet libre 🙌'); return }
+  say(lines[lineIdx++ % lines.length])
+}
+
+// ---------- Zonas: se dibujan arrastrando sobre la imagen ----------
+let drag = null, dragStart = null
+const toNorm = (e) => {
+  const r = overlay.getBoundingClientRect(), dpr = devicePixelRatio || 1, v = viewRect()
+  return { x: Math.min(1, Math.max(0, ((e.clientX - r.left) * dpr - v.ox) / v.w)), y: Math.min(1, Math.max(0, ((e.clientY - r.top) * dpr - v.oy) / v.h)) }
+}
+overlay.addEventListener('pointerdown', (e) => {
+  if (!stage.classList.contains('editing')) return
+  const p = toNorm(e)
+  const hit = store.zones.findIndex((z) => inZone(p, z))
+  if (hit >= 0) { if (confirm(`¿Borrar la zona «${store.zones[hit].name}»?`)) { store.zones.splice(hit, 1); save() } return }
+  dragStart = p; drag = { x: p.x, y: p.y, w: 0, h: 0 }; overlay.setPointerCapture(e.pointerId)
+})
+overlay.addEventListener('pointermove', (e) => {
+  if (!dragStart) return
+  const p = toNorm(e)
+  drag = { x: Math.min(p.x, dragStart.x), y: Math.min(p.y, dragStart.y), w: Math.abs(p.x - dragStart.x), h: Math.abs(p.y - dragStart.y) }
+})
+overlay.addEventListener('pointerup', () => {
+  const z = drag; drag = dragStart = null
+  if (!z || z.w < 0.04 || z.h < 0.04) return
+  if (store.zones.length >= 4) { alert('Máximo 4 zonas.'); return }
+  const sug = ['Fila de la demo', 'Pantalla principal', 'Glitch', 'Tablets'][store.zones.length]
+  const name = (prompt('Nombre de la zona (si empieza con «Fila», mide la espera):', sug) || '').trim().slice(0, 28)
+  if (!name) return
+  store.zones.push({ id: 'z' + Date.now(), name, ...z }); save()
+})
+const toggleEdit = () => { stage.classList.toggle('editing'); $('bZones').classList.toggle('on', stage.classList.contains('editing')) }
+
+// ---------- Cámara y detección ----------
+let detector = null, running = false, lastDet = 0, frames = 0, fpsT = now()
+
+async function loadModel() {
+  if (SIM) { $('hudModel').textContent = 'modo simulado'; return }
+  const files = await FilesetResolver.forVisionTasks('/vision/lib/wasm')
+  const opts = (delegate) => ({
+    baseOptions: { modelAssetPath: '/vision/models/efficientdet_lite0.tflite', delegate },
+    runningMode: 'VIDEO', scoreThreshold: 0.42, maxResults: 25, categoryAllowlist: ['person'],
+  })
+  try { detector = await ObjectDetector.createFromOptions(files, opts('GPU')); $('hudModel').textContent = 'MediaPipe · GPU' }
+  catch { detector = await ObjectDetector.createFromOptions(files, opts('CPU')); $('hudModel').textContent = 'MediaPipe · CPU' }
+}
+
+async function listCameras() {
+  const sel = $('selCam'), devs = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'videoinput')
+  sel.innerHTML = devs.map((d, i) => `<option value="${d.deviceId}">${(d.label || `Cámara ${i + 1}`).replace(/</g, '&lt;')}</option>`).join('')
+  const cur = video.srcObject?.getVideoTracks()[0]?.getSettings().deviceId
+  if (cur) sel.value = cur
+}
+
+async function startCamera(deviceId) {
+  video.srcObject?.getTracks().forEach((t) => t.stop())
+  const base = { width: { ideal: 1280 }, height: { ideal: 720 } }
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: deviceId ? { ...base, deviceId: { exact: deviceId } } : { ...base, facingMode: { ideal: 'environment' } } })
+  video.srcObject = stream; await video.play()
+  vw = video.videoWidth || 16; vh = video.videoHeight || 9
+  store.camId = stream.getVideoTracks()[0].getSettings().deviceId || deviceId || ''; save()
+  await listCameras()
+}
+
+// personas simuladas (?simulado): para ensayar el panel sin cámara
+const sims = Array.from({ length: 5 }, (_, i) => ({ x: 0.1 + i * 0.17, y: 0.35 + (i % 2) * 0.12, vx: (Math.random() - 0.5) * 0.004, vy: (Math.random() - 0.5) * 0.002, on: i < 3 }))
+function simDetections() {
+  if (Math.random() < 0.004) { const s = sims[Math.floor(Math.random() * sims.length)]; s.on = !s.on }
+  return sims.filter((s) => s.on).map((s) => {
+    s.x = Math.min(0.85, Math.max(0.02, s.x + s.vx)); s.y = Math.min(0.55, Math.max(0.15, s.y + s.vy))
+    if (s.x <= 0.02 || s.x >= 0.85) s.vx *= -1; if (s.y <= 0.15 || s.y >= 0.55) s.vy *= -1
+    return { x: s.x, y: s.y, w: 0.11, h: 0.4 }
+  })
+}
+
+function loop() {
+  if (!running) return
+  const t = now()
+  let active = lastActive
+  if (t - lastDet >= 1 / 15) { // ~15 detecciones por segundo: fluido sin calentar la tablet
+    lastDet = t
+    let dets = []
+    if (SIM) dets = simDetections()
+    else if (detector && video.readyState >= 2) {
+      const r = detector.detectForVideo(video, performance.now())
+      dets = r.detections.map((d) => ({ x: d.boundingBox.originX / vw, y: d.boundingBox.originY / vh, w: d.boundingBox.width / vw, h: d.boundingBox.height / vh }))
+    }
+    active = lastActive = update(dets, t)
+    frames += 1
+    if (t - fpsT >= 1) { $('hudFps').textContent = `${Math.round(frames / (t - fpsT))} fps`; frames = 0; fpsT = t }
+  }
+  draw(active, t)
+  requestAnimationFrame(loop)
+}
+
+async function start() {
+  $('bStart').disabled = true
+  try {
+    $('msgText').textContent = 'Cargando el modelo de visión…'
+    await loadModel()
+    if (!SIM) { $('msgText').textContent = 'Pidiendo permiso para usar la cámara…'; await startCamera(store.camId) }
+    else { vw = 16; vh = 9; video.style.background = 'radial-gradient(circle at 50% 40%, #1b2a40, #050a12)' }
+    resize(); stage.classList.add('running'); running = true; requestAnimationFrame(loop)
+    say('¡Listo! Ya estoy midiendo el stand. Cuento personas, cuánto se quedan y dónde se juntan, sin guardar imágenes. 🔒')
+  } catch (e) {
+    $('bStart').disabled = false
+    $('msgText').textContent = e?.name === 'NotAllowedError' ? 'No hay permiso para usar la cámara. Dalo en el candado de la barra de direcciones y vuelve a intentar.'
+      : e?.name === 'OverconstrainedError' || e?.name === 'NotFoundError' ? 'No encontré esa cámara. Revisa que la webcam esté conectada y vuelve a intentar.'
+      : 'No pude iniciar la visión en este dispositivo. Prueba con Chrome o Edge actualizados.'
+  }
+}
+
+$('bStart').onclick = start
+$('selCam').onchange = (e) => { if (e.target.value) startCamera(e.target.value).catch(() => say('No pude abrir esa cámara. 😕')) }
+$('bZones').onclick = toggleEdit
+$('bDone').onclick = toggleEdit
+$('bHeat').onclick = () => { stage.classList.toggle('heat'); $('bHeat').classList.toggle('on', stage.classList.contains('heat')); drawHeat() }
+$('bReset').onclick = () => { if (confirm('¿Reiniciar los números del día y el mapa de calor? Las zonas se conservan.')) { store.stats = freshDay(); save(); drawHeat() } }
+$('bFull').onclick = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.())
+addEventListener('keydown', (e) => {
+  if (e.target instanceof HTMLSelectElement) return
+  const k = e.key.toLowerCase()
+  if (k === 'z') toggleEdit(); else if (k === 'h') $('bHeat').click(); else if (k === 'f') $('bFull').click()
+})
+// los controles se esconden solos para que en el monitor se vea limpio
+let uiTimer
+const wake = () => { stage.classList.remove('idle-ui'); clearTimeout(uiTimer); uiTimer = setTimeout(() => stage.classList.add('idle-ui'), 6000) }
+addEventListener('pointermove', wake); addEventListener('pointerdown', wake); wake()
+
+setInterval(() => { if (running) panel(lastActive, now()) }, 250)
+setInterval(() => { if (running && stage.classList.contains('heat')) drawHeat() }, 2000)
+setInterval(() => { if (running) narrate() }, 22000)
+setInterval(() => { if (store.stats.day !== today()) { store.stats = freshDay(); save() } }, 60000) // a medianoche empieza otro día
+addEventListener('pagehide', () => { save(); video.srcObject?.getTracks().forEach((t) => t.stop()) })
+
+resize()
+say('Hola, soy Glitch. Con una cámara mido el stand en vivo: cuántas personas hay, cuánto se quedan y dónde se juntan. ¡Igual que en las tiendas de moda! Activa la cámara para empezar.')
+if (SIM) start()
+</script>
+</body>
+</html>

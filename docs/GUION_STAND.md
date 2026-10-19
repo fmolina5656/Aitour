@@ -15,6 +15,10 @@
 > (`/ocr/muestras`), que la ponga frente a la cámara y toque «Leer documento». La **factura B** tiene un error a propósito:
 > *"Mira, se dio cuenta de que el total no cuadra"*. Si alguien quiere usar un documento propio, se puede: la imagen
 > no se guarda y los datos personales salen ocultos, pero ofrece primero las muestras.
+>
+> **El stand se mide a sí mismo:** `https://<app>/vision` en la tablet del trípode. Señala el monitor: *"Esto es lo
+> mismo que hicimos en tiendas de moda: con una cámara contamos cuánta gente hay, cuánto se queda y cuánto espera en la
+> fila. No grabamos ni reconocemos caras: solo números."* Teclas: **Z** zonas, **H** mapa de calor, **F** pantalla completa.
 
 ## 0:00 – 0:30 · Enganche
 

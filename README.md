@@ -19,6 +19,9 @@ Todo se ve en una escena 3D (Three.js) pensada para una pantalla de 1920×1080 v
 > - **Lector de documentos en vivo:** `https://<app>/ocr` — la cámara lee un documento y Glitch dice qué es, qué datos tiene
 >   y si algo no cuadra (`POST /api/ocr`, `backend/app/ocr.py`). Kit de documentos ficticios para imprimir:
 >   `https://<app>/ocr/muestras`.
+> - **Visión del stand (Store Intelligence en vivo):** `https://<app>/vision` — una webcam en trípode cuenta personas,
+>   permanencia, filas por zona y mapa de calor, todo en el navegador con MediaPipe (`frontend/public/vision/`). Letrero
+>   para imprimir: `/vision/letrero`. Para ensayar sin cámara: `/vision/?simulado`.
 > - Correo con Power Automate: [docs/POWER_AUTOMATE.md](docs/POWER_AUTOMATE.md)
 
 ## Entorno en Azure

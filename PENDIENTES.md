@@ -74,6 +74,12 @@ commiteadas en `claude/readymind-aitour-demo`.
 - [ ] Validar con legal el aviso de privacidad del lector: la imagen no se guarda ni se loguea, y los datos sensibles se
       enmascaran en pantalla, pero un visitante podría mostrar su identificación real.
 
+## 4c. Visión del stand (`/vision`)
+
+- [ ] Probar en la tablet real con la webcam: que aparezca en el selector, los fps (meta: 10 o más) y que cuente bien
+      con gente de verdad. Solo se probó en simulado y con la cámara falsa del navegador.
+- [ ] Validar con legal el letrero: la detección corre en la tablet, no se graban imágenes ni se identifica a nadie.
+
 ## 5. Marca
 
 - [ ] `Satoshi-Variable.woff2` en `frontend/public/fonts/`, para no depender de Fontshare en el stand.

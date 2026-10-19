@@ -34,6 +34,12 @@
       correo llega.
 - [ ] **Lector de documentos** (`/ocr`): kit de `/ocr/muestras` impreso (y la credencial recortada); permiso de cámara
       dado una vez en cada tablet; leer la factura A (cuadra) y la B (no cuadra).
+- [ ] **Visión del stand** (`/vision`):
+  - Tablet en trípode alto (más de 2 m), mirando el stand en diagonal hacia abajo y con buena luz.
+  - Webcam USB con **hub USB-C con carga** (si no, la tablet no carga en todo el día). En Android, confirmar que la
+    webcam aparece en el selector de cámara; si no, usar la cámara trasera de la tablet.
+  - Dibujar las zonas (**Z**): la fila de la demo (con nombre que empiece por «Fila»), la pantalla principal y Glitch.
+  - Tocar **↺ Nuevo día** al abrir el stand, y pegar el letrero impreso (`/vision/letrero`) junto a la cámara.
 - [ ] **Las 3 salas a la vez**: arrancar una sesión en la PC y en las dos tablets; `R` en una tablet no corta las otras.
 - [ ] Probar un jailbreak ("ignora tus instrucciones…"): debe verse el bloqueo en ámbar y **0 llamadas** a modelos.
 - [ ] `python -m scripts.preflight` en verde una última vez.
