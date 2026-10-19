@@ -24,6 +24,7 @@
   - **Micrófono direccional o de diadema**: el de la laptop no sirve en una feria.
   - Bocina **orientada hacia el visitante**, no hacia el micrófono.
 - [ ] **Red:** cable si hay. Si no, hotspot de respaldo ya probado.
+- [ ] Abrir `https://<app>/accesos` en una tablet o un celular del equipo: tiene todos los links del stand y su QR.
 - [ ] **Navegador:**
   - Chrome con `https://<app>/?quality=high` y luego `F` para pantalla completa.
   - Tablets: `https://<app>/?sala=tablet1` y `https://<app>/?sala=tablet2` (cada una con su propia sesión).

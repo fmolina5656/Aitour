@@ -8,6 +8,7 @@ import contextlib
 import logging
 import mimetypes
 import os
+import re
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 
@@ -192,6 +193,23 @@ def _check(sid: str, t: str) -> dict:
 
 def _base_url(request: Request) -> str:
     return settings.public_base_url.rstrip("/") or str(request.base_url).rstrip("/")
+
+
+INTERNAL_PATH = re.compile(r"/(?!/)[A-Za-z0-9/_.\-?=&#%]*")
+
+
+@app.get("/api/qr-link.svg")
+async def qr_link(path: str, request: Request) -> Response:
+    """QR de una página de la propia app (lo usa /accesos para abrirla en una tablet o un celular)."""
+    import io
+
+    import segno
+
+    if len(path) > 200 or not INTERNAL_PATH.fullmatch(path):
+        raise HTTPException(422, "Solo rutas internas de la app")
+    buf = io.BytesIO()
+    segno.make(f"{_base_url(request)}{path}", error="m").save(buf, kind="svg", scale=8, border=2, dark="#11243e", light="#ffffff")
+    return Response(buf.getvalue(), media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=3600"})
 
 
 @app.get("/api/qr/{sid}.svg")

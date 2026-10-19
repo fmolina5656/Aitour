@@ -126,3 +126,13 @@ def test_rate_limit_per_session(app_client):
     for _ in range(s.max_leads_per_session):
         assert client.post(f"/api/lead/abc123?t={tok}", json=lead()).status_code == 200
     assert client.post(f"/api/lead/abc123?t={tok}", json=lead()).status_code == 429
+
+
+def test_qr_link_solo_rutas_internas():
+    from app import main
+
+    with TestClient(main.app) as client:
+        r = client.get("/api/qr-link.svg", params={"path": "/vision/?simulado"})
+        assert r.status_code == 200 and r.headers["content-type"].startswith("image/svg")
+        for bad in ["https://evil.example", "//evil.example/x", "javascript:alert(1)", "/a b"]:
+            assert client.get("/api/qr-link.svg", params={"path": bad}).status_code == 422

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Accesos del stand</title>
+<meta name="description" content="Todos los accesos del stand de Readymind en un solo lugar: la demo por sala, las experiencias con Glitch y el material de operación, con QR para abrirlos en cualquier dispositivo." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
+<style>
+/* Tablero de accesos para el equipo del stand. Los QR salen de GET /api/qr-link.svg (solo rutas internas). */
+:root {
+  --green: #66de7f; --teal: #53b6ad; --blue: #397ef6;
+  --gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
+  --bg: #050a12; --line: #1f3150; --line-2: #24395a;
+  --glass: rgba(9, 18, 33, .72); --text: #f3f6fa; --text-2: #b7c2d2; --text-3: #6f7f95;
+  --alert: #ffb547; --bad: #ff7a7a;
+  --font: 'Satoshi', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image: radial-gradient(40% 30% at 15% 0%, rgba(102,222,127,.12), transparent 70%), radial-gradient(35% 30% at 90% 10%, rgba(57,126,246,.14), transparent 70%); }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 22px 24px 40px; }
+
+header { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+header img.logo { height: 30px; }
+.hello { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.hello img { width: 54px; animation: bob 3.2s ease-in-out infinite; filter: drop-shadow(0 6px 16px rgba(102,222,127,.35)); }
+.hello span { font-size: 15px; color: var(--text-2); background: var(--glass); border: 1px solid rgba(102,222,127,.15); border-radius: 14px 14px 14px 4px; padding: 8px 12px; }
+@keyframes bob { 50% { transform: translateY(-6px); } }
+h1 { font-size: clamp(30px, 4vw, 46px); font-weight: 900; letter-spacing: -.02em; margin: 18px 0 6px; }
+h1 em { font-style: normal; background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sub { color: var(--text-2); margin: 0 0 18px; font-size: 16px; }
+
+/* estado del backend */
+.status { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+.pill { font-family: var(--mono); font-size: 12.5px; padding: 5px 11px; border-radius: 99px; border: 1px solid var(--line-2); background: var(--glass); color: var(--text-2); display: inline-flex; align-items: center; gap: 6px; }
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); }
+.pill.ok i { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.pill.warn { border-color: rgba(255,181,71,.5); color: #ffd9a1; } .pill.warn i { background: var(--alert); }
+.pill.bad { border-color: rgba(255,122,122,.5); color: #ffc2c2; } .pill.bad i { background: var(--bad); }
+
+.search { width: 100%; font: inherit; font-size: 17px; color: var(--text); background: var(--glass); border: 1px solid var(--line-2); border-radius: 14px; padding: 13px 16px; margin-bottom: 22px; }
+.search:focus { outline: none; border-color: var(--green); }
+
+section { margin-bottom: 26px; }
+section h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-3); margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.tile { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 16px 16px 14px; border-radius: 18px; border: 1px solid var(--line-2); background: var(--glass); transition: border-color .2s, transform .15s; }
+.tile:hover { border-color: var(--c, var(--green)); transform: translateY(-2px); }
+.tile .top { display: flex; align-items: center; gap: 10px; }
+.tile .ic { width: 42px; height: 42px; flex: none; border-radius: 12px; display: grid; place-items: center; font-size: 22px; background: color-mix(in srgb, var(--c, #66de7f) 18%, transparent); border: 1px solid color-mix(in srgb, var(--c, #66de7f) 40%, transparent); }
+.tile b { font-size: 17px; }
+.tile .live { white-space: nowrap; display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; color: #04121b; background: var(--c, var(--green)); border-radius: 6px; padding: 1px 6px; margin-left: 4px; vertical-align: 2px; }
+.tile p { margin: 0; color: var(--text-2); font-size: 14px; line-height: 1.45; flex: 1; }
+.tile code { font-family: var(--mono); font-size: 12px; color: var(--text-3); }
+.tile .keys { font-size: 12px; color: var(--text-3); }
+.tile .keys kbd { font-family: var(--mono); border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; color: var(--text-2); }
+.actions { display: flex; gap: 8px; margin-top: 6px; }
+.btn { font: inherit; font-size: 14.5px; color: var(--text); background: rgba(15,27,46,.9); border: 1px solid var(--line-2); border-radius: 11px; padding: 8px 13px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { border-color: var(--green); }
+.btn.go { background: var(--gradient); color: #04121b; border: 0; font-weight: 700; flex: 1; justify-content: center; }
+.qr { display: none; margin-top: 8px; padding: 10px; border-radius: 12px; background: #fff; text-align: center; }
+.qr img { width: 180px; height: 180px; display: block; margin: 0 auto; }
+.qr span { display: block; font-size: 11.5px; color: #11243e; margin-top: 4px; font-family: var(--mono); word-break: break-all; }
+.tile.showqr .qr { display: block; }
+.empty { display: none; color: var(--text-3); padding: 20px; text-align: center; border: 1px dashed var(--line-2); border-radius: 14px; }
+footer { color: var(--text-3); font-size: 13px; margin-top: 10px; line-height: 1.6; }
+footer kbd { font-family: var(--mono); border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; color: var(--text-2); }
+@media (max-width: 600px) { .wrap { padding: 16px; } .hello span { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="/brand/readymind-logo-dark.png" alt="Readymind" />
+    <div class="hello"><span>¿A dónde vamos? 🚀</span><img src="/brand/glitch-open.webp" alt="Glitch" /></div>
+  </header>
+  <h1>Accesos del <em>stand</em></h1>
+  <p class="sub">Todo lo de Readymind en el AI Tour en un solo lugar. Toca para abrir, o muestra el QR para abrirlo en otra tablet o un celular.</p>
+  <div class="status" id="status"><span class="pill"><i></i>consultando el backend…</span></div>
+  <input class="search" id="q" type="search" placeholder="Buscar… (ej. tablet, casos, imprimir, cámara)" autocomplete="off" aria-label="Buscar un acceso" />
+  <div id="groups"></div>
+  <div class="empty" id="empty">No encontré nada con eso. 🤔</div>
+  <footer>
+    Atajos en esta página: <kbd>/</kbd> buscar · <kbd>Esc</kbd> limpiar. Para volver acá desde cualquier dispositivo: <code>/accesos</code>.<br />
+    Cada pantalla de la demo recuerda su sala: basta abrir una vez la URL con <code>?sala=</code>.
+  </footer>
+</div>
+
+<script>
+(() => {
+  // Un solo lugar para todos los destinos del stand. "c" es el color del acento de cada uno.
+  const GROUPS = [
+    { title: '🎙 La demo · una sala por pantalla', items: [
+      { icon: '🖥', c: '#66de7f', title: 'PC del stand', path: '/?sala=pc', desc: 'La demo principal: el visitante cuenta su problema y el equipo de agentes arma la solución.', keys: [['V', 'hablar'], ['T', 'escribir'], ['R', 'reiniciar'], ['P', 'sesión grabada'], ['O', 'one-pager'], ['F', 'pantalla completa']], tags: 'demo principal pc pantalla grande voz' },
+      { icon: '📱', c: '#53b6ad', title: 'Tablet 1', path: '/?sala=tablet1', desc: 'Sala independiente para la tablet 1. Arranca en modo tablet (M lo cambia).', keys: [['R', 'reiniciar'], ['M', 'modo tablet']], tags: 'tablet sala 1' },
+      { icon: '📱', c: '#53b6ad', title: 'Tablet 2', path: '/?sala=tablet2', desc: 'Sala independiente para la tablet 2. Arranca en modo tablet (M lo cambia).', keys: [['R', 'reiniciar'], ['M', 'modo tablet']], tags: 'tablet sala 2' },
+      { icon: '🐢', c: '#ffb547', title: 'PC en calidad baja', path: '/?sala=pc&quality=low', desc: 'La misma demo sin efectos pesados, para equipos lentos o si la escena 3D se traba.', tags: 'lento calidad baja rendimiento' },
+    ] },
+    { title: '✨ Experiencias con Glitch', items: [
+      { icon: '🧭', c: '#397ef6', title: 'Cómo funciona la demo', path: '/story/', desc: 'El recorrido para ventas: qué ve el visitante, qué pasa por dentro y qué decir.', keys: [['← →', 'navegar'], ['A', 'automático']], tags: 'story recorrido ventas guion' },
+      { icon: '🏆', c: '#ec4899', title: 'Casos de éxito', path: '/casos/', desc: 'Cinco proyectos en producción, contados por Glitch, con antes y después.', keys: [['← →', 'navegar'], ['A', 'automático']], tags: 'casos exito clientes proyectos' },
+      { icon: '🛠', c: '#fb6a3c', title: 'Smart Maintenance', path: '/mantenimiento/', desc: 'La plataforma real de mantenimiento, con capturas de producción paso a paso.', keys: [['← →', 'navegar'], ['A', 'automático']], tags: 'mantenimiento energia capturas reales plan repuestos' },
+      { icon: '📷', c: '#facc15', title: 'Lector de documentos', path: '/ocr/', live: 'EN VIVO', desc: 'La cámara lee un documento y Glitch dice qué es, qué datos tiene y si algo no cuadra.', keys: [['Espacio', 'leer'], ['R', 'limpiar']], tags: 'ocr documentos camara factura identificacion' },
+      { icon: '📹', c: '#a855f7', title: 'Visión del stand', path: '/vision/', live: 'EN VIVO', desc: 'La webcam del trípode cuenta personas, permanencia, filas y mapa de calor.', keys: [['Z', 'zonas'], ['H', 'mapa de calor'], ['F', 'pantalla completa']], tags: 'vision camara personas store intelligence webcam tripode' },
+    ] },
+    { title: '🧰 Operación y material', items: [
+      { icon: '🖨', c: '#b7c2d2', title: 'Documentos de muestra', path: '/ocr/muestras/', desc: 'El kit de 7 documentos ficticios para el lector, listo para imprimir en carta.', tags: 'imprimir muestras kit documentos factura' },
+      { icon: '🪧', c: '#b7c2d2', title: 'Letrero de la cámara', path: '/vision/letrero/', desc: 'El aviso al público junto a la cámara del stand, para imprimir en carta horizontal.', tags: 'imprimir letrero privacidad camara' },
+      { icon: '🧪', c: '#b7c2d2', title: 'Visión en modo simulado', path: '/vision/?simulado', desc: 'La visión del stand con personas simuladas, para ensayar sin cámara.', tags: 'ensayo prueba simulado vision' },
+      { icon: '🔒', c: '#b7c2d2', title: 'Aviso de privacidad', path: '/privacidad', desc: 'El aviso que ve el visitante al dejar sus datos para recibir el one-pager.', tags: 'privacidad legal aviso datos' },
+      { icon: '🩺', c: '#b7c2d2', title: 'Estado del backend', path: '/api/health', desc: 'Modo (live, mock o replay), estado de cada sala y memoria del servidor.', tags: 'estado salud health backend servidor' },
+    ] },
+  ]
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+  const root = document.getElementById('groups')
+  root.innerHTML = GROUPS.map((g) => `
+    <section><h2>${g.title}</h2><div class="grid">${g.items.map((it) => `
+      <article class="tile" style="--c:${it.c}" data-search="${esc((it.title + ' ' + it.desc + ' ' + it.path + ' ' + (it.tags || '')).toLowerCase())}">
+        <div class="top"><span class="ic">${it.icon}</span><b>${esc(it.title)}${it.live ? `<span class="live">${it.live}</span>` : ''}</b></div>
+        <p>${esc(it.desc)}</p>
+        ${it.keys ? `<div class="keys">${it.keys.map(([k, a]) => `<kbd>${esc(k)}</kbd> ${esc(a)}`).join(' · ')}</div>` : ''}
+        <code>${esc(it.path)}</code>
+        <div class="actions">
+          <a class="btn go" href="${esc(it.path)}">Abrir</a>
+          <a class="btn" href="${esc(it.path)}" target="_blank" rel="noopener" title="Abrir en otra pestaña">↗</a>
+          <button class="btn qrbtn" type="button" data-path="${esc(it.path)}" title="Mostrar el QR">▦ QR</button>
+        </div>
+        <div class="qr"><img alt="QR de ${esc(it.title)}" /><span></span></div>
+      </article>`).join('')}</div></section>`).join('')
+
+  // QR bajo demanda: se pide solo cuando alguien lo abre
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest('.qrbtn'); if (!b) return
+    const tile = b.closest('.tile'), img = tile.querySelector('.qr img')
+    if (!img.src) { img.src = '/api/qr-link.svg?path=' + encodeURIComponent(b.dataset.path); tile.querySelector('.qr span').textContent = location.origin + b.dataset.path }
+    tile.classList.toggle('showqr')
+  })
+
+  // buscador
+  const q = document.getElementById('q'), empty = document.getElementById('empty')
+  const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  q.addEventListener('input', () => {
+    const words = norm(q.value).split(/\s+/).filter(Boolean)
+    let shown = 0
+    document.querySelectorAll('section').forEach((sec) => {
+      let any = 0
+      sec.querySelectorAll('.tile').forEach((t) => { const ok = words.every((w) => norm(t.dataset.search).includes(w)); t.hidden = !ok; any += ok })
+      sec.hidden = !any; shown += any
+    })
+    empty.style.display = shown ? 'none' : 'block'
+  })
+  addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus() }
+    else if (e.key === 'Escape') { q.value = ''; q.dispatchEvent(new Event('input')); q.blur() }
+  })
+
+  // estado del backend en vivo
+  const st = document.getElementById('status')
+  async function health() {
+    try {
+      const r = await fetch('/api/health', { cache: 'no-store' }); const h = await r.json()
+      const mode = { live: ['ok', 'modo live · Foundry real'], mock: ['warn', 'modo simulado (mock)'], replay: ['warn', 'modo replay (sesiones grabadas)'] }[h.mode] || ['warn', 'modo ' + h.mode]
+      const salas = Object.entries(h.salas || {}).map(([n, s]) => `<span class="pill ${s === 'idle' || s === 'done' ? '' : 'ok'}"><i></i>${esc(n)}: ${esc({ idle: 'libre', interview: 'entrevista', swarm: 'agentes trabajando', done: 'terminó', replay: 'sesión grabada' }[s] || s)}</span>`).join('')
+      st.innerHTML = `<span class="pill ok"><i></i>backend en línea</span><span class="pill ${mode[0]}"><i></i>${mode[1]}</span>${salas}`
+    } catch {
+      st.innerHTML = '<span class="pill bad"><i></i>no responde el backend: revisa la red o el despliegue</span>'
+    }
+  }
+  health(); setInterval(health, 10000)
+})()
+</script>
+</body>
+</html>
