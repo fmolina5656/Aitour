@@ -188,6 +188,26 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .visual:has(.steps) { align-content: center; gap: 10px; }
 .visual:has(.steps) .more { position: static !important; justify-self: center; }
 
+/* Store Intelligence: detecciones dibujadas sobre la imagen (coordenadas en % de la imagen) */
+.tag-ej.ia { color: #fff; background: #a855f7; border: 0; font-weight: 700; }
+.steps .frame.vis .kb { position: absolute; left: 0; top: 0; width: 100%; transform-origin: var(--ox) var(--oy); }
+.steps .frame.vis .kb img { height: auto; animation: none !important; display: block; }
+.steps .frame.vis.on .kb { animation: kb var(--dur, 3.8s) ease-in-out forwards; }
+.dets { position: absolute; inset: 0; }
+.dets i { position: absolute; border: 2px solid var(--green); border-radius: 4px; box-shadow: 0 0 12px rgba(102,222,127,.55); opacity: 0; transform: scale(1.25); }
+.frame.on .dets i { animation: det .35s cubic-bezier(.3,1.4,.5,1) forwards; animation-delay: calc(var(--d) * 1s); }
+@keyframes det { to { opacity: 1; transform: none; } }
+.dets i::after { content: attr(data-l); position: absolute; left: -2px; top: -20px; white-space: nowrap; font: 700 11px/1 var(--font); color: #04121b; background: var(--green); padding: 3px 6px; border-radius: 5px; }
+.dets .zone { position: absolute; border: 2px dashed #ec4899; background: rgba(236,72,153,.12); border-radius: 8px; opacity: 0; }
+.frame.on .dets .zone { animation: det .5s .2s forwards; }
+.dets .zone span { position: absolute; left: 6px; bottom: 6px; font: 700 11px/1 var(--font); letter-spacing: .08em; color: #fff; background: #ec4899; padding: 3px 7px; border-radius: 5px; }
+.steps .kpi { position: absolute; z-index: 2; padding: 7px 11px; border-radius: 10px; font-size: 13.5px; font-weight: 700; color: var(--text); background: rgba(5,10,18,.9); border: 1px solid rgba(102,222,127,.5); opacity: 0; }
+.steps .kpi.tl { left: 12px; top: 12px; } .steps .kpi.tr { right: 12px; top: 12px; } .steps .kpi.br { right: 12px; bottom: 12px; }
+.steps .kpi.warn { border-color: rgba(255,181,71,.8); color: #ffd9a1; }
+.steps .kpi.ok { border-color: var(--green); color: #c8f5d2; }
+.frame.on .kpi { animation: up .45s 1.9s forwards; }
+.steps .cap.br { left: auto; right: 12px; }
+
 /* ---------- Muestra 2 · Smart Maintenance: captura real ---------- */
 .realshot { margin: 0; width: min(760px, 100%); border-radius: 12px; overflow: hidden; border: 1px solid var(--line-2); background: #fff; box-shadow: 0 24px 60px rgba(0,0,0,.5); opacity: 0; transform: translateY(14px) scale(.98); }
 .scene.on .realshot { animation: up .7s .3s forwards; }
@@ -448,7 +468,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
     </section>
 
     <!-- 3 · Store Intelligence -->
-    <section class="scene" data-c="var(--c3)" data-title="Store Intelligence" style="--c:var(--c3)">
+    <section class="scene hasreal" data-c="var(--c3)" data-title="Store Intelligence" style="--c:var(--c3)">
       <div class="story">
         <span class="chapter">Caso 3 · Retail · Colombia <span class="time">12 semanas</span></span>
         <div class="org"><span class="name">STORE INTELLIGENCE</span><span class="proj">Visión computacional en tiendas</span></div>
@@ -459,9 +479,31 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         </div>
       </div>
       <div class="visual">
-        <span class="demo-title" style="--c:var(--c3)"><i></i>Muestra · visión computacional sobre la tienda</span>
-        <span class="tag-ej">Datos de ejemplo</span>
-        <figure class="realshot slot" data-img="/casos/img/store-intelligence.webp" hidden><div class="bar"><i></i><i></i><i></i><span>Visión del stand en vivo</span></div><img alt="Captura real: Visión del stand en vivo" /></figure>
+        <span class="demo-title" style="--c:var(--c3)"><i></i>Visión computacional · paso a paso</span>
+        <span class="tag-ej ia">🎨 Imagen ilustrativa (IA)</span>
+        <figure class="steps" data-ms="6000">
+          <div class="bar"><i></i><i></i><i></i><span>Store Intelligence · cámara 03 · piso de ventas</span><b class="stepn">Paso 1 de 4</b></div>
+          <div class="stage" style="aspect-ratio:1672/941">
+            <div class="frame vis" data-cap="Detección · cada persona con su número y su tiempo en tienda" data-cappos="bl" style="--ox:50%;--oy:50%;--s:1.06">
+              <div class="kb"><img src="/casos/img/store-1.webp" alt="Imagen ilustrativa de una tienda vista desde la cámara" loading="lazy" /><div class="dets"><i style="left:19.7%;top:28.7%;width:7.2%;height:24.4%;--d:0.50" data-l="#1 · 2:14"></i><i style="left:25.7%;top:44.1%;width:9.6%;height:35.1%;--d:0.78" data-l="#2 · 0:48"></i><i style="left:48.9%;top:18.3%;width:6.7%;height:30.8%;--d:1.06" data-l="#3 · 1:05"></i><i style="left:64.6%;top:51.3%;width:10.9%;height:33.5%;--d:1.34" data-l="#4 · 0:21"></i><i style="left:77.9%;top:29.2%;width:9.6%;height:26.0%;--d:1.62" data-l="#5 · 3:37"></i><i style="left:32.8%;top:0.0%;width:4.8%;height:14.9%;--d:1.90" data-l="#6 · 0:09"></i></div></div>
+              <span class="kpi tr">👥 6 personas en tienda</span>
+            </div>
+            <div class="frame vis" data-cap="Fila · cuántos esperan y cuánto tiempo" data-cappos="br" style="--ox:50%;--oy:50%;--s:1.06">
+              <div class="kb"><img src="/casos/img/store-2.webp" alt="Imagen ilustrativa de una tienda vista desde la cámara" loading="lazy" /><div class="dets"><b class="zone" style="left:14.5%;top:16.0%;width:40.0%;height:82.0%"><span>FILA · CAJAS</span></b><i style="left:52.3%;top:9.6%;width:7.8%;height:35.6%;--d:0.50" data-l="atendiendo · 1:02"></i><i style="left:43.5%;top:19.1%;width:9.7%;height:43.6%;--d:0.78" data-l="#1 · 3:20"></i><i style="left:36.5%;top:33.5%;width:9.6%;height:39.8%;--d:1.06" data-l="#2 · 2:41"></i><i style="left:25.1%;top:42.5%;width:11.7%;height:46.3%;--d:1.34" data-l="#3 · 1:55"></i><i style="left:15.4%;top:56.9%;width:12.7%;height:40.9%;--d:1.62" data-l="#4 · 0:37"></i></div></div>
+              <span class="kpi warn tl">⚠️ Fila: 4 personas · espera 3:20 · abrir otra caja</span>
+            </div>
+            <div class="frame vis" data-cap="Zonas · permanencia frente a cada mueble" data-cappos="bl" style="--ox:50%;--oy:50%;--s:1.06">
+              <div class="kb"><img src="/casos/img/store-3.webp" alt="Imagen ilustrativa de una tienda vista desde la cámara" loading="lazy" /><div class="dets"><b class="zone" style="left:28.0%;top:10.0%;width:70.0%;height:62.0%"><span>ZONA · JEANS</span></b><i style="left:40.4%;top:3.2%;width:5.7%;height:26.0%;--d:0.50" data-l="#7 · 2:50"></i><i style="left:31.4%;top:32.4%;width:10.5%;height:37.2%;--d:0.78" data-l="#8 · 4:12"></i><i style="left:66.7%;top:8.0%;width:7.4%;height:28.7%;--d:1.06" data-l="#9 · 5:31"></i><i style="left:82.2%;top:29.2%;width:11.1%;height:30.3%;--d:1.34" data-l="#10 · 3:47"></i></div></div>
+              <span class="kpi br">👖 Zona jeans · permanencia promedio 4:05</span>
+            </div>
+            <div class="frame vis" data-cap="Resultado · se abrió otra caja y la fila quedó libre" data-cappos="bl" style="--ox:50%;--oy:50%;--s:1.06">
+              <div class="kb"><img src="/casos/img/store-4.webp" alt="Imagen ilustrativa de una tienda vista desde la cámara" loading="lazy" /><div class="dets"><i style="left:52.6%;top:9.0%;width:7.2%;height:33.6%;--d:0.50" data-l="atendiendo · 0:45"></i></div></div>
+              <span class="kpi ok tl">✅ Fila libre · espera 0:00</span>
+            </div>
+            <div class="cap"></div>
+          </div>
+          <div class="chips"><span><b>1</b>Detección</span><span><b>2</b>Fila</span><span><b>3</b>Zonas</span><span><b>4</b>Resultado</span></div>
+        </figure>
         <a class="more live" href="/vision/">📹 Ver el stand en vivo →</a>
         <div class="m3 anim">
           <div class="store">
@@ -752,24 +794,25 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   function runSteps(scene) {
     const fig = scene.querySelector('.steps'); if (!fig) return
     const frames = [...fig.querySelectorAll('.frame')], chips = [...fig.querySelectorAll('.chips span')], cap = fig.querySelector('.cap'), n = fig.querySelector('.stepn')
-    fig.style.setProperty('--dur', STEP_MS + 'ms')
+    const ms = +fig.dataset.ms || STEP_MS
+    fig.style.setProperty('--dur', ms + 'ms')
     let k = -1
     const show = (j) => {
       k = j % frames.length
       frames.forEach((f, x) => f.classList.toggle('on', x === k))
       chips.forEach((c, x) => { c.classList.toggle('on', x === k); c.classList.toggle('done', x < k) })
       const [a, b] = frames[k].dataset.cap.split(' · ')
-      cap.innerHTML = `<b>${a}</b>${b}`; cap.classList.toggle('top', !!frames[k].dataset.captop); cap.style.animation = 'none'; void cap.offsetWidth; cap.style.animation = ''
+      cap.innerHTML = `<b>${a}</b>${b}`; cap.classList.toggle('top', !!frames[k].dataset.captop); cap.classList.toggle('br', frames[k].dataset.cappos === 'br'); cap.style.animation = 'none'; void cap.offsetWidth; cap.style.animation = ''
       n.textContent = `Paso ${k + 1} de ${frames.length}`
     }
-    chips.forEach((c, x) => (c.onclick = () => { loops.forEach(clearInterval); loops = []; show(x); every(() => show(k + 1), STEP_MS) }))
+    chips.forEach((c, x) => (c.onclick = () => { loops.forEach(clearInterval); loops = []; show(x); every(() => show(k + 1), ms) }))
     show(0)
-    if (!reduce) every(() => show(k + 1), STEP_MS)
+    if (!reduce) every(() => show(k + 1), ms)
   }
 
   function scheduleAuto() {
     clearTimeout(autoTimer)
-    if (auto) autoTimer = setTimeout(() => go(cur === scenes.length - 1 ? 0 : cur + 1), Math.max(8000, (scenes[cur].querySelectorAll('.steps .frame').length * STEP_MS) + 1000))
+    if (auto) autoTimer = setTimeout(() => go(cur === scenes.length - 1 ? 0 : cur + 1), Math.max(8000, (scenes[cur].querySelectorAll('.steps .frame').length * (+scenes[cur].querySelector('.steps')?.dataset.ms || STEP_MS)) + 1000))
   }
 
   function go(i) {

@@ -7,7 +7,7 @@ convertir de verdad (por ejemplo con squoosh.app). Ancho recomendado: 1400–160
 | Archivo | Caso | Qué capturar |
 |---|---|---|
 | `financialocr.webp` | FinancialOCR | `/ocr` leyendo el **estado de cuenta** del kit de muestras (resultado en pantalla) |
-| `store-intelligence.webp` | Store Intelligence | `/vision` en el stand con gente, zonas dibujadas y el panel de números |
+| `store-1..4.webp` | Store Intelligence | Ya cargadas: imágenes ilustrativas generadas con IA, con detecciones dibujadas en la página |
 | `api-documental-1..3.webp` | API documental | Ya cargadas: demo de la API con datos sintéticos (sin el nombre del cliente) |
 | `soc-classifier.webp` | SOC Classifier | La alerta crítica en Teams del proyecto real, **sin nombres del cliente** |
 
