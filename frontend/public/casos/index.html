@@ -170,7 +170,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .steps .bar .stepn { font-size: 11px; color: #04121b; background: var(--green); border-radius: 6px; padding: 2px 8px; }
 .steps .stage { position: relative; aspect-ratio: 16 / 8.4; overflow: hidden; background: #fff; }
 .steps .frame { position: absolute; inset: 0; opacity: 0; transition: opacity .7s; }
-.steps .frame img { width: 100%; height: 100%; object-fit: cover; object-position: var(--pos, top left); transform-origin: var(--ox) var(--oy); }
+.steps .frame img { width: 100%; height: 100%; object-fit: var(--fit, cover); background: #fff; object-position: var(--pos, top left); transform-origin: var(--ox) var(--oy); }
 .steps .frame.on { opacity: 1; }
 .steps .frame.on img { animation: kb var(--dur, 3.8s) ease-in-out forwards; }
 @keyframes kb { from { transform: scale(1); } to { transform: scale(var(--s)); } }
@@ -196,6 +196,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .realshot .bar span { margin-left: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--text-2); }
 .realshot img { display: block; width: 100%; }
 .tag-ej.real { color: #04121b; background: var(--green); border: 0; font-weight: 700; }
+.tag-ej.synth { color: #1f1400; background: #facc15; border: 0; font-weight: 700; }
 .more { position: absolute !important; right: 16px; top: 46px; font-size: 14px; font-weight: 700; color: var(--text); text-decoration: none; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(251,106,60,.6); background: rgba(9,18,33,.85); }
 .more:hover { border-color: var(--c1); }
 .more.live { border-color: rgba(102,222,127,.6); }
@@ -494,7 +495,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
     </section>
 
     <!-- 4 · Trámites previsionales -->
-    <section class="scene" data-c="var(--c4)" data-title="Trámites previsionales" style="--c:var(--c4)">
+    <section class="scene hasreal" data-c="var(--c4)" data-title="Trámites previsionales" style="--c:var(--c4)">
       <div class="story">
         <span class="chapter">Caso 4 · Seguros y pensiones · Perú <span class="time">10 semanas</span></span>
         <div class="org"><span class="name">API DOCUMENTAL</span><span class="proj">Trámites de pensiones</span></div>
@@ -505,9 +506,18 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         </div>
       </div>
       <div class="visual">
-        <span class="demo-title" style="--c:var(--c4)"><i></i>Muestra · un trámite entra a la API</span>
-        <span class="tag-ej">Datos de ejemplo</span>
-        <figure class="realshot slot" data-img="/casos/img/api-documental.webp" hidden><div class="bar"><i></i><i></i><i></i><span>Lector de documentos en vivo</span></div><img alt="Captura real: Lector de documentos en vivo" /></figure>
+        <span class="demo-title" style="--c:var(--c4)"><i></i>Demo de la API · paso a paso</span>
+        <span class="tag-ej synth">🧪 Datos sintéticos</span>
+        <figure class="steps">
+          <div class="bar"><i></i><i></i><i></i><span>API documental · demo con datos sintéticos</span><b class="stepn">Paso 1 de 3</b></div>
+          <div class="stage">
+            <div class="frame" data-cap="Catálogo · 15 endpoints, uno por tipo de documento" data-captop="1" style="--fit:contain;--ox:30%;--oy:40%;--s:1.04;--pos:center"><img src="/casos/img/api-documental-1.webp" alt="Catálogo · 15 endpoints, uno por tipo de documento" loading="lazy" /></div>
+            <div class="frame" data-cap="Identidad · el DNI con Document Intelligence prebuilt" data-captop="1" style="--fit:contain;--ox:40%;--oy:65%;--s:1.04;--pos:center top"><img src="/casos/img/api-documental-2.webp" alt="Identidad · el DNI con Document Intelligence prebuilt" loading="lazy" /></div>
+            <div class="frame" data-cap="Dictamen médico · Document Intelligence + GPT-4o" data-captop="1" style="--fit:contain;--ox:40%;--oy:65%;--s:1.04;--pos:center top"><img src="/casos/img/api-documental-3.webp" alt="Dictamen médico · Document Intelligence + GPT-4o" loading="lazy" /></div>
+            <div class="cap"></div>
+          </div>
+          <div class="chips"><span><b>1</b>Catálogo</span><span><b>2</b>Identidad</span><span><b>3</b>Dictamen médico</span></div>
+        </figure>
         <a class="more live" href="/ocr/">📷 Probar el lector en vivo →</a>
         <div class="m4 anim">
           <div class="docs">
