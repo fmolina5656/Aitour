@@ -9,7 +9,7 @@ convertir de verdad (por ejemplo con squoosh.app). Ancho recomendado: 1400–160
 | `financialocr.webp` | FinancialOCR | `/ocr` leyendo el **estado de cuenta** del kit de muestras (resultado en pantalla) |
 | `store-1..4.webp` | Store Intelligence | Ya cargadas: imágenes ilustrativas generadas con IA, con detecciones dibujadas en la página |
 | `api-documental-1..3.webp` | API documental | Ya cargadas: demo de la API con datos sintéticos (sin el nombre del cliente) |
-| `soc-classifier.webp` | SOC Classifier | La alerta crítica en Teams del proyecto real, **sin nombres del cliente** |
+| `soc-1..3.webp` | SOC Classifier | Ya cargadas: capturas reales de Teams, sin nombre del cliente, usuarios ni correos |
 
 Antes de subir: que no aparezcan la barra de favoritos, URLs internas, nombres de clientes ni caras
 reconocibles de visitantes sin su permiso.

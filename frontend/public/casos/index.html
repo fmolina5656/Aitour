@@ -207,6 +207,10 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .steps .kpi.ok { border-color: var(--green); color: #c8f5d2; }
 .frame.on .kpi { animation: up .45s 1.9s forwards; }
 .steps .cap.br { left: auto; right: 12px; }
+.steps.dark .stage, .steps.dark .frame img { background: #1f1f1f; }
+.steps .frame.pan img { position: absolute; left: 0; top: 0; width: 100%; height: auto; object-fit: initial; }
+.steps .frame.pan.on img { animation: pan var(--dur, 3.8s) ease-in-out forwards; }
+@keyframes pan { 0%, 18% { transform: translateY(0); } 92%, 100% { transform: translateY(calc(var(--shift, 0) * -1px)); } }
 
 /* ---------- Muestra 2 · Smart Maintenance: captura real ---------- */
 .realshot { margin: 0; width: min(760px, 100%); border-radius: 12px; overflow: hidden; border: 1px solid var(--line-2); background: #fff; box-shadow: 0 24px 60px rgba(0,0,0,.5); opacity: 0; transform: translateY(14px) scale(.98); }
@@ -587,7 +591,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
     </section>
 
     <!-- 5 · SOC Classifier -->
-    <section class="scene" data-c="var(--c5)" data-title="SOC Classifier" style="--c:var(--c5)">
+    <section class="scene hasreal" data-c="var(--c5)" data-title="SOC Classifier" style="--c:var(--c5)">
       <div class="story">
         <span class="chapter">Caso 5 · Ciberseguridad · Colombia <span class="time">9 semanas</span></span>
         <div class="org"><span class="name">SOC CLASSIFIER</span><span class="proj">Triage de seguridad con agentes</span></div>
@@ -598,9 +602,18 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         </div>
       </div>
       <div class="visual">
-        <span class="demo-title" style="--c:var(--c5)"><i></i>Muestra · triage de la casilla SOC</span>
-        <span class="tag-ej">Alertas de ejemplo</span>
-        <figure class="realshot slot" data-img="/casos/img/soc-classifier.webp" hidden><div class="bar"><i></i><i></i><i></i><span>Captura real</span></div><img alt="Captura real: Captura real" /></figure>
+        <span class="demo-title" style="--c:var(--c5)"><i></i>Capturas reales · paso a paso</span>
+        <span class="tag-ej real">📸 Captura real · datos anonimizados</span>
+        <figure class="steps dark" data-ms="5500">
+          <div class="bar"><i></i><i></i><i></i><span>SOC Classifier · canal de alertas en Microsoft Teams</span><b class="stepn">Paso 1 de 3</b></div>
+          <div class="stage">
+            <div data-cap="Ruido · 89 alertas en un día: 15 falsos positivos descartados solos" data-captop="1" class="frame pan" style=""><img src="/casos/img/soc-1.webp" alt="Ruido · 89 alertas en un día: 15 falsos positivos descartados solos" /></div>
+            <div data-cap="Resumen · el agente publica en Teams el resumen por severidad, tipo y MITRE" data-captop="1" class="frame pan" style=""><img src="/casos/img/soc-2.webp" alt="Resumen · el agente publica en Teams el resumen por severidad, tipo y MITRE" /></div>
+            <div data-cap="Detalle · cada alerta con resumen ejecutivo, IOCs y acciones recomendadas" data-captop="1" class="frame pan" style=""><img src="/casos/img/soc-3.webp" alt="Detalle · cada alerta con resumen ejecutivo, IOCs y acciones recomendadas" /></div>
+            <div class="cap"></div>
+          </div>
+          <div class="chips"><span><b>1</b>Ruido</span><span><b>2</b>Resumen</span><span><b>3</b>Detalle</span></div>
+        </figure>
         <div class="m5 anim">
           <div class="inbox">
             <div class="hd"><b>📥 soc-alertas@</b><span id="n5">0 alertas</span></div>
@@ -799,6 +812,8 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
     let k = -1
     const show = (j) => {
       k = j % frames.length
+      const pi = frames[k].classList.contains('pan') && frames[k].querySelector('img')
+      if (pi) { const sh = () => frames[k].style.setProperty('--shift', Math.max(0, pi.offsetHeight - frames[k].offsetHeight)); pi.complete ? sh() : (pi.onload = sh) }
       frames.forEach((f, x) => f.classList.toggle('on', x === k))
       chips.forEach((c, x) => { c.classList.toggle('on', x === k); c.classList.toggle('done', x < k) })
       const [a, b] = frames[k].dataset.cap.split(' · ')
