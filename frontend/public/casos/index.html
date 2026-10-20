@@ -161,6 +161,33 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .xlsx small { display: block; color: var(--text-3); font-size: 12px; }
 .scene.on .xlsx { animation: up .45s 3.4s forwards; }
 
+/* ---------- Secuencia de capturas reales (paso a paso) ---------- */
+.steps { margin: 0; width: min(780px, 100%, calc((100dvh - 520px) * 1.8)); border-radius: 12px; overflow: hidden; border: 1px solid var(--line-2); background: #0b1424; box-shadow: 0 24px 60px rgba(0,0,0,.5); opacity: 0; transform: translateY(14px) scale(.98); }
+.scene.on .steps { animation: up .7s .2s forwards; }
+.steps .bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: #111c2e; border-bottom: 1px solid var(--line-2); }
+.steps .bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; } .steps .bar i:nth-child(2) { background: #febc2e; } .steps .bar i:nth-child(3) { background: #28c840; }
+.steps .bar span { margin-left: 8px; flex: 1; font-family: var(--mono); font-size: 11.5px; color: var(--text-2); }
+.steps .bar .stepn { font-size: 11px; color: #04121b; background: var(--green); border-radius: 6px; padding: 2px 8px; }
+.steps .stage { position: relative; aspect-ratio: 16 / 8.4; overflow: hidden; background: #fff; }
+.steps .frame { position: absolute; inset: 0; opacity: 0; transition: opacity .7s; }
+.steps .frame img { width: 100%; height: 100%; object-fit: cover; object-position: var(--pos, top left); transform-origin: var(--ox) var(--oy); }
+.steps .frame.on { opacity: 1; }
+.steps .frame.on img { animation: kb var(--dur, 3.8s) ease-in-out forwards; }
+@keyframes kb { from { transform: scale(1); } to { transform: scale(var(--s)); } }
+.steps .cap { position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); padding: 8px 12px; border-radius: 10px; background: rgba(5,10,18,.9); border: 1px solid rgba(102,222,127,.4); font-size: 14.5px; color: var(--text); animation: up .4s; }
+.steps .cap b { color: var(--green); margin-right: 6px; }
+.steps .cap.top { bottom: auto; top: 12px; }
+.steps .chips { display: flex; gap: 4px; padding: 8px; background: #0b1424; }
+.steps .chips span { position: relative; flex: 1; overflow: hidden; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); padding: 6px 8px; border-radius: 8px; background: rgba(36,57,90,.35); white-space: nowrap; }
+.steps .chips span b { width: 18px; height: 18px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 11px; background: var(--line-2); color: var(--text); }
+.steps .chips span::after { content: ''; position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--gradient); }
+.steps .chips span.done { color: var(--text-2); } .steps .chips span.done b { background: var(--green); color: #04121b; }
+.steps .chips span.on { color: var(--text); } .steps .chips span.on b { background: var(--green); color: #04121b; }
+.steps .chips span.on::after { animation: fill var(--dur, 3.8s) linear forwards; }
+@keyframes fill { to { width: 100%; } }
+.visual:has(.steps) { align-content: center; gap: 10px; }
+.visual:has(.steps) .more { position: static !important; justify-self: center; }
+
 /* ---------- Muestra 2 · Smart Maintenance: captura real ---------- */
 .realshot { margin: 0; width: min(760px, 100%); border-radius: 12px; overflow: hidden; border: 1px solid var(--line-2); background: #fff; box-shadow: 0 24px 60px rgba(0,0,0,.5); opacity: 0; transform: translateY(14px) scale(.98); }
 .scene.on .realshot { animation: up .7s .3s forwards; }
@@ -279,6 +306,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   .card { padding: 10px 14px; } .card p { font-size: 14px; }
   .visual { padding: 40px 16px 64px; }
 }
+@media (max-width: 980px) { .steps { width: 100%; } .steps .chips span { font-size: 0; gap: 0; justify-content: center; } .steps .chips span b { font-size: 11px; } .steps .cap { font-size: 13px; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
@@ -317,7 +345,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
     </section>
 
     <!-- 1 · FinancialOCR -->
-    <section class="scene" data-c="var(--c2)" data-title="FinancialOCR" style="--c:var(--c2)">
+    <section class="scene hasreal" data-c="var(--c2)" data-title="FinancialOCR" style="--c:var(--c2)">
       <div class="story">
         <span class="chapter">Caso 1 · Servicios financieros · Argentina <span class="time">10 semanas</span></span>
         <div class="org"><span class="name">FINANCIAL OCR</span><span class="proj">Conciliación contable con IA</span></div>
@@ -328,9 +356,18 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         </div>
       </div>
       <div class="visual">
-        <span class="demo-title" style="--c:var(--c2)"><i></i>Muestra · extractos de 9 brokers → Excel para SAP</span>
-        <span class="tag-ej">Datos de ejemplo</span>
-        <figure class="realshot slot" data-img="/casos/img/financialocr.webp" hidden><div class="bar"><i></i><i></i><i></i><span>Financial OCR · plataforma en producción</span></div><img alt="Captura real: Lector de documentos en vivo" /></figure>
+        <span class="demo-title" style="--c:var(--c2)"><i></i>Capturas reales · paso a paso</span>
+        <span class="tag-ej real">📸 Capturas reales</span>
+        <figure class="steps">
+          <div class="bar"><i></i><i></i><i></i><span>Financial OCR · plataforma en producción</span><b class="stepn">Paso 1 de 3</b></div>
+          <div class="stage">
+            <div class="frame" data-cap="Antes · el extracto de cada broker se pasaba a mano, fila por fila" style="--ox:30%;--oy:35%;--s:1.3"><img src="/casos/img/financialocr-extracto.webp" alt="Antes · el extracto de cada broker se pasaba a mano, fila por fila" loading="lazy" /></div>
+            <div class="frame" data-cap="Carga · se arrastran los PDF de los 9 brokers" style="--ox:50%;--oy:70%;--s:1.3"><img src="/casos/img/financialocr-carga.webp" alt="Carga · se arrastran los PDF de los 9 brokers" loading="lazy" /></div>
+            <div class="frame" data-cap="Análisis · un clic y la IA interpreta cada formato" data-captop="1" style="--ox:25%;--oy:100%;--s:1.35;--pos:left bottom"><img src="/casos/img/financialocr.webp" alt="Análisis · un clic y la IA interpreta cada formato" loading="lazy" /></div>
+            <div class="cap"></div>
+          </div>
+          <div class="chips"><span><b>1</b>Antes</span><span><b>2</b>Carga</span><span><b>3</b>Análisis</span></div>
+        </figure>
         <a class="more live" href="/ocr/">📷 Probar el lector en vivo →</a>
         <div class="m0 anim">
           <div>
@@ -385,11 +422,19 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         </div>
       </div>
       <div class="visual">
-        <span class="demo-title" style="--c:var(--c1)"><i></i>Captura real · plan generado por la plataforma</span>
-        <span class="tag-ej real">📸 Captura real</span>
-        <figure class="realshot">
-          <div class="bar"><i></i><i></i><i></i><span>Plan de mantenimiento · GE-GAS 30000GN.xlsx</span></div>
-          <img src="/mantenimiento/img/4-plan.webp" alt="Plan de mantenimiento generado por la IA para un generador a gas" />
+        <span class="demo-title" style="--c:var(--c1)"><i></i>Capturas reales · paso a paso</span>
+        <span class="tag-ej real">📸 Capturas reales</span>
+        <figure class="steps">
+          <div class="bar"><i></i><i></i><i></i><span>Smart Maintenance · plataforma en producción</span><b class="stepn">Paso 1 de 5</b></div>
+          <div class="stage">
+            <div class="frame" data-cap="Plataforma · cargar, generar, repuestos y consultar" style="--ox:15%;--oy:0%;--s:1.5"><img src="/mantenimiento/img/1-inicio.webp" alt="Plataforma · cargar, generar, repuestos y consultar" loading="lazy" /></div>
+            <div class="frame" data-cap="Carga · el manual del fabricante, tal como viene" style="--ox:25%;--oy:55%;--s:1.3"><img src="/mantenimiento/img/2-cargar.webp" alt="Carga · el manual del fabricante, tal como viene" loading="lazy" /></div>
+            <div class="frame" data-cap="IA · genera el plan en 10 a 30 segundos" style="--ox:52%;--oy:55%;--s:1.3"><img src="/mantenimiento/img/3-generar.webp" alt="IA · genera el plan en 10 a 30 segundos" loading="lazy" /></div>
+            <div class="frame" data-cap="Plan · 15 tareas con su calendario anual" style="--ox:35%;--oy:45%;--s:1.25"><img src="/mantenimiento/img/4-plan.webp" alt="Plan · 15 tareas con su calendario anual" loading="lazy" /></div>
+            <div class="frame" data-cap="Repuestos · el catálogo listo para SAP" style="--ox:45%;--oy:20%;--s:1.45"><img src="/mantenimiento/img/5-repuestos.webp" alt="Repuestos · el catálogo listo para SAP" loading="lazy" /></div>
+            <div class="cap"></div>
+          </div>
+          <div class="chips"><span><b>1</b>Plataforma</span><span><b>2</b>Carga</span><span><b>3</b>IA</span><span><b>4</b>Plan</span><span><b>5</b>Repuestos</span></div>
         </figure>
         <a class="more" href="/mantenimiento/">Ver el recorrido completo por la plataforma →</a>
         <div class="result" style="--rd:2.4s">De semanas por equipo → minutos de procesamiento</div>
@@ -693,9 +738,28 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
     },
   }
 
+  const STEP_MS = 3800
+  function runSteps(scene) {
+    const fig = scene.querySelector('.steps'); if (!fig) return
+    const frames = [...fig.querySelectorAll('.frame')], chips = [...fig.querySelectorAll('.chips span')], cap = fig.querySelector('.cap'), n = fig.querySelector('.stepn')
+    fig.style.setProperty('--dur', STEP_MS + 'ms')
+    let k = -1
+    const show = (j) => {
+      k = j % frames.length
+      frames.forEach((f, x) => f.classList.toggle('on', x === k))
+      chips.forEach((c, x) => { c.classList.toggle('on', x === k); c.classList.toggle('done', x < k) })
+      const [a, b] = frames[k].dataset.cap.split(' · ')
+      cap.innerHTML = `<b>${a}</b>${b}`; cap.classList.toggle('top', !!frames[k].dataset.captop); cap.style.animation = 'none'; void cap.offsetWidth; cap.style.animation = ''
+      n.textContent = `Paso ${k + 1} de ${frames.length}`
+    }
+    chips.forEach((c, x) => (c.onclick = () => { loops.forEach(clearInterval); loops = []; show(x); every(() => show(k + 1), STEP_MS) }))
+    show(0)
+    if (!reduce) every(() => show(k + 1), STEP_MS)
+  }
+
   function scheduleAuto() {
     clearTimeout(autoTimer)
-    if (auto) autoTimer = setTimeout(() => go(cur === scenes.length - 1 ? 0 : cur + 1), 8000)
+    if (auto) autoTimer = setTimeout(() => go(cur === scenes.length - 1 ? 0 : cur + 1), Math.max(8000, (scenes[cur].querySelectorAll('.steps .frame').length * STEP_MS) + 1000))
   }
 
   function go(i) {
@@ -718,6 +782,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
     history.replaceState(null, '', '#' + i)
     typeBubble(s)
     enter[i]?.(s)
+    runSteps(s)
     if (innerWidth <= 980) scrollTo({ top: 0, behavior: 'smooth' })
   }
 
