@@ -171,6 +171,10 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .tag-ej.real { color: #04121b; background: var(--green); border: 0; font-weight: 700; }
 .more { position: absolute !important; right: 16px; top: 46px; font-size: 14px; font-weight: 700; color: var(--text); text-decoration: none; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(251,106,60,.6); background: rgba(9,18,33,.85); }
 .more:hover { border-color: var(--c1); }
+.more.live { border-color: rgba(102,222,127,.6); }
+.more.live:hover { border-color: var(--green); }
+.scene.hasreal .anim { display: none; }
+.slot[hidden] { display: none; }
 
 /* ---------- Muestra 3 · Store Intelligence: visión sobre las cámaras de la tienda ---------- */
 .m3 { width: min(740px, 100%); display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: center; }
@@ -326,7 +330,9 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
       <div class="visual">
         <span class="demo-title" style="--c:var(--c2)"><i></i>Muestra · extractos de 9 brokers → Excel para SAP</span>
         <span class="tag-ej">Datos de ejemplo</span>
-        <div class="m0">
+        <figure class="realshot slot" data-img="/casos/img/financialocr.webp" hidden><div class="bar"><i></i><i></i><i></i><span>Lector de documentos en vivo</span></div><img alt="Captura real: Lector de documentos en vivo" /></figure>
+        <a class="more live" href="/ocr/">📷 Probar el lector en vivo →</a>
+        <div class="m0 anim">
           <div>
             <div class="brokers" id="bk1">
               <div class="bk"><b>ALYC 1</b><i></i><i></i><i></i><i></i><i></i><span class="ok">✓</span></div>
@@ -409,7 +415,9 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
       <div class="visual">
         <span class="demo-title" style="--c:var(--c3)"><i></i>Muestra · visión computacional sobre la tienda</span>
         <span class="tag-ej">Datos de ejemplo</span>
-        <div class="m3">
+        <figure class="realshot slot" data-img="/casos/img/store-intelligence.webp" hidden><div class="bar"><i></i><i></i><i></i><span>Visión del stand en vivo</span></div><img alt="Captura real: Visión del stand en vivo" /></figure>
+        <a class="more live" href="/vision/">📹 Ver el stand en vivo →</a>
+        <div class="m3 anim">
           <div class="store">
             <span class="cam"><i></i>CAM 03 · Piso de ventas</span>
             <svg viewBox="0 0 400 280" aria-label="Plano de ejemplo de una tienda con personas moviéndose">
@@ -454,7 +462,9 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
       <div class="visual">
         <span class="demo-title" style="--c:var(--c4)"><i></i>Muestra · un trámite entra a la API</span>
         <span class="tag-ej">Datos de ejemplo</span>
-        <div class="m4">
+        <figure class="realshot slot" data-img="/casos/img/api-documental.webp" hidden><div class="bar"><i></i><i></i><i></i><span>Lector de documentos en vivo</span></div><img alt="Captura real: Lector de documentos en vivo" /></figure>
+        <a class="more live" href="/ocr/">📷 Probar el lector en vivo →</a>
+        <div class="m4 anim">
           <div class="docs">
             <div class="doc"><span>🪪</span>DNI</div>
             <div class="doc"><span>🛂</span>Pasaporte</div>
@@ -493,7 +503,8 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
       <div class="visual">
         <span class="demo-title" style="--c:var(--c5)"><i></i>Muestra · triage de la casilla SOC</span>
         <span class="tag-ej">Alertas de ejemplo</span>
-        <div class="m5">
+        <figure class="realshot slot" data-img="/casos/img/soc-classifier.webp" hidden><div class="bar"><i></i><i></i><i></i><span>Captura real</span></div><img alt="Captura real: Captura real" /></figure>
+        <div class="m5 anim">
           <div class="inbox">
             <div class="hd"><b>📥 soc-alertas@</b><span id="n5">0 alertas</span></div>
             <div class="list">
@@ -557,6 +568,18 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   const progress = document.getElementById('progress')
   const prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next'), autoBtn = document.getElementById('auto')
   let cur = -1, typing = null, autoTimer = null, auto = false, timers = [], loops = []
+
+  // Capturas reales: si existe /casos/img/<caso>.webp se muestra en lugar de la animación de ejemplo
+  document.querySelectorAll('.slot[data-img]').forEach((fig) => {
+    const img = fig.querySelector('img'), probe = new Image()
+    probe.onload = () => {
+      img.src = probe.src; fig.hidden = false
+      const scene = fig.closest('.scene'); scene.classList.add('hasreal')
+      const tag = scene.querySelector('.tag-ej'); if (tag) { tag.textContent = '📸 Captura real'; tag.classList.add('real') }
+      const dt = scene.querySelector('.demo-title'); if (dt) dt.lastChild.textContent = fig.querySelector('.bar span').textContent
+    }
+    probe.src = fig.dataset.img
+  })
 
   // Barra de progreso y accesos directos de la portada
   const jump = document.getElementById('jump')
