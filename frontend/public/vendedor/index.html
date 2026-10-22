@@ -42,7 +42,7 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--g
 .toast { position: fixed; left: 16px; right: 16px; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 9; padding: 12px 14px; border-radius: 12px; background: #0f2a1a; border: 1px solid var(--green); color: #c8f5d2; font-weight: 600; text-align: center; transform: translateY(20px); opacity: 0; transition: .25s; }
 .toast.show { opacity: 1; transform: none; }
 .toast.err { background: #2a1010; border-color: var(--bad); color: #ffc2c2; }
-nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(8,14,26,.97); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-columns: repeat(5, 1fr); background: rgba(8,14,26,.97); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
 nav.tabs button { font: inherit; font-size: 12px; color: var(--text-3); background: none; border: 0; padding: 9px 4px 10px; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
 nav.tabs button i { font-style: normal; font-size: 21px; }
 nav.tabs button.on { color: var(--green); }
@@ -57,6 +57,15 @@ ul.q { margin: 6px 0 0; padding-left: 18px; color: var(--text-2); line-height: 1
 .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .links a { font-size: 14px; font-weight: 600; color: var(--text); text-decoration: none; border: 1px solid var(--line-2); border-radius: 10px; padding: 9px 12px; }
 .links a.live { border-color: rgba(102,222,127,.6); }
+/* foundry */
+.pieces { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
+.pieces span { font-size: 12px; font-weight: 600; color: #cfe0ff; background: rgba(57,126,246,.14); border: 1px solid rgba(57,126,246,.45); border-radius: 99px; padding: 4px 9px; }
+.map { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.map div { padding: 10px 12px; border-radius: 12px; background: #08111f; border: 1px solid var(--line); font-size: 14px; line-height: 1.45; color: var(--text-2); }
+.map div b { color: var(--text); }
+.map div b.t { display: block; font-size: 15px; }
+.idea { border-left: 4px dashed var(--line-2); }
+h3.sec { font-size: 15px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin: 22px 0 10px; }
 /* objeciones */
 details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; }
 summary { list-style: none; cursor: pointer; padding: 14px; font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; gap: 10px; }
@@ -133,6 +142,19 @@ details .a b { color: var(--text); }
     <div id="gOut"></div>
   </section>
 
+  <!-- Foundry -->
+  <section class="view" id="vFoundry">
+    <h2>Speech con Microsoft Foundry</h2>
+    <div class="say"><b>💬 Foundry en 30 segundos</b>Microsoft Foundry es la fábrica de IA de Azure: en un solo lugar están los modelos, los agentes, las herramientas para leer documentos, voz e imágenes, y los controles de seguridad y monitoreo. Nosotros armamos encima la solución para tu proceso, en tu suscripción y conectada con tus sistemas.</div>
+    <h3 class="sec">La demo que vieron, pieza por pieza</h3>
+    <div class="map" id="fDemo"></div>
+    <h3 class="sec">Los casos de éxito, en clave Foundry</h3>
+    <div id="fCasos"></div>
+    <h3 class="sec">Ideas para proponer</h3>
+    <p class="muted" style="margin-top:-4px">⚠️ Son <b>ideas</b> armadas con las mismas piezas, no proyectos hechos: preséntalas como "esto se puede armar", nunca como un caso de éxito.</p>
+    <div id="fIdeas"></div>
+  </section>
+
   <!-- Objeciones -->
   <section class="view" id="vObj">
     <h2>Preguntas difíciles</h2>
@@ -154,6 +176,7 @@ details .a b { color: var(--text); }
 <nav class="tabs" id="tabs" hidden>
   <button data-v="vFicha" class="on"><i>📝</i>Ficha</button>
   <button data-v="vGuion"><i>🎯</i>Guion</button>
+  <button data-v="vFoundry"><i>🧩</i>Foundry</button>
   <button data-v="vObj"><i>💬</i>Objeciones</button>
   <button data-v="vLeads"><i>📋</i>Leads</button>
 </nav>
@@ -186,6 +209,36 @@ details .a b { color: var(--text); }
     ['¿Funciona en español y con documentos de México?', 'Sí: la demo entera es en español de México, y el lector reconoce facturas CFDI, constancias del SAT, INE y comprobantes de domicilio.'],
     ['¿Por qué Readymind?', 'Ya lo hicimos: <b>14 proyectos de IA en producción</b> en finanzas, energía, retail, salud y seguridad, en Argentina, Colombia y Perú. Y somos partners de Microsoft.'],
   ]
+
+  // Foundry: lo que vio el visitante → la pieza de Foundry que lo hace (todo esto es real en esta demo)
+  const DEMO = [
+    ['🎙 La recepcionista que te entrevistó', 'Un <b>agente de voz de Foundry</b> (en preview) con voz en español de México.'],
+    ['🤖 Los 5 agentes que debatieron', 'Agentes con <b>Microsoft Agent Framework</b> sobre modelos de <b>Foundry</b>: el Arquitecto usa un modelo grande y los demás uno chico, para gastar solo donde hace falta.'],
+    ['🛡 El ataque que se bloqueó', '<b>Prompt Shields</b> (Azure AI Content Safety) frena la inyección de instrucciones antes de que llegue al modelo, más un clasificador de tema con un modelo nano.'],
+    ['💲 El costo mensual', 'Lo calcula el <b>código</b> con la tabla de precios de Azure; la IA no inventa números.'],
+    ['📄 El one-pager y el QR', 'Lo redacta un agente, lo valida el código y queda en <b>Azure Container Apps</b>, con cada paso trazado en <b>Application Insights</b>.'],
+    ['📷 El lector de documentos', 'Un modelo con visión de <b>Foundry</b> con salida estructurada; las validaciones (RFC, CURP, que cuadre el total) las hace el código.'],
+  ]
+  const CASOS_F = [
+    { caso: 1, c: '#3b82f6', t: 'FinancialOCR · conciliación contable', p: ['Document Intelligence', 'Modelos GPT de Foundry', 'Integración con SAP'], s: 'Document Intelligence saca las tablas de cada extracto, un modelo de Foundry entiende el formato de cada broker y el código arma el Excel para SAP. Agregar un broker nuevo no es un proyecto nuevo.' },
+    { caso: 2, c: '#fb6a3c', t: 'Smart Maintenance · planes de mantenimiento', p: ['Microsoft Foundry', 'Document Intelligence', 'OCR multiidioma', 'CMMS / ERP'], s: 'Foundry lee manuales de cientos de páginas en varios idiomas y propone el plan y los repuestos; el técnico revisa y aprueba. El conocimiento queda en el sistema, no en la cabeza de una persona.' },
+    { caso: 3, c: '#ec4899', t: 'Store Intelligence · visión en tiendas', p: ['Azure AI Vision', 'Visión computacional', 'Tablero en tiempo real'], s: 'Con las cámaras que ya tienen, el servicio de visión cuenta personas, mide filas y permanencia por zona. El gerente ve el dato en vivo y decide cuántas cajas abrir.' },
+    { caso: 4, c: '#facc15', t: 'API documental · trámites', p: ['Document Intelligence', 'Content Understanding', 'Modelos GPT de Foundry'], s: 'Cada documento va a la herramienta que mejor lo lee: los modelos ya entrenados para identificaciones, Content Understanding para formularios y un modelo GPT para dictámenes en texto libre. Todo detrás de una sola API.' },
+    { caso: 5, c: '#a855f7', t: 'SOC Classifier · triage de alertas', p: ['Modelos GPT de Foundry', 'Microsoft Teams', 'Monitoreo en tiempo real'], s: 'Un agente lee cada alerta, la clasifica, descarta las falsas y avisa en Teams solo lo crítico, con el porqué. El analista deja de leer correos y se dedica a responder.' },
+  ]
+  const IDEAS = [
+    { i: '🏦', k: 'Finanzas', t: 'Alta de clientes (KYC) en minutos', p: ['Document Intelligence', 'Agente de Foundry', 'Content Safety'], s: 'El cliente sube INE, comprobante de domicilio y constancia del SAT; un agente revisa que todo cuadre y solo manda a revisión humana lo que no.' },
+    { i: '🏦', k: 'Finanzas', t: 'Copiloto de cobranza', p: ['Agente de Foundry', 'Conexión al ERP', 'Teams'], s: 'Prioriza a quién llamar, redacta el mensaje según el historial de pagos y deja registro de cada promesa de pago.' },
+    { i: '🏭', k: 'Energía / Industria', t: 'Técnico con un experto en el bolsillo', p: ['Búsqueda sobre manuales (Azure AI Search)', 'Agente de voz', 'Modelos con visión'], s: 'El técnico pregunta por voz o manda una foto del equipo y el agente responde con la página exacta del manual y el procedimiento.' },
+    { i: '🛍', k: 'Retail', t: 'Asistente de catálogo y existencias', p: ['Agente de Foundry', 'Búsqueda sobre el catálogo', 'Conexión al inventario'], s: 'El vendedor de piso pregunta "¿tenemos esto en talla M en otra tienda?" y el agente responde con existencias reales y una alternativa.' },
+    { i: '🩺', k: 'Seguros / Salud', t: 'Siniestros con fotos y documentos', p: ['Modelos con visión', 'Content Understanding', 'Agentes que se pasan el caso'], s: 'Un agente lee la póliza, otro revisa las fotos del daño y otro arma el dictamen preliminar; el ajustador decide con todo en una pantalla.' },
+    { i: '🛡', k: 'Legal / Seguridad / TI', t: 'Revisión de contratos', p: ['Content Understanding', 'Agente de Foundry', 'Evaluaciones de calidad'], s: 'Compara cada contrato contra la plantilla de la empresa, marca las cláusulas que se apartan y sugiere la redacción estándar. El abogado revisa solo lo marcado.' },
+    { i: '✨', k: 'Cualquier industria', t: 'Mesa de ayuda interna', p: ['Agente de Foundry', 'Búsqueda sobre políticas', 'Teams'], s: 'Responde en Teams las preguntas de RR. HH., TI o compras con las políticas de la empresa, y abre el ticket cuando no puede resolver.' },
+  ]
+  const pieces = (p) => `<div class="pieces">${p.map((x) => `<span>${esc(x)}</span>`).join('')}</div>`
+  $('fDemo').innerHTML = DEMO.map(([a, b]) => `<div><b class="t">${a}</b>${b}</div>`).join('')
+  $('fCasos').innerHTML = CASOS_F.map((x) => `<div class="card case" id="fc${x.caso}" style="--c:${x.c}"><div class="k">Caso de éxito ${x.caso}</div><h3>${esc(x.t)}</h3>${pieces(x.p)}<div class="say"><b>💬 Speech</b>${esc(x.s)}</div><div class="links"><a href="/casos/#${x.caso}" target="_blank" rel="noopener">🏆 Mostrar el caso ↗</a></div></div>`).join('')
+  $('fIdeas').innerHTML = IDEAS.map((x) => `<div class="card case idea"><div class="k" style="color:var(--text-3)">💡 Idea · ${x.i} ${esc(x.k)}</div><h3>${esc(x.t)}</h3>${pieces(x.p)}<p class="muted" style="font-size:15px;color:var(--text-2);margin:8px 0 0">${esc(x.s)}</p></div>`).join('')
 
   // ---------- Navegación ----------
   const show = (id) => {
@@ -260,10 +313,15 @@ details .a b { color: var(--text); }
       <div class="say"><b>💬 Apertura</b>${esc(x.apertura)}</div>
       <div class="muted" style="margin-top:10px">❓ Preguntas para calificar</div>
       <ul class="q">${x.preguntas.map((q) => `<li>${esc(q)}</li>`).join('')}</ul>
+      ${x.caso ? `<div class="links"><a href="#" data-fc="${x.caso}">🧩 Cómo se arma con Foundry</a></div>` : ''}
       <div class="links">${links.map(([t, h], i) => `<a href="${h}" target="_blank" rel="noopener" class="${i && x.caso ? 'live' : ''}">${t} ↗</a>`).join('')}</div>
       <div class="say" style="margin-top:12px"><b>➡️ Cierre</b>Esto lo armamos en minutos. En un taller de 2 horas lo aterrizamos con tus datos, y con un piloto de 4 semanas lo ves funcionando. ¿Agendamos?</div>
     </div>`
   }
+  $('gOut').addEventListener('click', (e) => {
+    const a = e.target.closest('[data-fc]'); if (!a) return
+    e.preventDefault(); show('vFoundry'); $('fc' + a.dataset.fc)?.scrollIntoView({ block: 'start' }); scrollBy(0, -70)
+  })
   guion('Otra')
 
   // ---------- Objeciones ----------
