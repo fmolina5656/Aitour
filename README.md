@@ -17,6 +17,8 @@ Todo se ve en una escena 3D (Three.js) pensada para una pantalla de 1920×1080 v
 > - Guion de 5 minutos: [docs/GUION_STAND.md](docs/GUION_STAND.md)
 > - **Recorrido para ventas, contado por Glitch:** `https://<app>/story` (`frontend/public/story/index.html`)
 > - **Casos de éxito con muestras animadas, contados por Glitch:** `https://<app>/casos` (`frontend/public/casos/index.html`)
+> - **Arquitectura en diagramas animados:** `https://<app>/arquitectura` — la demo y los 5 casos de éxito, paso a paso,
+>   con qué pieza de Azure y Foundry hace cada cosa (`frontend/public/arquitectura/index.html`; `#0` a `#5`).
 > - **Copiloto del vendedor (celular):** `https://<app>/vendedor` — ficha rápida del visitante, guion por industria
 >   (con el caso de éxito y la demo para mostrar), speech con Foundry (la demo pieza por pieza, los casos y ideas para proponer), objeciones y la lista de leads del día sin duplicados (QR + fichas),
 >   descargable en CSV para Excel. Pide el PIN del stand (`SELLER_PIN`; sin PIN configurado no funciona).

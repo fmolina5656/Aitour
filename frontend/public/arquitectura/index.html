@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Arquitectura de los casos</title>
+<meta name="description" content="La arquitectura de la demo del stand y de los cinco casos de éxito de Readymind, en diagramas animados paso a paso." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
+<style>
+/* Arquitectura de la demo y de los casos de éxito: misma marca que /casos. Los diagramas se arman desde DATA (abajo). */
+:root {
+  --green: #66de7f; --teal: #53b6ad; --blue: #397ef6;
+  --gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
+  --bg: #050a12; --card: rgba(11, 22, 40, .92); --line: #1f3150; --line-2: #2a4268;
+  --text: #f3f6fa; --text-2: #b7c2d2; --text-3: #6f7f95;
+  --k-in: #b7c2d2; --k-ai: #397ef6; --k-code: #66de7f; --k-data: #53b6ad; --k-out: #facc15; --k-human: #fb6a3c; --k-sec: #ff5d5d;
+  --font: 'Satoshi', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+.aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(90px); opacity: .45; transition: background 1.2s; }
+.app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto auto 1fr auto auto; grid-template-columns: minmax(0, 1fr); }
+
+.top { display: flex; align-items: center; gap: 24px; padding: 16px 32px 6px; }
+.top img { height: 30px; }
+.top .t { font-size: 16px; color: var(--text-2); white-space: nowrap; }
+.top .t b { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; }
+.tabs { flex: 1; display: flex; gap: 6px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.tabs button { font: inherit; font-size: 14px; color: var(--text-2); background: transparent; border: 1px solid var(--line-2); border-radius: 99px; padding: 6px 12px; white-space: nowrap; cursor: pointer; }
+.tabs button.on { color: #04121b; background: var(--c); border-color: var(--c); font-weight: 700; }
+
+.head { padding: 10px 32px 0; display: flex; align-items: flex-end; gap: 18px; }
+.head .glitch { width: 74px; flex: none; }
+.head .glitch img { width: 100%; display: block; filter: drop-shadow(0 8px 22px rgba(102,222,127,.3)); }
+.chapter { font-family: var(--mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--c); }
+h1 { font-size: clamp(24px, 2.6vw, 40px); line-height: 1.08; letter-spacing: -.02em; margin: 4px 0 0; font-weight: 900; }
+h1 em { font-style: normal; color: var(--c); }
+.head p { margin: 6px 0 0; color: var(--text-2); font-size: 17px; max-width: 1100px; }
+
+/* ---------- Diagrama ---------- */
+.stage { position: relative; min-height: 0; margin: 14px 32px 0; }
+.diagram { position: absolute; inset: 0; }
+.diagram svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.lane-t { position: absolute; top: 0; transform: translateX(-50%); font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); white-space: nowrap; }
+.node { position: absolute; transform: translate(-50%, -50%); width: var(--w); padding: 12px 14px 13px; border-radius: 14px; background: var(--card);
+  border: 1.5px solid color-mix(in srgb, var(--k) 45%, transparent); box-shadow: 0 8px 26px rgba(0,0,0,.35); transition: border-color .4s, box-shadow .4s, opacity .4s, transform .4s; }
+.node .ic { font-size: clamp(20px, 1.4vw, 24px); line-height: 1; margin-right: 6px; }
+.node b { font-size: clamp(15px, 1.1vw, 19px); line-height: 1.2; }
+.node small { display: block; margin-top: 4px; color: var(--text-2); font-size: clamp(13px, .9vw, 15.5px); line-height: 1.3; }
+.node .tag { position: absolute; top: -10px; right: 10px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 99px; background: var(--k); color: #04121b; }
+.diagram.playing .node { opacity: .45; }
+.diagram.playing .node.hot { opacity: 1; border-color: var(--k); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k) 22%, transparent), 0 10px 34px color-mix(in srgb, var(--k) 30%, transparent); transform: translate(-50%, -50%) scale(1.04); }
+.edge { fill: none; stroke: #34507a; stroke-width: 2; }
+.edge.hot { stroke: var(--c); stroke-width: 2.6; stroke-dasharray: 7 7; animation: flow .7s linear infinite; }
+.edge.dash { stroke-dasharray: 4 6; }
+@keyframes flow { to { stroke-dashoffset: -14; } }
+.arrow { fill: #34507a; } .arrow.hot { fill: var(--c); }
+
+/* ---------- Pasos y leyenda ---------- */
+.steps { display: flex; gap: 10px; padding: 12px 32px 0; }
+.steps button { flex: 1; text-align: left; font: inherit; color: var(--text-2); background: rgba(9,18,33,.7); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; cursor: pointer; font-size: 14px; line-height: 1.3; }
+.steps button b { display: block; font-family: var(--mono); font-size: 11.5px; color: var(--text-3); letter-spacing: .08em; margin-bottom: 2px; }
+.steps button.on { border-color: var(--c); color: var(--text); box-shadow: inset 0 0 0 1px var(--c); }
+.steps button.on b { color: var(--c); }
+.foot { display: flex; align-items: center; gap: 18px; padding: 10px 32px 14px; color: var(--text-3); font-size: 13px; flex-wrap: wrap; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.legend span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -1px; }
+.foot .note { margin-left: auto; }
+.foot button { font: inherit; font-size: 13px; color: var(--text-2); background: transparent; border: 1px solid var(--line-2); border-radius: 99px; padding: 5px 12px; cursor: pointer; }
+
+@media (max-width: 900px) {
+  body { overflow-x: hidden; overflow-y: auto; }
+  .top .t { white-space: normal; }
+  .app { height: auto; min-height: 100dvh; }
+  .top { flex-wrap: wrap; padding: 12px 16px 4px; } .tabs { flex-basis: 100%; }
+  .head, .steps, .foot { padding-left: 16px; padding-right: 16px; } .stage { margin: 14px 16px 0; height: 720px; }
+  .head .glitch { display: none; }
+  .node { padding: 10px 9px; } .node b { font-size: 14px; } .node small { font-size: 12px; } .node .ic { display: block; margin-bottom: 4px; } .steps { flex-wrap: wrap; } .steps button { flex-basis: 45%; }
+}
+@media print {
+  @page { size: landscape; margin: 10mm; }
+  body { overflow: visible; background: #050a12; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .tabs, .foot button { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="aurora" id="aurora"></div>
+<div class="app">
+  <div class="top">
+    <img src="/brand/readymind-logo-dark.png" alt="Readymind" />
+    <div class="t"><b>Arquitectura</b> · cómo está hecho</div>
+    <nav class="tabs" id="tabs"></nav>
+  </div>
+  <div class="head">
+    <div class="glitch"><img src="/brand/glitch-open.webp" alt="Glitch, la mascota de Readymind" /></div>
+    <div><div class="chapter" id="chap"></div><h1 id="title"></h1><p id="sub"></p></div>
+  </div>
+  <div class="stage"><div class="diagram" id="dia"></div></div>
+  <div class="steps" id="steps"></div>
+  <div class="foot">
+    <div class="legend">
+      <span style="--k:var(--k-in)">Entrada</span><span style="--k:var(--k-ai)">IA en Azure / Foundry</span><span style="--k:var(--k-code)">Código y reglas</span>
+      <span style="--k:var(--k-data)">Datos</span><span style="--k:var(--k-human)">Persona</span><span style="--k:var(--k-out)">Salida e integración</span><span style="--k:var(--k-sec)">Seguridad</span>
+    </div>
+    <span class="note">Esquema simplificado · sin datos de clientes · ← → navegar · Espacio pausa · F pantalla completa</span>
+    <button id="bPrint">🖨 Imprimir / PDF</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  // Cada diagrama: columnas (lanes) con nodos; k = tipo (in, ai, code, data, out, human, sec); e = conexiones [desde, hasta, 'dash'?];
+  // steps = recorrido animado (qué nodos se encienden y qué se cuenta en cada paso).
+  const DATA = [
+    { id: 'demo', c: '#66de7f', chap: 'La demo del stand · lo que acaban de ver', title: 'Un equipo de <em>agentes</em> que diseña tu solución en 3 minutos',
+      sub: 'Todo corre en Azure: la voz y los modelos en Microsoft Foundry, la app en Container Apps y cada paso trazado.',
+      lanes: [
+        { t: 'Visitante', n: [ { id: 'vis', k: 'in', ic: '🙋', t: 'Visitante', s: 'Habla en la PC o escribe en la tablet' } ] },
+        { t: 'Entrada segura', n: [
+          { id: 'voz', k: 'ai', ic: '🎙', t: 'Recepcionista de voz', s: 'Agente de voz de Foundry · es-MX', tag: 'Foundry' },
+          { id: 'shield', k: 'sec', ic: '🛡', t: 'Prompt Shields', s: 'Content Safety + clasificador de tema (nano)' } ] },
+        { t: 'Equipo de agentes', n: [
+          { id: 'arq', k: 'ai', ic: '🏛', t: 'Arquitecto', s: 'Modelo grande (gpt-5.4)', tag: 'Foundry' },
+          { id: 'deb', k: 'ai', ic: '🤖', t: 'Financiero · Riesgo', s: 'Debaten y objetan (gpt-5.4-mini)', tag: 'Foundry' },
+          { id: 'red', k: 'ai', ic: '✍️', t: 'Diagramador · Redactor', s: 'Arman el diagrama y el texto', tag: 'Foundry' } ] },
+        { t: 'Código', n: [
+          { id: 'cost', k: 'code', ic: '💲', t: 'Costos y reglas', s: 'Tabla de precios de Azure; la IA no inventa números' },
+          { id: 'pdf', k: 'code', ic: '📄', t: 'One-pager PDF', s: 'Se valida y se imprime' } ] },
+        { t: 'Salida', n: [
+          { id: 'qr', k: 'out', ic: '📱', t: 'QR y correo', s: 'El visitante deja sus datos y recibe el PDF (Power Automate)' },
+          { id: 'files', k: 'data', ic: '🗂', t: 'Azure Files + App Insights', s: 'Leads, one-pagers y trazas' } ] },
+      ],
+      e: [['vis','voz'],['vis','shield'],['voz','arq'],['shield','arq'],['arq','deb'],['deb','red'],['deb','cost'],['red','pdf'],['cost','pdf'],['pdf','qr'],['qr','files'],['pdf','files','dash']],
+      steps: [
+        { n: ['vis','voz','shield'], t: 'El visitante cuenta su problema; Prompt Shields frena los intentos de romperla.' },
+        { n: ['arq','deb'], t: 'El Arquitecto propone; Financiero y Riesgo objetan con reglas reales.' },
+        { n: ['deb','cost','red'], t: 'El código calcula el costo y los agentes cierran diagrama y texto.' },
+        { n: ['pdf','qr','files'], t: 'One-pager en PDF, QR para llevárselo y todo trazado en Azure.' } ] },
+
+    { id: 'c1', c: '#3b82f6', chap: 'Caso 1 · Servicios financieros · 10 semanas', title: 'FinancialOCR: <em>conciliación contable</em> sin tipear',
+      sub: 'Extractos en PDF de 9 brokers, cada uno con su formato, convertidos en un Excel listo para SAP HANA.',
+      lanes: [
+        { t: 'Entrada', n: [ { id: 'ext', k: 'in', ic: '📑', t: 'Extractos PDF', s: '9 brokers · 9 formatos distintos' } ] },
+        { t: 'Aplicación', n: [ { id: 'app', k: 'code', ic: '⚙️', t: 'Plataforma .NET 9', s: 'Carga, orquesta y guarda cada paso' } ] },
+        { t: 'IA', n: [
+          { id: 'di', k: 'ai', ic: '🔎', t: 'Document Intelligence', s: 'Lee tablas y movimientos', tag: 'Azure AI' },
+          { id: 'gpt', k: 'ai', ic: '🧠', t: 'GPT-4o', s: 'Interpreta el formato de cada broker', tag: 'Foundry' } ] },
+        { t: 'Control', n: [
+          { id: 'val', k: 'code', ic: '✅', t: 'Validaciones', s: 'Importes, fechas y signos' },
+          { id: 'cos', k: 'data', ic: '🗄', t: 'Cosmos DB', s: 'Trazabilidad de cada extracto' } ] },
+        { t: 'Salida', n: [
+          { id: 'xls', k: 'out', ic: '📊', t: 'Excel de conciliación', s: 'Guardado en Blob Storage' },
+          { id: 'sap', k: 'out', ic: '🏦', t: 'SAP HANA', s: 'Cierre contable' } ] },
+      ],
+      e: [['ext','app'],['app','di'],['di','gpt'],['gpt','val'],['val','cos','dash'],['val','xls'],['xls','sap']],
+      steps: [
+        { n: ['ext','app'], t: 'Se suben los extractos de los 9 brokers a la plataforma.' },
+        { n: ['di','gpt'], t: 'Document Intelligence lee las tablas y GPT-4o entiende el formato de cada broker.' },
+        { n: ['val','cos'], t: 'El código valida importes, fechas y signos, y deja todo trazado.' },
+        { n: ['xls','sap'], t: 'Sale el Excel compatible con SAP HANA: los 9 brokers en minutos.' } ] },
+
+    { id: 'c2', c: '#fb6a3c', chap: 'Caso 2 · Energía · 13 semanas', title: 'Smart Maintenance: <em>planes de mantenimiento</em> en minutos',
+      sub: 'De manuales técnicos de cientos de páginas, en varios idiomas, al plan preventivo y la lista de repuestos.',
+      lanes: [
+        { t: 'Entrada', n: [ { id: 'man', k: 'in', ic: '📚', t: 'Manuales del fabricante', s: 'Cientos de páginas · varios idiomas' } ] },
+        { t: 'Lectura', n: [ { id: 'ocr', k: 'ai', ic: '🔎', t: 'Document Intelligence', s: 'OCR multiidioma, tablas y diagramas', tag: 'Azure AI' } ] },
+        { t: 'IA', n: [ { id: 'fd', k: 'ai', ic: '🧠', t: 'Microsoft Foundry', s: 'Genera tareas, frecuencias y repuestos', tag: 'Foundry' } ] },
+        { t: 'Revisión', n: [ { id: 'tec', k: 'human', ic: '👷', t: 'Técnico', s: 'Revisa y aprueba en la plataforma' } ] },
+        { t: 'Salida', n: [
+          { id: 'plan', k: 'out', ic: '🗓', t: 'Plan de mantenimiento', s: 'Alineado al manual vigente' },
+          { id: 'erp', k: 'out', ic: '🔩', t: 'CMMS / ERP', s: 'Plan y catálogo de repuestos' } ] },
+      ],
+      e: [['man','ocr'],['ocr','fd'],['fd','tec'],['tec','plan'],['tec','erp'],['plan','erp','dash']],
+      steps: [
+        { n: ['man','ocr'], t: 'Se carga el manual del equipo; se lee en cualquier idioma.' },
+        { n: ['fd'], t: 'Foundry arma el plan: tareas, frecuencias y repuestos con su referencia al manual.' },
+        { n: ['tec'], t: 'El técnico revisa y aprueba: el conocimiento queda en el sistema.' },
+        { n: ['plan','erp'], t: 'El plan y los repuestos pasan al CMMS / ERP.' } ] },
+
+    { id: 'c3', c: '#ec4899', chap: 'Caso 3 · Retail · 12 semanas', title: 'Store Intelligence: <em>las cámaras miden el servicio</em>',
+      sub: 'Con las cámaras que la tienda ya tenía: filas, tiempos de atención y permanencia por zona, en tiempo real.',
+      lanes: [
+        { t: 'Entrada', n: [ { id: 'cam', k: 'in', ic: '📹', t: 'Cámaras existentes', s: 'Piso de ventas, cajas, entrada' } ] },
+        { t: 'Visión', n: [ { id: 'vis', k: 'ai', ic: '👁', t: 'Azure AI Vision', s: 'Detección y seguimiento de personas', tag: 'Azure AI' } ] },
+        { t: 'Reglas', n: [
+          { id: 'zon', k: 'code', ic: '📐', t: 'Zonas y filas', s: 'Permanencia, espera, atención' },
+          { id: 'kpi', k: 'data', ic: '📈', t: 'KPIs de servicio', s: 'Históricos por tienda y turno' } ] },
+        { t: 'Salida', n: [
+          { id: 'al', k: 'out', ic: '⚠️', t: 'Alertas', s: '"Abrir otra caja"' },
+          { id: 'dash', k: 'out', ic: '🖥', t: 'Tablero en tiempo real', s: 'Para el gerente de tienda' } ] },
+        { t: 'Decisión', n: [ { id: 'ger', k: 'human', ic: '🧑‍💼', t: 'Gerente', s: 'Decide el staffing con datos' } ] },
+      ],
+      e: [['cam','vis'],['vis','zon'],['zon','kpi'],['zon','al'],['kpi','dash'],['dash','ger'],['al','ger']],
+      steps: [
+        { n: ['cam','vis'], t: 'Las cámaras de siempre alimentan el servicio de visión.' },
+        { n: ['zon'], t: 'El código mide zonas: cuánta gente hay, cuánto esperan y cuánto se quedan.' },
+        { n: ['kpi','dash','al'], t: 'Tablero en vivo y alerta cuando la fila supera el objetivo.' },
+        { n: ['ger'], t: 'El gerente decide cuántas cajas abrir con datos, no a ojo.' } ] },
+
+    { id: 'c4', c: '#facc15', chap: 'Caso 4 · Seguros y pensiones · 10 semanas', title: 'API documental: <em>cada documento</em> a la herramienta que mejor lo lee',
+      sub: 'Un trámite trae de 3 a 15 documentos; una sola API los reconoce, los enruta y devuelve los datos validados.',
+      lanes: [
+        { t: 'Entrada', n: [ { id: 'tr', k: 'in', ic: '📂', t: 'Trámite', s: 'DNI, pasaporte, informes médicos, Anexo 18, certificados' } ] },
+        { t: 'API', n: [ { id: 'api', k: 'code', ic: '🔀', t: 'API .NET 9', s: '15 endpoints · clasifica y enruta' } ] },
+        { t: 'IA especializada', n: [
+          { id: 'pre', k: 'ai', ic: '🪪', t: 'Document Intelligence', s: 'Modelos prebuilt: DNI y pasaporte', tag: 'Azure AI' },
+          { id: 'cu', k: 'ai', ic: '🩺', t: 'Content Understanding', s: 'Informes médicos y Anexo 18', tag: 'Foundry' },
+          { id: 'g4', k: 'ai', ic: '🧠', t: 'GPT-4o + OCR layout', s: 'Certificados en texto libre', tag: 'Foundry' } ] },
+        { t: 'Control', n: [ { id: 'vl', k: 'code', ic: '✅', t: 'Validación', s: 'Datos de identidad y trazabilidad por solicitud' } ] },
+        { t: 'Salida', n: [ { id: 'js', k: 'out', ic: '🧾', t: 'Datos listos', s: 'JSON validado al sistema de trámites' } ] },
+      ],
+      e: [['tr','api'],['api','pre'],['api','cu'],['api','g4'],['pre','vl'],['cu','vl'],['g4','vl'],['vl','js']],
+      steps: [
+        { n: ['tr','api'], t: 'Llega el trámite y la API reconoce qué es cada documento.' },
+        { n: ['pre','cu','g4'], t: 'Cada uno va a la herramienta que mejor lo lee.' },
+        { n: ['vl'], t: 'Se validan los datos y queda trazado quién, qué y cuándo.' },
+        { n: ['js'], t: 'Cero carga manual: los datos entran solos al sistema.' } ] },
+
+    { id: 'c5', c: '#a855f7', chap: 'Caso 5 · Ciberseguridad · 9 semanas', title: 'SOC Classifier: <em>de horas a segundos</em>',
+      sub: 'Un agente lee cada alerta de seguridad, la clasifica y solo escala lo crítico al equipo en Teams.',
+      lanes: [
+        { t: 'Fuentes', n: [
+          { id: 'src', k: 'in', ic: '🛰', t: 'Herramientas de seguridad', s: 'Identidad, firewall, EDR, correo' },
+          { id: 'mail', k: 'in', ic: '📥', t: 'Casilla de alertas', s: 'Decenas por día, sin prioridad' } ] },
+        { t: 'Servicio', n: [ { id: 'py', k: 'code', ic: '🐍', t: 'Servicio en Python', s: 'Lee cada alerta en tiempo real' } ] },
+        { t: 'IA', n: [ { id: 'ag', k: 'ai', ic: '🧠', t: 'Agente con GPT-4o', s: 'Severidad, falso positivo, resumen y acción sugerida', tag: 'Azure OpenAI' } ] },
+        { t: 'Salida', n: [
+          { id: 'tm', k: 'out', ic: '💬', t: 'Microsoft Teams', s: 'Canal de respuesta: solo lo crítico' },
+          { id: 'log', k: 'data', ic: '🗃', t: 'Registro', s: 'Falsos positivos filtrados, todo auditable' } ] },
+        { t: 'Respuesta', n: [ { id: 'an', k: 'human', ic: '🧑‍💻', t: 'Analista', s: 'Responde en segundos' } ] },
+      ],
+      e: [['src','mail'],['mail','py'],['py','ag'],['ag','tm'],['ag','log'],['tm','an']],
+      steps: [
+        { n: ['src','mail'], t: 'Las alertas de todas las herramientas llegan a una casilla.' },
+        { n: ['py','ag'], t: 'El agente lee cada una: severidad, si es falso positivo y qué hacer.' },
+        { n: ['tm','log'], t: 'Lo crítico va a Teams con el porqué; el resto queda registrado.' },
+        { n: ['an'], t: 'El analista deja de leer correos y responde.' } ] },
+  ]
+
+  const $ = (id) => document.getElementById(id)
+  const KV = { in: 'var(--k-in)', ai: 'var(--k-ai)', code: 'var(--k-code)', data: 'var(--k-data)', out: 'var(--k-out)', human: 'var(--k-human)', sec: 'var(--k-sec)' }
+  let cur = 0, step = 0, timer = null, paused = false
+
+  $('tabs').innerHTML = DATA.map((d, i) => `<button style="--c:${d.c}" data-i="${i}">${i ? 'Caso ' + i : 'La demo'}</button>`).join('')
+  $('tabs').onclick = (e) => { const b = e.target.closest('button'); if (b) go(+b.dataset.i) }
+
+  function render() {
+    const d = DATA[cur], dia = $('dia')
+    document.documentElement.style.setProperty('--c', d.c)
+    $('aurora').style.background = `radial-gradient(40% 40% at 20% 20%, ${d.c}55, transparent 70%), radial-gradient(40% 40% at 85% 70%, #397ef640, transparent 70%)`
+    $('chap').textContent = d.chap; $('title').innerHTML = d.title; $('sub').textContent = d.sub
+    document.querySelectorAll('#tabs button').forEach((b, i) => b.classList.toggle('on', i === cur))
+    document.querySelector('#tabs button.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    const narrow = innerWidth <= 900
+    const L = d.lanes.length
+    let html = '<svg id="svg"></svg>'
+    d.lanes.forEach((lane, li) => {
+      // en pantallas angostas las columnas pasan a filas (de arriba hacia abajo)
+      const along = (li + .5) / L * 100
+      html += narrow ? '' : `<div class="lane-t" style="left:${along}%">${lane.t}</div>`
+      lane.n.forEach((n, ni) => {
+        const across = (ni + .5) / lane.n.length
+        const [x, y] = narrow ? [across * 100, along] : [along, 54 + (ni - (lane.n.length - 1) / 2) * 31]
+        const w = narrow ? `min(calc(${100 / lane.n.length}% - 8px), 320px)` : `min(${88 / L}vw, 290px)`
+        html += `<div class="node" id="n-${n.id}" style="left:${x}%;top:${y}%;--k:${KV[n.k]};--w:${w}">${n.tag ? `<span class="tag">${n.tag}</span>` : ''}<span class="ic">${n.ic}</span><b>${n.t}</b><small>${n.s}</small></div>`
+      })
+    })
+    dia.innerHTML = html
+    $('steps').innerHTML = d.steps.map((s, i) => `<button data-i="${i}"><b>PASO ${i + 1}</b>${s.t}</button>`).join('')
+    $('steps').onclick = (e) => { const b = e.target.closest('button'); if (b) { setStep(+b.dataset.i); restart() } }
+    requestAnimationFrame(edges)
+    setStep(0); restart()
+  }
+
+  function edges() {
+    const d = DATA[cur], dia = $('dia'), svg = $('svg'); if (!svg) return
+    const R = dia.getBoundingClientRect(), narrow = innerWidth <= 900
+    const box = (id) => { const r = $('n-' + id).getBoundingClientRect(); return { x: r.left - R.left, y: r.top - R.top, w: r.width, h: r.height } }
+    let out = ''
+    d.e.forEach(([a, b, dash]) => {
+      const A = box(a), B = box(b)
+      const sameLane = narrow ? Math.abs(A.y - B.y) < 10 : Math.abs(A.x - B.x) < 10
+      let p, ex, ey, ang
+      if (sameLane && !narrow) { // misma columna: de abajo hacia arriba del siguiente
+        const x = A.x + A.w / 2, y1 = A.y + A.h, y2 = B.y; p = `M${x},${y1} L${x},${y2 - 6}`; ex = x; ey = y2; ang = 90
+        if (y2 < y1) { p = `M${x},${A.y} L${x},${B.y + B.h + 6}`; ey = B.y + B.h; ang = -90 }
+      } else if (narrow) {
+        const x1 = A.x + A.w / 2, y1 = A.y + A.h, x2 = B.x + B.w / 2, y2 = B.y, m = (y1 + y2) / 2
+        p = `M${x1},${y1} C${x1},${m} ${x2},${m} ${x2},${y2 - 6}`; ex = x2; ey = y2; ang = 90
+      } else {
+        const x1 = A.x + A.w, y1 = A.y + A.h / 2, x2 = B.x, y2 = B.y + B.h / 2, m = (x1 + x2) / 2
+        p = `M${x1},${y1} C${m},${y1} ${m},${y2} ${x2 - 6},${y2}`; ex = x2; ey = y2; ang = 0
+      }
+      out += `<path class="edge${dash ? ' dash' : ''}" data-a="${a}" data-b="${b}" d="${p}"/>`
+      out += `<path class="arrow" data-a="${a}" data-b="${b}" transform="translate(${ex},${ey}) rotate(${ang})" d="M0,0 L-9,-5 L-9,5 Z"/>`
+    })
+    svg.innerHTML = out
+    paint()
+  }
+
+  function paint() {
+    const s = DATA[cur].steps[step], hot = new Set(s.n)
+    const prev = new Set(step ? DATA[cur].steps[step - 1].n : [])
+    $('dia').classList.add('playing')
+    document.querySelectorAll('.node').forEach((n) => n.classList.toggle('hot', hot.has(n.id.slice(2))))
+    // se enciende la conexión que entra a un nodo activo desde otro activo o desde el paso anterior
+    document.querySelectorAll('#svg [data-a]').forEach((p) => {
+      const a = p.dataset.a, b = p.dataset.b
+      p.classList.toggle('hot', hot.has(b) && (hot.has(a) || prev.has(a)))
+    })
+    document.querySelectorAll('#steps button').forEach((b, i) => b.classList.toggle('on', i === step))
+  }
+  function setStep(i) { step = i; paint() }
+  function restart() {
+    clearTimeout(timer); if (paused) return
+    timer = setTimeout(() => {
+      const d = DATA[cur]
+      if (step < d.steps.length - 1) { setStep(step + 1); restart() }
+      else timer = setTimeout(() => go((cur + 1) % DATA.length), 2500)
+    }, 3800)
+  }
+  function go(i) { cur = (i + DATA.length) % DATA.length; history.replaceState(null, '', '#' + cur); render() }
+
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') go(cur + 1)
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(cur - 1)
+    else if (e.key === ' ') { e.preventDefault(); paused = !paused; paused ? clearTimeout(timer) : restart() }
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.()
+  })
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(render, 150) })
+  $('bPrint').onclick = () => print()
+  addEventListener('hashchange', () => { const i = parseInt(location.hash.slice(1), 10); if (i >= 0 && i < DATA.length && i !== cur) go(i) })
+  const h = parseInt(location.hash.slice(1), 10)
+  cur = h >= 0 && h < DATA.length ? h : 0
+  document.fonts?.ready.then(render); render()
+})()
+</script>
+</body>
+</html>

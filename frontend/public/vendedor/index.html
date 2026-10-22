@@ -147,6 +147,7 @@ details .a b { color: var(--text); }
     <h2>Speech con Microsoft Foundry</h2>
     <div class="say"><b>💬 Foundry en 30 segundos</b>Microsoft Foundry es la fábrica de IA de Azure: en un solo lugar están los modelos, los agentes, las herramientas para leer documentos, voz e imágenes, y los controles de seguridad y monitoreo. Nosotros armamos encima la solución para tu proceso, en tu suscripción y conectada con tus sistemas.</div>
     <h3 class="sec">La demo que vieron, pieza por pieza</h3>
+    <div class="links" style="margin:-2px 0 10px"><a href="/arquitectura/#0" target="_blank" rel="noopener">🧩 Ver el diagrama de la demo ↗</a></div>
     <div class="map" id="fDemo"></div>
     <h3 class="sec">Los casos de éxito, en clave Foundry</h3>
     <div id="fCasos"></div>
@@ -237,7 +238,7 @@ details .a b { color: var(--text); }
   ]
   const pieces = (p) => `<div class="pieces">${p.map((x) => `<span>${esc(x)}</span>`).join('')}</div>`
   $('fDemo').innerHTML = DEMO.map(([a, b]) => `<div><b class="t">${a}</b>${b}</div>`).join('')
-  $('fCasos').innerHTML = CASOS_F.map((x) => `<div class="card case" id="fc${x.caso}" style="--c:${x.c}"><div class="k">Caso de éxito ${x.caso}</div><h3>${esc(x.t)}</h3>${pieces(x.p)}<div class="say"><b>💬 Speech</b>${esc(x.s)}</div><div class="links"><a href="/casos/#${x.caso}" target="_blank" rel="noopener">🏆 Mostrar el caso ↗</a></div></div>`).join('')
+  $('fCasos').innerHTML = CASOS_F.map((x) => `<div class="card case" id="fc${x.caso}" style="--c:${x.c}"><div class="k">Caso de éxito ${x.caso}</div><h3>${esc(x.t)}</h3>${pieces(x.p)}<div class="say"><b>💬 Speech</b>${esc(x.s)}</div><div class="links"><a href="/casos/#${x.caso}" target="_blank" rel="noopener">🏆 Mostrar el caso ↗</a><a href="/arquitectura/#${x.caso}" target="_blank" rel="noopener">🧩 Ver la arquitectura ↗</a></div></div>`).join('')
   $('fIdeas').innerHTML = IDEAS.map((x) => `<div class="card case idea"><div class="k" style="color:var(--text-3)">💡 Idea · ${x.i} ${esc(x.k)}</div><h3>${esc(x.t)}</h3>${pieces(x.p)}<p class="muted" style="font-size:15px;color:var(--text-2);margin:8px 0 0">${esc(x.s)}</p></div>`).join('')
 
   // ---------- Navegación ----------
