@@ -18,16 +18,28 @@ const LOGO_URL = (import.meta.env.VITE_BRAND_LOGO_URL as string | undefined) ?? 
 // En las tablets del evento por ahora solo se escribe (hay mucho ruido): poner en true para volver a ofrecer la voz.
 const TABLET_VOICE = false
 
-// Modo tablet (tecla M): solo el universo y un subtítulo. Se recuerda entre recargas;
-// la primera vez, las salas de tablet arrancan en modo tablet.
-const TABLET_KEY = 'aitour.tablet'
+// Modo tablet (tecla M): solo el universo y un subtítulo. Se activa solo en las salas de tablet y en cualquier
+// pantalla táctil sin mouse (tablets y celulares). Si alguien lo cambia con M, se respeta esa elección.
+const TABLET_KEY = 'aitour.tablet.manual'
+function isTouchDevice() {
+  const coarseOnly = matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches
+  const iPad = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 // iPadOS se presenta como Mac
+  return coarseOnly || iPad
+}
 function readTablet() {
-  const byDefault = SALA.startsWith('tablet')
+  const byDefault = SALA.startsWith('tablet') || isTouchDevice()
   try {
     const saved = localStorage.getItem(TABLET_KEY)
     return saved === null ? byDefault : saved === '1'
   } catch {
     return byDefault
+  }
+}
+function saveTablet(v: boolean) {
+  try {
+    localStorage.setItem(TABLET_KEY, v ? '1' : '0')
+  } catch {
+    // sin almacenamiento: el modo vale solo para esta carga
   }
 }
 
@@ -39,6 +51,13 @@ export default function App() {
   const [focusText, setFocusText] = useState(0)
   const voice = useVoice()
   const interviewing = voice.active || s.interview.active
+  const failed = s.governance.some((g) => g.kind === 'error' || g.kind === 'voice_error')
+  const resetAll = () => {
+    setShowText(false)
+    setShowOnePager(false)
+    void voice.stop()
+    api.reset()
+  }
   // el manejador de teclado lee siempre el estado más reciente
   const latest = useRef({ s, voice, interviewing })
   latest.current = { s, voice, interviewing }
@@ -46,14 +65,6 @@ export default function App() {
   useEffect(() => {
     setShowOnePager(false)
   }, [s.sessionId])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(TABLET_KEY, tablet ? '1' : '0')
-    } catch {
-      // sin almacenamiento: el modo vale solo para esta carga
-    }
-  }, [tablet])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -84,7 +95,10 @@ export default function App() {
       } else if (k === 'o') {
         setShowOnePager((v) => !v)
       } else if (k === 'm') {
-        setTablet((v) => !v)
+        setTablet((v) => {
+          saveTablet(!v)
+          return !v
+        })
       } else if (k === 'f') {
         if (document.fullscreenElement) document.exitFullscreen()
         else document.documentElement.requestFullscreen()
@@ -119,6 +133,17 @@ export default function App() {
         )}
         {s.interview.proposed && (
           <BriefCard brief={s.interview.proposed} onConfirm={voice.confirm} onCorrect={() => setFocusText((n) => n + 1)} />
+        )}
+        {/* reinicio táctil: grande al terminar o si algo falló, chico (con confirmación) durante la sesión */}
+        {(s.phase === 'done' || s.blocked || failed) && (
+          <button className="btn primary big tablet-reset" onClick={resetAll}>
+            ↺ {failed && s.phase !== 'done' ? 'Algo falló: empezar de nuevo' : 'Nuevo visitante'}
+          </button>
+        )}
+        {(s.phase === 'swarm' || interviewing) && !failed && !s.blocked && (
+          <button className="btn tablet-reset small" onClick={() => confirm('¿Cancelar esta sesión y empezar de nuevo?') && resetAll()}>
+            ↺ Reiniciar
+          </button>
         )}
         {/* el QR va a la esquina: abajo al centro tapaba a los mundos */}
         <div className="tablet-share">
