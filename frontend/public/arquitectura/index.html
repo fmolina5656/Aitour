@@ -4,16 +4,17 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Arquitectura de los casos</title>
-<meta name="description" content="La arquitectura de la demo del stand y de los cinco casos de éxito de Readymind, en diagramas animados paso a paso." />
+<meta name="description" content="La arquitectura de los cinco casos de éxito de Readymind y de la demo del stand, en diagramas paso a paso con el detalle de cada pieza." />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
 <style>
-/* Arquitectura de la demo y de los casos de éxito: misma marca que /casos. Los diagramas se arman desde DATA (abajo). */
+/* Arquitectura de los casos de éxito y de la demo: misma marca que /casos. Los diagramas se arman desde DATA (abajo).
+   Todo avanza con clic (o con las flechas / el control remoto de presentaciones): nada pasa solo. */
 :root {
   --green: #66de7f; --teal: #53b6ad; --blue: #397ef6;
   --gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
-  --bg: #050a12; --card: rgba(11, 22, 40, .92); --line: #1f3150; --line-2: #2a4268;
+  --bg: #050a12; --card: rgba(11, 22, 40, .94); --line: #1f3150; --line-2: #2a4268;
   --text: #f3f6fa; --text-2: #b7c2d2; --text-3: #6f7f95;
   --k-in: #b7c2d2; --k-ai: #397ef6; --k-code: #66de7f; --k-data: #53b6ad; --k-out: #facc15; --k-human: #fb6a3c; --k-sec: #ff5d5d;
   --font: 'Satoshi', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -23,7 +24,7 @@
 html, body { margin: 0; height: 100%; }
 body { background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
 .aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(90px); opacity: .45; transition: background 1.2s; }
-.app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto auto 1fr auto auto; grid-template-columns: minmax(0, 1fr); }
+.app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto auto 1fr auto auto auto; grid-template-columns: minmax(0, 1fr); }
 
 .top { display: flex; align-items: center; gap: 24px; padding: 16px 32px 6px; }
 .top img { height: 30px; }
@@ -34,39 +35,59 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); -web
 .tabs button.on { color: #04121b; background: var(--c); border-color: var(--c); font-weight: 700; }
 
 .head { padding: 10px 32px 0; display: flex; align-items: flex-end; gap: 18px; }
-.head .glitch { width: 74px; flex: none; }
+.head .glitch { width: 70px; flex: none; }
 .head .glitch img { width: 100%; display: block; filter: drop-shadow(0 8px 22px rgba(102,222,127,.3)); }
 .chapter { font-family: var(--mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--c); }
-h1 { font-size: clamp(24px, 2.6vw, 40px); line-height: 1.08; letter-spacing: -.02em; margin: 4px 0 0; font-weight: 900; }
+h1 { font-size: clamp(24px, 2.4vw, 38px); line-height: 1.08; letter-spacing: -.02em; margin: 4px 0 0; font-weight: 900; }
 h1 em { font-style: normal; color: var(--c); }
-.head p { margin: 6px 0 0; color: var(--text-2); font-size: 17px; max-width: 1100px; }
+.head p { margin: 6px 0 0; color: var(--text-2); font-size: 16.5px; max-width: 1200px; }
 
 /* ---------- Diagrama ---------- */
-.stage { position: relative; min-height: 0; margin: 14px 32px 0; }
+.stage { position: relative; min-height: 0; margin: 10px 32px 0; }
 .diagram { position: absolute; inset: 0; }
 .diagram svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .lane-t { position: absolute; top: 0; transform: translateX(-50%); font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); white-space: nowrap; }
-.node { position: absolute; transform: translate(-50%, -50%); width: var(--w); padding: 12px 14px 13px; border-radius: 14px; background: var(--card);
-  border: 1.5px solid color-mix(in srgb, var(--k) 45%, transparent); box-shadow: 0 8px 26px rgba(0,0,0,.35); transition: border-color .4s, box-shadow .4s, opacity .4s, transform .4s; }
-.node .ic { font-size: clamp(20px, 1.4vw, 24px); line-height: 1; margin-right: 6px; }
-.node b { font-size: clamp(15px, 1.1vw, 19px); line-height: 1.2; }
-.node small { display: block; margin-top: 4px; color: var(--text-2); font-size: clamp(13px, .9vw, 15.5px); line-height: 1.3; }
+.node { position: absolute; transform: translate(-50%, -50%); width: var(--w); padding: 10px 12px 11px; border-radius: 14px; background: var(--card); cursor: pointer; text-align: left; font: inherit; color: inherit;
+  border: 1.5px solid color-mix(in srgb, var(--k) 45%, transparent); box-shadow: 0 8px 26px rgba(0,0,0,.35); transition: border-color .35s, box-shadow .35s, opacity .35s, transform .35s; }
+.node:hover { border-color: var(--k); }
+.node .ic { font-size: clamp(18px, 1.3vw, 22px); line-height: 1; margin-right: 6px; }
+.node b { font-size: clamp(14px, 1vw, 17.5px); line-height: 1.2; }
+.node small { display: block; margin-top: 4px; color: var(--text-2); font-size: clamp(12.5px, .85vw, 14.5px); line-height: 1.3; }
 .node .tag { position: absolute; top: -10px; right: 10px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 99px; background: var(--k); color: #04121b; }
-.diagram.playing .node { opacity: .45; }
-.diagram.playing .node.hot { opacity: 1; border-color: var(--k); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k) 22%, transparent), 0 10px 34px color-mix(in srgb, var(--k) 30%, transparent); transform: translate(-50%, -50%) scale(1.04); }
+.node .more { position: absolute; bottom: 6px; right: 9px; font-size: 11px; color: var(--text-3); }
+.diagram.playing .node { opacity: .4; }
+.diagram.playing .node.hot, .node.sel { opacity: 1 !important; border-color: var(--k); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k) 22%, transparent), 0 10px 34px color-mix(in srgb, var(--k) 30%, transparent); transform: translate(-50%, -50%) scale(1.04); }
 .edge { fill: none; stroke: #34507a; stroke-width: 2; }
 .edge.hot { stroke: var(--c); stroke-width: 2.6; stroke-dasharray: 7 7; animation: flow .7s linear infinite; }
 .edge.dash { stroke-dasharray: 4 6; }
+.diagram.playing .edge:not(.hot) { opacity: .45; }
 @keyframes flow { to { stroke-dashoffset: -14; } }
 .arrow { fill: #34507a; } .arrow.hot { fill: var(--c); }
 
-/* ---------- Pasos y leyenda ---------- */
-.steps { display: flex; gap: 10px; padding: 12px 32px 0; }
-.steps button { flex: 1; text-align: left; font: inherit; color: var(--text-2); background: rgba(9,18,33,.7); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; cursor: pointer; font-size: 14px; line-height: 1.3; }
-.steps button b { display: block; font-family: var(--mono); font-size: 11.5px; color: var(--text-3); letter-spacing: .08em; margin-bottom: 2px; }
+/* ---------- Ficha de cada pieza ---------- */
+.detail { position: fixed; z-index: 5; right: 24px; top: 170px; width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 200px); overflow: auto;
+  background: #0a1526; border: 1.5px solid var(--k); border-radius: 18px; padding: 18px 20px 20px; box-shadow: 0 24px 70px rgba(0,0,0,.6);
+  transform: translateX(30px); opacity: 0; visibility: hidden; transition: .3s; }
+.detail.on { transform: none; opacity: 1; visibility: visible; }
+.detail .k { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--k); }
+.detail h3 { margin: 6px 0 4px; font-size: 22px; }
+.detail .s { color: var(--text-2); font-size: 15px; margin: 0 0 10px; }
+.detail ul { margin: 0; padding-left: 18px; line-height: 1.55; font-size: 15.5px; }
+.detail li { margin: 4px 0; }
+.detail .x { position: absolute; top: 10px; right: 12px; font: inherit; font-size: 22px; color: var(--text-3); background: none; border: 0; cursor: pointer; }
+
+/* ---------- Base, pasos y leyenda ---------- */
+.base { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 32px 0; padding: 8px 12px; border: 1px dashed var(--line-2); border-radius: 12px; font-size: 13.5px; color: var(--text-2); }
+.base b { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-right: 4px; }
+.base span { padding: 3px 9px; border-radius: 99px; background: rgba(57,126,246,.1); border: 1px solid rgba(57,126,246,.35); }
+.steps { display: flex; gap: 8px; padding: 10px 32px 0; }
+.steps button { flex: 1; text-align: left; font: inherit; color: var(--text-2); background: rgba(9,18,33,.7); border: 1px solid var(--line); border-radius: 12px; padding: 8px 11px; cursor: pointer; font-size: 13.5px; line-height: 1.3; }
+.steps button b { display: block; font-family: var(--mono); font-size: 11px; color: var(--text-3); letter-spacing: .08em; margin-bottom: 2px; }
 .steps button.on { border-color: var(--c); color: var(--text); box-shadow: inset 0 0 0 1px var(--c); }
 .steps button.on b { color: var(--c); }
-.foot { display: flex; align-items: center; gap: 18px; padding: 10px 32px 14px; color: var(--text-3); font-size: 13px; flex-wrap: wrap; }
+.steps .nav { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--text); min-width: 54px; text-align: center; }
+.steps .nav.next { background: var(--c); color: #04121b; border-color: var(--c); min-width: 140px; }
+.foot { display: flex; align-items: center; gap: 18px; padding: 8px 32px 12px; color: var(--text-3); font-size: 13px; flex-wrap: wrap; }
 .legend { display: flex; gap: 14px; flex-wrap: wrap; }
 .legend span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -1px; }
 .foot .note { margin-left: auto; }
@@ -74,17 +95,17 @@ h1 em { font-style: normal; color: var(--c); }
 
 @media (max-width: 900px) {
   body { overflow-x: hidden; overflow-y: auto; }
-  .top .t { white-space: normal; }
   .app { height: auto; min-height: 100dvh; }
-  .top { flex-wrap: wrap; padding: 12px 16px 4px; } .tabs { flex-basis: 100%; }
-  .head, .steps, .foot { padding-left: 16px; padding-right: 16px; } .stage { margin: 14px 16px 0; height: 720px; }
-  .head .glitch { display: none; }
-  .node { padding: 10px 9px; } .node b { font-size: 14px; } .node small { font-size: 12px; } .node .ic { display: block; margin-bottom: 4px; } .steps { flex-wrap: wrap; } .steps button { flex-basis: 45%; }
+  .top { flex-wrap: wrap; padding: 12px 16px 4px; } .top .t { white-space: normal; } .tabs { flex-basis: 100%; }
+  .head, .steps, .foot { padding-left: 16px; padding-right: 16px; } .stage { margin: 14px 16px 0; height: var(--mh, 900px); } .base { margin: 10px 16px 0; }
+  .head .glitch { display: none; } .steps { flex-wrap: wrap; } .steps button { flex-basis: 45%; } .steps .nav.next { flex-basis: 100%; }
+  .node { padding: 9px 8px; } .node b { font-size: 13.5px; } .node small { font-size: 11.5px; } .node .ic { display: block; margin-bottom: 4px; } .node .more { display: none; }
+  .detail { left: 12px; right: 12px; top: auto; bottom: 12px; width: auto; max-height: 70dvh; transform: translateY(30px); }
 }
 @media print {
   @page { size: landscape; margin: 10mm; }
   body { overflow: visible; background: #050a12; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .tabs, .foot button { display: none; }
+  .tabs, .foot button, .steps .nav, .detail { display: none; }
 }
 </style>
 </head>
@@ -101,152 +122,264 @@ h1 em { font-style: normal; color: var(--c); }
     <div><div class="chapter" id="chap"></div><h1 id="title"></h1><p id="sub"></p></div>
   </div>
   <div class="stage"><div class="diagram" id="dia"></div></div>
+  <div class="base" id="base"></div>
   <div class="steps" id="steps"></div>
   <div class="foot">
     <div class="legend">
       <span style="--k:var(--k-in)">Entrada</span><span style="--k:var(--k-ai)">IA en Azure / Foundry</span><span style="--k:var(--k-code)">Código y reglas</span>
       <span style="--k:var(--k-data)">Datos</span><span style="--k:var(--k-human)">Persona</span><span style="--k:var(--k-out)">Salida e integración</span><span style="--k:var(--k-sec)">Seguridad</span>
     </div>
-    <span class="note">Esquema simplificado · sin datos de clientes · ← → navegar · Espacio pausa · F pantalla completa</span>
+    <span class="note">Sin datos de clientes · clic en una pieza para ver su detalle · → siguiente paso</span>
     <button id="bPrint">🖨 Imprimir / PDF</button>
   </div>
 </div>
+<aside class="detail" id="detail" aria-live="polite"></aside>
 
 <script>
 (() => {
-  // Cada diagrama: columnas (lanes) con nodos; k = tipo (in, ai, code, data, out, human, sec); e = conexiones [desde, hasta, 'dash'?];
-  // steps = recorrido animado (qué nodos se encienden y qué se cuenta en cada paso).
+  // Cada diagrama: columnas (lanes) con nodos. k = tipo (in, ai, code, data, out, human, sec); d = ficha que se abre al hacer clic.
+  // e = conexiones [desde, hasta, 'dash'?]; base = sobre qué corre; steps = recorrido (qué nodos se encienden en cada paso).
+  // Solo se usa lo que ya muestran /casos y /mantenimiento: sin nombres de clientes ni detalles que no estén confirmados.
   const DATA = [
-    { id: 'demo', c: '#66de7f', chap: 'La demo del stand · lo que acaban de ver', title: 'Un equipo de <em>agentes</em> que diseña tu solución en 3 minutos',
-      sub: 'Todo corre en Azure: la voz y los modelos en Microsoft Foundry, la app en Container Apps y cada paso trazado.',
+    { key: 'caso1', tab: 'FinancialOCR', c: '#3b82f6', chap: 'Caso 1 · Servicios financieros · Argentina · 10 semanas', title: 'FinancialOCR: <em>conciliación contable</em> sin tipear',
+      sub: 'Extractos en PDF de 9 brokers, cada uno con su formato, convertidos en un Excel validado y listo para SAP HANA.',
+      base: ['.NET 9', 'Azure Document Intelligence', 'GPT-4o', 'Azure Blob Storage', 'Azure Cosmos DB', 'SAP HANA'],
       lanes: [
-        { t: 'Visitante', n: [ { id: 'vis', k: 'in', ic: '🙋', t: 'Visitante', s: 'Habla en la PC o escribe en la tablet' } ] },
-        { t: 'Entrada segura', n: [
-          { id: 'voz', k: 'ai', ic: '🎙', t: 'Recepcionista de voz', s: 'Agente de voz de Foundry · es-MX', tag: 'Foundry' },
-          { id: 'shield', k: 'sec', ic: '🛡', t: 'Prompt Shields', s: 'Content Safety + clasificador de tema (nano)' } ] },
-        { t: 'Equipo de agentes', n: [
-          { id: 'arq', k: 'ai', ic: '🏛', t: 'Arquitecto', s: 'Modelo grande (gpt-5.4)', tag: 'Foundry' },
-          { id: 'deb', k: 'ai', ic: '🤖', t: 'Financiero · Riesgo', s: 'Debaten y objetan (gpt-5.4-mini)', tag: 'Foundry' },
-          { id: 'red', k: 'ai', ic: '✍️', t: 'Diagramador · Redactor', s: 'Arman el diagrama y el texto', tag: 'Foundry' } ] },
-        { t: 'Código', n: [
-          { id: 'cost', k: 'code', ic: '💲', t: 'Costos y reglas', s: 'Tabla de precios de Azure; la IA no inventa números' },
-          { id: 'pdf', k: 'code', ic: '📄', t: 'One-pager PDF', s: 'Se valida y se imprime' } ] },
-        { t: 'Salida', n: [
-          { id: 'qr', k: 'out', ic: '📱', t: 'QR y correo', s: 'El visitante deja sus datos y recibe el PDF (Power Automate)' },
-          { id: 'files', k: 'data', ic: '🗂', t: 'Azure Files + App Insights', s: 'Leads, one-pagers y trazas' } ] },
-      ],
-      e: [['vis','voz'],['vis','shield'],['voz','arq'],['shield','arq'],['arq','deb'],['deb','red'],['deb','cost'],['red','pdf'],['cost','pdf'],['pdf','qr'],['qr','files'],['pdf','files','dash']],
-      steps: [
-        { n: ['vis','voz','shield'], t: 'El visitante cuenta su problema; Prompt Shields frena los intentos de romperla.' },
-        { n: ['arq','deb'], t: 'El Arquitecto propone; Financiero y Riesgo objetan con reglas reales.' },
-        { n: ['deb','cost','red'], t: 'El código calcula el costo y los agentes cierran diagrama y texto.' },
-        { n: ['pdf','qr','files'], t: 'One-pager en PDF, QR para llevárselo y todo trazado en Azure.' } ] },
-
-    { id: 'c1', c: '#3b82f6', chap: 'Caso 1 · Servicios financieros · 10 semanas', title: 'FinancialOCR: <em>conciliación contable</em> sin tipear',
-      sub: 'Extractos en PDF de 9 brokers, cada uno con su formato, convertidos en un Excel listo para SAP HANA.',
-      lanes: [
-        { t: 'Entrada', n: [ { id: 'ext', k: 'in', ic: '📑', t: 'Extractos PDF', s: '9 brokers · 9 formatos distintos' } ] },
-        { t: 'Aplicación', n: [ { id: 'app', k: 'code', ic: '⚙️', t: 'Plataforma .NET 9', s: 'Carga, orquesta y guarda cada paso' } ] },
+        { t: 'Entrada', n: [
+          { id: 'ext', k: 'in', ic: '📑', t: 'Extractos de 9 brokers', s: 'PDF · un formato distinto por broker',
+            d: ['Movimientos de compras, ventas, cupones y comisiones', 'Cada broker usa su propio diseño de tabla, columnas y signos', 'Antes se tipeaban a mano en SAP HANA'] },
+          { id: 'ope', k: 'human', ic: '🧑‍💼', t: 'Equipo contable', s: 'Sube los extractos del período',
+            d: ['Carga los PDF tal como llegan del broker', 'Sigue el avance: "0 / 9 extractos interpretados"', 'Ya no necesita personal especializado para tipearlos'] } ] },
+        { t: 'Plataforma', n: [
+          { id: 'app', k: 'code', ic: '⚙️', t: 'Plataforma .NET 9', s: 'Carga, orquesta y muestra el avance',
+            d: ['Recibe los extractos y lanza el proceso de cada broker', 'Orquesta: lectura → interpretación → validación → Excel', 'Muestra el estado de cada uno de los 9 brokers'] },
+          { id: 'blob', k: 'data', ic: '🗂', t: 'Blob Storage', s: 'PDF originales y Excel generados',
+            d: ['Guarda el documento original de cada extracto', 'Guarda el Excel de conciliación generado (p. ej. Conciliacion_ALYC_07.xlsx)'] } ] },
         { t: 'IA', n: [
-          { id: 'di', k: 'ai', ic: '🔎', t: 'Document Intelligence', s: 'Lee tablas y movimientos', tag: 'Azure AI' },
-          { id: 'gpt', k: 'ai', ic: '🧠', t: 'GPT-4o', s: 'Interpreta el formato de cada broker', tag: 'Foundry' } ] },
+          { id: 'di', k: 'ai', ic: '🔎', t: 'Document Intelligence', s: 'Lee tablas, fechas e importes', tag: 'Azure AI',
+            d: ['Extrae las tablas de movimientos del PDF', 'Respeta filas y columnas aunque cambie el diseño'] },
+          { id: 'gpt', k: 'ai', ic: '🧠', t: 'GPT-4o', s: 'Entiende el formato de cada broker', tag: 'Foundry',
+            d: ['Interpreta qué es cada columna en el formato de cada broker', 'Lleva todos los movimientos a un formato único', 'Agregar un broker nuevo no es un proyecto nuevo'] } ] },
         { t: 'Control', n: [
-          { id: 'val', k: 'code', ic: '✅', t: 'Validaciones', s: 'Importes, fechas y signos' },
-          { id: 'cos', k: 'data', ic: '🗄', t: 'Cosmos DB', s: 'Trazabilidad de cada extracto' } ] },
+          { id: 'val', k: 'code', ic: '✅', t: 'Validaciones', s: 'Importes ✓ · fechas ✓ · signos ✓',
+            d: ['Las reglas las aplica el código, no la IA', 'Revisa importes, fechas y signos de cada movimiento', 'Resultado: cero errores de ingreso'] },
+          { id: 'cos', k: 'data', ic: '🗄', t: 'Cosmos DB', s: 'Trazabilidad de cada extracto',
+            d: ['Registro de cada extracto y su procesamiento', 'Permite auditar de dónde salió cada movimiento conciliado'] } ] },
         { t: 'Salida', n: [
-          { id: 'xls', k: 'out', ic: '📊', t: 'Excel de conciliación', s: 'Guardado en Blob Storage' },
-          { id: 'sap', k: 'out', ic: '🏦', t: 'SAP HANA', s: 'Cierre contable' } ] },
+          { id: 'xls', k: 'out', ic: '📊', t: 'Excel de conciliación', s: 'Uno por broker · formato SAP',
+            d: ['Compatible con SAP HANA', 'Los 9 brokers procesados en minutos'] },
+          { id: 'sap', k: 'out', ic: '🏦', t: 'SAP HANA', s: 'Cierre contable con trazabilidad',
+            d: ['La conciliación entra al ERP sin tipear', 'Cierre contable con trazabilidad completa'] } ] },
       ],
-      e: [['ext','app'],['app','di'],['di','gpt'],['gpt','val'],['val','cos','dash'],['val','xls'],['xls','sap']],
+      e: [['ope','ext'],['ext','app'],['app','blob','dash'],['app','di'],['di','gpt'],['gpt','val'],['val','cos'],['val','xls'],['xls','sap']],
       steps: [
-        { n: ['ext','app'], t: 'Se suben los extractos de los 9 brokers a la plataforma.' },
-        { n: ['di','gpt'], t: 'Document Intelligence lee las tablas y GPT-4o entiende el formato de cada broker.' },
-        { n: ['val','cos'], t: 'El código valida importes, fechas y signos, y deja todo trazado.' },
-        { n: ['xls','sap'], t: 'Sale el Excel compatible con SAP HANA: los 9 brokers en minutos.' } ] },
+        { n: ['ope','ext','app'], t: 'El equipo contable sube los extractos de los 9 brokers.' },
+        { n: ['di'], t: 'Document Intelligence lee tablas, fechas e importes.' },
+        { n: ['gpt'], t: 'GPT-4o entiende el formato propio de cada broker.' },
+        { n: ['val','cos'], t: 'El código valida importes, fechas y signos y deja la traza.' },
+        { n: ['xls','blob','sap'], t: 'Excel listo para SAP HANA: los 9 brokers en minutos.' } ] },
 
-    { id: 'c2', c: '#fb6a3c', chap: 'Caso 2 · Energía · 13 semanas', title: 'Smart Maintenance: <em>planes de mantenimiento</em> en minutos',
-      sub: 'De manuales técnicos de cientos de páginas, en varios idiomas, al plan preventivo y la lista de repuestos.',
+    { key: 'caso2', tab: 'Smart Maintenance', c: '#fb6a3c', chap: 'Caso 2 · Energía · Argentina · 13 semanas', title: 'Smart Maintenance: <em>planes de mantenimiento</em> en minutos',
+      sub: 'De un manual técnico de cientos de páginas, en cualquier idioma, al plan preventivo y la lista de repuestos para SAP.',
+      base: ['Azure App Service', 'Microsoft AI Foundry', 'Azure Document Intelligence', 'Integración CMMS / ERP (SAP)'],
       lanes: [
-        { t: 'Entrada', n: [ { id: 'man', k: 'in', ic: '📚', t: 'Manuales del fabricante', s: 'Cientos de páginas · varios idiomas' } ] },
-        { t: 'Lectura', n: [ { id: 'ocr', k: 'ai', ic: '🔎', t: 'Document Intelligence', s: 'OCR multiidioma, tablas y diagramas', tag: 'Azure AI' } ] },
-        { t: 'IA', n: [ { id: 'fd', k: 'ai', ic: '🧠', t: 'Microsoft Foundry', s: 'Genera tareas, frecuencias y repuestos', tag: 'Foundry' } ] },
-        { t: 'Revisión', n: [ { id: 'tec', k: 'human', ic: '👷', t: 'Técnico', s: 'Revisa y aprueba en la plataforma' } ] },
+        { t: 'Entrada', n: [
+          { id: 'man', k: 'in', ic: '📚', t: 'Manual del fabricante', s: 'PDF, escaneado o imágenes · cualquier idioma',
+            d: ['Cientos de páginas por equipo', 'Distintos fabricantes, formatos e idiomas', 'Ejemplo real: generador GE-GAS 30000GN'] },
+          { id: 'tec', k: 'human', ic: '👷', t: 'Equipo de mantenimiento', s: 'Sube el manual y elige el equipo',
+            d: ['Arrastra el PDF tal como viene', 'Herramienta pensada para técnicos, no para especialistas en IA'] } ] },
+        { t: 'Plataforma', n: [
+          { id: 'app', k: 'code', ic: '🖥', t: 'Smart Maintenance', s: 'Cargar → Generar plan → Repuestos → Consultar', tag: 'App Service',
+            d: ['Aplicación web en Azure App Service', 'Cada opción del menú es una etapa del proceso', 'Muestra cada etapa de la IA mientras trabaja'] } ] },
+        { t: 'Lectura', n: [
+          { id: 'ocr', k: 'ai', ic: '🔎', t: 'Document Intelligence', s: 'OCR layout multiidioma', tag: 'Azure AI',
+            d: ['Lee texto, tablas y diagramas de PDF y escaneos', 'Funciona en cualquier idioma del fabricante', 'Detecta solas las páginas de repuestos (en el ejemplo: 43, 45, 47 y 49)'] },
+          { id: 'kb', k: 'data', ic: '🗃', t: 'Base de conocimiento', s: 'El manual queda disponible para la IA',
+            d: ['Cada manual cargado queda guardado por equipo', 'Si cambia el manual, el plan se regenera'] } ] },
+        { t: 'IA', n: [
+          { id: 'gen', k: 'ai', ic: '🧠', t: 'Modelos de Foundry', s: 'Analiza → extrae repuestos → genera · 10–30 s', tag: 'Foundry',
+            d: ['Analiza el manual del equipo elegido', 'Extrae los repuestos y arma el plan preventivo', 'De semanas de trabajo manual a 10–30 segundos'] },
+          { id: 'qa', k: 'ai', ic: '💬', t: 'Consulta en línea', s: 'Preguntas sobre los manuales', tag: 'Foundry',
+            d: ['Opción "Consultar" del menú', 'El técnico pregunta y la IA responde con la documentación cargada'] } ] },
         { t: 'Salida', n: [
-          { id: 'plan', k: 'out', ic: '🗓', t: 'Plan de mantenimiento', s: 'Alineado al manual vigente' },
-          { id: 'erp', k: 'out', ic: '🔩', t: 'CMMS / ERP', s: 'Plan y catálogo de repuestos' } ] },
+          { id: 'plan', k: 'out', ic: '🗓', t: 'Plan de mantenimiento', s: 'Excel: tareas, frecuencia, tipo y calendario anual',
+            d: ['En el ejemplo: 15 tareas con su frecuencia', 'Tipo de mantenimiento y calendario anual', 'Notas del fabricante en cada tarea'] },
+          { id: 'rep', k: 'out', ic: '🔩', t: 'Repuestos para SAP', s: 'Excel: descripción corta SAP + origen del dato',
+            d: ['Filtros, sellos, sensores, correas y más', 'Descripción del manual y descripción corta para SAP', 'Origen de cada dato: trazabilidad hasta la página del manual'] } ] },
+        { t: 'Sistemas', n: [
+          { id: 'erp', k: 'out', ic: '🏭', t: 'CMMS / ERP', s: 'Plan y catálogo cargados',
+            d: ['El plan queda listo para el sistema de mantenimiento', 'Compras sabe qué tener en stock antes de cada intervención'] } ] },
       ],
-      e: [['man','ocr'],['ocr','fd'],['fd','tec'],['tec','plan'],['tec','erp'],['plan','erp','dash']],
+      e: [['tec','man'],['man','app'],['app','ocr'],['ocr','kb'],['kb','gen'],['kb','qa','dash'],['gen','plan'],['gen','rep'],['plan','erp'],['rep','erp']],
       steps: [
-        { n: ['man','ocr'], t: 'Se carga el manual del equipo; se lee en cualquier idioma.' },
-        { n: ['fd'], t: 'Foundry arma el plan: tareas, frecuencias y repuestos con su referencia al manual.' },
-        { n: ['tec'], t: 'El técnico revisa y aprueba: el conocimiento queda en el sistema.' },
-        { n: ['plan','erp'], t: 'El plan y los repuestos pasan al CMMS / ERP.' } ] },
+        { n: ['tec','man','app'], t: 'Se sube el manual tal como viene, en cualquier idioma.' },
+        { n: ['ocr','kb'], t: 'Document Intelligence lo lee y detecta las páginas de repuestos.' },
+        { n: ['gen'], t: 'Un clic: Foundry arma el plan y extrae los repuestos en 10–30 s.' },
+        { n: ['plan','rep'], t: 'Excel del plan anual y catálogo de repuestos con descripción para SAP.' },
+        { n: ['erp','qa'], t: 'Todo al CMMS / ERP, y los técnicos consultan los manuales en línea.' } ] },
 
-    { id: 'c3', c: '#ec4899', chap: 'Caso 3 · Retail · 12 semanas', title: 'Store Intelligence: <em>las cámaras miden el servicio</em>',
-      sub: 'Con las cámaras que la tienda ya tenía: filas, tiempos de atención y permanencia por zona, en tiempo real.',
+    { key: 'caso3', tab: 'Store Intelligence', c: '#ec4899', chap: 'Caso 3 · Retail · Colombia · 12 semanas', title: 'Store Intelligence: <em>las cámaras miden el servicio</em>',
+      sub: 'Con las cámaras que la tienda ya tenía: personas, filas, tiempos de atención y permanencia por zona, en tiempo real.',
+      base: ['Azure AI Vision', 'Visión computacional', 'People tracking', 'Dashboard en tiempo real'],
       lanes: [
-        { t: 'Entrada', n: [ { id: 'cam', k: 'in', ic: '📹', t: 'Cámaras existentes', s: 'Piso de ventas, cajas, entrada' } ] },
-        { t: 'Visión', n: [ { id: 'vis', k: 'ai', ic: '👁', t: 'Azure AI Vision', s: 'Detección y seguimiento de personas', tag: 'Azure AI' } ] },
+        { t: 'Entrada', n: [
+          { id: 'cam', k: 'in', ic: '📹', t: 'Cámaras existentes', s: 'Piso de ventas, cajas y entrada',
+            d: ['Se usan las cámaras que la tienda ya tenía', 'Sin hardware nuevo en el piso de ventas'] } ] },
+        { t: 'Visión', n: [
+          { id: 'det', k: 'ai', ic: '👁', t: 'Azure AI Vision', s: 'Detección de personas en cada cuadro', tag: 'Azure AI',
+            d: ['Detecta a las personas en el video de cada cámara', 'Cuenta cuántas hay en la tienda en cada momento'] },
+          { id: 'trk', k: 'code', ic: '🧭', t: 'People tracking', s: 'Sigue cada recorrido entre cuadros',
+            d: ['Une las detecciones de un cuadro con el siguiente', 'Permite medir cuánto tiempo pasa cada persona en una zona o en la fila'] } ] },
         { t: 'Reglas', n: [
-          { id: 'zon', k: 'code', ic: '📐', t: 'Zonas y filas', s: 'Permanencia, espera, atención' },
-          { id: 'kpi', k: 'data', ic: '📈', t: 'KPIs de servicio', s: 'Históricos por tienda y turno' } ] },
+          { id: 'zon', k: 'code', ic: '📐', t: 'Zonas configuradas', s: 'Novedades · Jeans · Caja 1 · Caja 2 · Entrada',
+            d: ['Cada cámara tiene sus zonas dibujadas', 'Las zonas de caja miden la fila; las de producto, la permanencia'] },
+          { id: 'kpi', k: 'code', ic: '⏱', t: 'Cálculo de KPIs', s: 'Espera en fila · atención por operador · permanencia',
+            d: ['Tiempo en fila por caja', 'Tiempo de atención promedio por operador', 'Permanencia por zona y personas en tienda'] } ] },
         { t: 'Salida', n: [
-          { id: 'al', k: 'out', ic: '⚠️', t: 'Alertas', s: '"Abrir otra caja"' },
-          { id: 'dash', k: 'out', ic: '🖥', t: 'Tablero en tiempo real', s: 'Para el gerente de tienda' } ] },
-        { t: 'Decisión', n: [ { id: 'ger', k: 'human', ic: '🧑‍💼', t: 'Gerente', s: 'Decide el staffing con datos' } ] },
+          { id: 'al', k: 'out', ic: '⚠️', t: 'Alerta de congestión', s: 'Fila sobre el objetivo → "abrir otra caja"',
+            d: ['Se dispara cuando la fila supera el objetivo de la tienda', 'Ejemplo: "Fila: 4 personas · espera 3:20 · abrir otra caja"'] },
+          { id: 'dash', k: 'out', ic: '🖥', t: 'Dashboard en tiempo real', s: 'KPIs de servicio por tienda',
+            d: ['KPIs objetivos y continuos, no estimaciones', 'Puntos de congestión identificados automáticamente'] },
+          { id: 'his', k: 'data', ic: '📈', t: 'Histórico', s: 'Por tienda, zona y turno',
+            d: ['Permite comparar turnos y tiendas', 'Base para planificar el staffing'] } ] },
+        { t: 'Decisión', n: [
+          { id: 'ger', k: 'human', ic: '🧑‍💼', t: 'Gerente de tienda', s: 'Decide el staffing con datos',
+            d: ['Abre una caja cuando la fila lo pide', 'Planifica cuánta gente poner en cada turno'] } ] },
       ],
-      e: [['cam','vis'],['vis','zon'],['zon','kpi'],['zon','al'],['kpi','dash'],['dash','ger'],['al','ger']],
+      e: [['cam','det'],['det','trk'],['trk','zon'],['zon','kpi'],['kpi','al'],['kpi','dash'],['kpi','his'],['al','ger'],['dash','ger'],['his','ger','dash']],
       steps: [
-        { n: ['cam','vis'], t: 'Las cámaras de siempre alimentan el servicio de visión.' },
-        { n: ['zon'], t: 'El código mide zonas: cuánta gente hay, cuánto esperan y cuánto se quedan.' },
-        { n: ['kpi','dash','al'], t: 'Tablero en vivo y alerta cuando la fila supera el objetivo.' },
-        { n: ['ger'], t: 'El gerente decide cuántas cajas abrir con datos, no a ojo.' } ] },
+        { n: ['cam','det'], t: 'El video de las cámaras de siempre va al servicio de visión.' },
+        { n: ['trk'], t: 'Se sigue cada recorrido para medir tiempos, no solo contar.' },
+        { n: ['zon','kpi'], t: 'Por zona: tiempo en fila, atención por operador y permanencia.' },
+        { n: ['al','dash','his'], t: 'Dashboard en vivo, alerta si la fila supera el objetivo e histórico.' },
+        { n: ['ger'], t: 'El gerente decide cajas y turnos con datos, no a ojo.' } ] },
 
-    { id: 'c4', c: '#facc15', chap: 'Caso 4 · Seguros y pensiones · 10 semanas', title: 'API documental: <em>cada documento</em> a la herramienta que mejor lo lee',
+    { key: 'caso4', tab: 'API documental', c: '#facc15', chap: 'Caso 4 · Seguros y pensiones · Perú · 10 semanas', title: 'API documental: <em>cada documento</em> a la herramienta que mejor lo lee',
       sub: 'Un trámite trae de 3 a 15 documentos; una sola API los reconoce, los enruta y devuelve los datos validados.',
+      base: ['.NET 9 · 15 endpoints', 'Azure Document Intelligence (prebuilt)', 'Azure AI Content Understanding', 'GPT-4o'],
       lanes: [
-        { t: 'Entrada', n: [ { id: 'tr', k: 'in', ic: '📂', t: 'Trámite', s: 'DNI, pasaporte, informes médicos, Anexo 18, certificados' } ] },
-        { t: 'API', n: [ { id: 'api', k: 'code', ic: '🔀', t: 'API .NET 9', s: '15 endpoints · clasifica y enruta' } ] },
+        { t: 'Entrada', n: [
+          { id: 'tr', k: 'in', ic: '📂', t: 'Expediente del trámite', s: 'De 3 a 15 documentos por solicitud',
+            d: ['DNI y pasaportes', 'Informes médicos y Anexo 18', 'Certificados consulares'] },
+          { id: 'sis', k: 'out', ic: '🏛', t: 'Sistema de trámites', s: 'Envía cada trámite a la API',
+            d: ['Envía los documentos del trámite', 'Recibe los datos listos para usar'] } ] },
+        { t: 'API', n: [
+          { id: 'api', k: 'code', ic: '🔀', t: 'API documental .NET 9', s: '15 endpoints · reconoce y enruta',
+            d: ['Una sola puerta de entrada para todos los documentos del trámite', 'Reconoce qué es cada documento', 'Lo envía a la herramienta que mejor lo lee'] } ] },
         { t: 'IA especializada', n: [
-          { id: 'pre', k: 'ai', ic: '🪪', t: 'Document Intelligence', s: 'Modelos prebuilt: DNI y pasaporte', tag: 'Azure AI' },
-          { id: 'cu', k: 'ai', ic: '🩺', t: 'Content Understanding', s: 'Informes médicos y Anexo 18', tag: 'Foundry' },
-          { id: 'g4', k: 'ai', ic: '🧠', t: 'GPT-4o + OCR layout', s: 'Certificados en texto libre', tag: 'Foundry' } ] },
-        { t: 'Control', n: [ { id: 'vl', k: 'code', ic: '✅', t: 'Validación', s: 'Datos de identidad y trazabilidad por solicitud' } ] },
-        { t: 'Salida', n: [ { id: 'js', k: 'out', ic: '🧾', t: 'Datos listos', s: 'JSON validado al sistema de trámites' } ] },
+          { id: 'pre', k: 'ai', ic: '🪪', t: 'Document Intelligence', s: 'Modelos prebuilt: DNI y pasaporte', tag: 'Azure AI',
+            d: ['Modelos ya entrenados para documentos de identidad', 'Extraen nombre, número de documento y fechas'] },
+          { id: 'cu', k: 'ai', ic: '🩺', t: 'Content Understanding', s: 'Informe médico y Anexo 18', tag: 'Foundry',
+            d: ['Formularios con estructura propia', 'Se define qué campos extraer y los devuelve estructurados'] },
+          { id: 'g4', k: 'ai', ic: '🧠', t: 'GPT-4o + OCR layout', s: 'Certificado consular (texto libre)', tag: 'Foundry',
+            d: ['Documentos sin formato fijo', 'El OCR lee el texto y GPT-4o entiende y extrae los datos'] } ] },
+        { t: 'Control', n: [
+          { id: 'vl', k: 'code', ic: '✅', t: 'Validación', s: 'Datos de identidad del titular',
+            d: ['Valida los datos de identidad antes de devolverlos', 'Marca "validado: true" solo si todo cuadra', 'El DNI viaja enmascarado (4*******)'] },
+          { id: 'tz', k: 'data', ic: '🧾', t: 'Trazabilidad', s: 'Auditable por solicitud',
+            d: ['Qué documento llegó, cómo se leyó y qué se extrajo', 'Trazabilidad completa por solicitud'] } ] },
+        { t: 'Salida', n: [
+          { id: 'js', k: 'out', ic: '📦', t: 'JSON del trámite', s: 'trámite · documentos · titular · validado',
+            d: ['Ejemplo: { "tramite": "PEN-2026-04812", "documentos": 5, "validado": true }', 'Cero carga manual en documentos previsionales'] } ] },
       ],
-      e: [['tr','api'],['api','pre'],['api','cu'],['api','g4'],['pre','vl'],['cu','vl'],['g4','vl'],['vl','js']],
+      e: [['sis','tr'],['tr','api'],['api','pre'],['api','cu'],['api','g4'],['pre','vl'],['cu','vl'],['g4','vl'],['vl','tz'],['vl','js']],
       steps: [
-        { n: ['tr','api'], t: 'Llega el trámite y la API reconoce qué es cada documento.' },
-        { n: ['pre','cu','g4'], t: 'Cada uno va a la herramienta que mejor lo lee.' },
-        { n: ['vl'], t: 'Se validan los datos y queda trazado quién, qué y cuándo.' },
-        { n: ['js'], t: 'Cero carga manual: los datos entran solos al sistema.' } ] },
+        { n: ['sis','tr','api'], t: 'El sistema envía el expediente; la API reconoce cada documento.' },
+        { n: ['pre'], t: 'Identidad (DNI, pasaporte): modelos prebuilt de Document Intelligence.' },
+        { n: ['cu','g4'], t: 'Formularios a Content Understanding; texto libre a GPT-4o con OCR.' },
+        { n: ['vl','tz'], t: 'Se validan los datos del titular y queda la traza por solicitud.' },
+        { n: ['js'], t: 'JSON del trámite listo: cero carga manual.' } ] },
 
-    { id: 'c5', c: '#a855f7', chap: 'Caso 5 · Ciberseguridad · 9 semanas', title: 'SOC Classifier: <em>de horas a segundos</em>',
-      sub: 'Un agente lee cada alerta de seguridad, la clasifica y solo escala lo crítico al equipo en Teams.',
+    { key: 'caso5', tab: 'SOC Classifier', c: '#a855f7', chap: 'Caso 5 · Ciberseguridad · Colombia · 9 semanas', title: 'SOC Classifier: <em>de horas a segundos</em>',
+      sub: 'Un agente lee cada alerta de seguridad, la clasifica y solo escala lo crítico al equipo en Microsoft Teams.',
+      base: ['Python', 'Azure OpenAI GPT-4o', 'Microsoft Teams', 'Monitoreo en tiempo real'],
       lanes: [
         { t: 'Fuentes', n: [
-          { id: 'src', k: 'in', ic: '🛰', t: 'Herramientas de seguridad', s: 'Identidad, firewall, EDR, correo' },
-          { id: 'mail', k: 'in', ic: '📥', t: 'Casilla de alertas', s: 'Decenas por día, sin prioridad' } ] },
-        { t: 'Servicio', n: [ { id: 'py', k: 'code', ic: '🐍', t: 'Servicio en Python', s: 'Lee cada alerta en tiempo real' } ] },
-        { t: 'IA', n: [ { id: 'ag', k: 'ai', ic: '🧠', t: 'Agente con GPT-4o', s: 'Severidad, falso positivo, resumen y acción sugerida', tag: 'Azure OpenAI' } ] },
+          { id: 'id', k: 'in', ic: '🔐', t: 'Identidad', s: 'Azure AD: inicios de sesión',
+            d: ['Ej.: "Inicio de sesión desde nueva IP"'] },
+          { id: 'net', k: 'in', ic: '🧱', t: 'Red y equipos', s: 'Firewall · Defender · EDR',
+            d: ['Ej.: escaneo de puertos bloqueado', 'Ej.: macro en adjunto, ransomware en un equipo'] },
+          { id: 'mx', k: 'in', ic: '✉️', t: 'Correo y monitoreo', s: 'Exchange · certificados',
+            d: ['Ej.: reenvío masivo a un dominio externo', 'Ej.: certificado próximo a vencer'] } ] },
+        { t: 'Ingreso', n: [
+          { id: 'mail', k: 'in', ic: '📥', t: 'Casilla de alertas', s: 'Decenas por día, sin prioridad',
+            d: ['Todas las herramientas escriben en la misma casilla', 'Antes: los analistas leían cada una a mano'] } ] },
+        { t: 'Agente', n: [
+          { id: 'py', k: 'code', ic: '🐍', t: 'Servicio en Python', s: 'Lee cada alerta en tiempo real',
+            d: ['Toma cada alerta apenas llega', 'Arma el contexto y llama al modelo', 'Publica el resultado en Teams'] },
+          { id: 'ag', k: 'ai', ic: '🧠', t: 'GPT-4o', s: 'Severidad · falso positivo · resumen · acción', tag: 'Azure OpenAI',
+            d: ['Clasifica: CRÍTICA, ALTA, MEDIA, BAJA o FALSO POSITIVO', 'Resume qué pasó y de dónde vino', 'Sugiere la acción (p. ej. "aislar el equipo")'] } ] },
         { t: 'Salida', n: [
-          { id: 'tm', k: 'out', ic: '💬', t: 'Microsoft Teams', s: 'Canal de respuesta: solo lo crítico' },
-          { id: 'log', k: 'data', ic: '🗃', t: 'Registro', s: 'Falsos positivos filtrados, todo auditable' } ] },
-        { t: 'Respuesta', n: [ { id: 'an', k: 'human', ic: '🧑‍💻', t: 'Analista', s: 'Responde en segundos' } ] },
+          { id: 'tm', k: 'out', ic: '💬', t: 'Teams · #respuesta-incidentes', s: 'Solo lo crítico, con el porqué',
+            d: ['Ej.: "🚨 CRÍTICA · Ransomware · Origen: EDR · Acción sugerida: aislar el equipo"', 'Cero alertas graves sin atender'] },
+          { id: 'mon', k: 'data', ic: '📊', t: 'Monitoreo', s: 'Leídas por el agente vs. escaladas',
+            d: ['Cuántas alertas leyó el agente y cuántas escaló', 'Los falsos positivos se filtran solos y quedan registrados'] } ] },
+        { t: 'Respuesta', n: [
+          { id: 'an', k: 'human', ic: '🧑‍💻', t: 'Analista SOC', s: 'Responde en segundos',
+            d: ['Deja de leer correos uno por uno', 'Se dedica a responder lo importante'] } ] },
       ],
-      e: [['src','mail'],['mail','py'],['py','ag'],['ag','tm'],['ag','log'],['tm','an']],
+      e: [['id','mail'],['net','mail'],['mx','mail'],['mail','py'],['py','ag'],['ag','tm'],['ag','mon'],['tm','an']],
       steps: [
-        { n: ['src','mail'], t: 'Las alertas de todas las herramientas llegan a una casilla.' },
-        { n: ['py','ag'], t: 'El agente lee cada una: severidad, si es falso positivo y qué hacer.' },
-        { n: ['tm','log'], t: 'Lo crítico va a Teams con el porqué; el resto queda registrado.' },
-        { n: ['an'], t: 'El analista deja de leer correos y responde.' } ] },
+        { n: ['id','net','mx','mail'], t: 'Las alertas de todas las herramientas llegan a una casilla.' },
+        { n: ['py'], t: 'El servicio toma cada alerta apenas llega.' },
+        { n: ['ag'], t: 'GPT-4o decide severidad, si es falso positivo y qué hacer.' },
+        { n: ['tm','mon'], t: 'Lo crítico va a Teams con la acción sugerida; todo queda medido.' },
+        { n: ['an'], t: 'El analista responde en segundos.' } ] },
+
+    { key: 'demo', tab: 'La demo del stand', c: '#66de7f', chap: 'La demo del stand · lo que acaban de ver', title: 'Un equipo de <em>agentes</em> que diseña tu solución en 3 minutos',
+      sub: 'Todo corre en Azure: la voz, los modelos y el guardrail en Microsoft Foundry; la app en Container Apps; cada paso trazado.',
+      base: ['Azure Container Apps (1 réplica · 2 CPU · 4 GiB)', 'Container Registry (build remoto)', 'Identidad administrada: sin llaves en el código', 'Azure Files', 'Log Analytics + Application Insights', 'Foundry: gpt-5.4 · gpt-5.4-mini · gpt-5.4-nano + guardrail'],
+      lanes: [
+        { t: 'Pantallas', n: [
+          { id: 'pc', k: 'in', ic: '🖥', t: 'PC del stand', s: 'El visitante habla',
+            d: ['Sala "pc": su propia sesión, independiente', 'Escena 3D con React y Three.js'] },
+          { id: 'tab', k: 'in', ic: '📱', t: 'Tablets 1 y 2', s: 'El visitante escribe',
+            d: ['Salas "tablet1" y "tablet2", en paralelo con la PC', 'Modo tablet automático en pantallas táctiles'] } ] },
+        { t: 'App · Container Apps', n: [
+          { id: 'api', k: 'code', ic: '⚡', t: 'Backend FastAPI', s: 'WebSocket por sala · eventos en vivo',
+            d: ['Una sesión por sala, con su propio canal de eventos', 'Si Foundry falla, reproduce una sesión grabada (failover)'] },
+          { id: 'guard', k: 'sec', ic: '🛡', t: 'Guardia de entrada', s: 'Prompt Shields + clasificador nano',
+            d: ['Prompt Shields (Azure AI Content Safety) frena inyecciones', 'gpt-5.4-nano revisa que el tema sea un problema de negocio', 'Corta en menos de 4 s'] } ] },
+        { t: 'Microsoft Foundry', n: [
+          { id: 'voz', k: 'ai', ic: '🎙', t: 'Recepcionista de voz', s: 'gpt-realtime · voz MAI es-MX', tag: 'Foundry',
+            d: ['Agente de voz de Foundry (preview): "readymind-recepcionista"', 'Voz es-MX-Valeria (MAI-Voice) con acento mexicano', 'Entrevista guiada: cierra a los 70 s, corte a los 95 s'] },
+          { id: 'sw', k: 'ai', ic: '🤖', t: 'Equipo de 5 agentes', s: 'Microsoft Agent Framework · GroupChat', tag: 'Foundry',
+            d: ['Arquitecto (gpt-5.4) propone la solución', 'Financiero ⇄ Arquitecto: objeciones de costo', 'Riesgo, Diagramador y Redactor (gpt-5.4-mini)', 'Máximo 10 turnos y menos de 120 s'] },
+          { id: 'ocr', k: 'ai', ic: '📷', t: 'Lector de documentos', s: 'gpt-5.4-mini con visión · /ocr', tag: 'Foundry',
+            d: ['Salida estructurada: qué documento es y sus datos', 'La imagen no se guarda'] } ] },
+        { t: 'Código', n: [
+          { id: 'cost', k: 'code', ic: '💲', t: 'Costos y reglas', s: 'Tabla de precios de Azure',
+            d: ['El costo mensual lo calcula el código, no el modelo', 'La objeción del Financiero sale de reglas fijas (presupuesto y peso de un componente)'] },
+          { id: 'dg', k: 'code', ic: '🧩', t: 'Diagrama y one-pager', s: 'Layout en código · PDF con Chromium',
+            d: ['El modelo nunca dibuja: da componentes y el código hace el layout', 'PDF de una página con Playwright + Chromium'] },
+          { id: 'val', k: 'code', ic: '✅', t: 'Validaciones del lector', s: 'RFC · CURP · subtotal + IVA = total',
+            d: ['Dígito verificador de la CURP y formato del RFC', 'Revisa que la factura cuadre'] } ] },
+        { t: 'Salida y datos', n: [
+          { id: 'qr', k: 'out', ic: '📲', t: 'QR firmado', s: 'El visitante deja sus datos',
+            d: ['Link firmado: solo abre el one-pager de esa sesión', 'Aviso de privacidad antes de enviar'] },
+          { id: 'pa', k: 'out', ic: '✉️', t: 'Power Automate', s: 'Le manda el PDF por correo',
+            d: ['Disparador HTTP del flujo de correo', 'Si falla, el lead queda en la bandeja de salida y se reintenta'] },
+          { id: 'files', k: 'data', ic: '🗂', t: 'Azure Files · /data', s: 'One-pagers, PDF, leads, grabaciones',
+            d: ['Volumen persistente: sobrevive a redeploys', 'Leads del QR y fichas del vendedor'] },
+          { id: 'ai', k: 'data', ic: '📈', t: 'Application Insights', s: 'Trazas de cada turno',
+            d: ['OpenTelemetry de cada agente y llamada', 'Sin prompts ni respuestas de visitantes'] } ] },
+      ],
+      e: [['pc','api'],['tab','api'],['pc','voz','dash'],['api','guard'],['guard','sw'],['voz','sw','dash'],['api','ocr','dash'],['sw','cost'],['sw','dg'],['ocr','val'],['dg','qr'],['qr','pa'],['qr','files']],
+      steps: [
+        { n: ['pc','tab','voz','api'], t: 'El visitante cuenta su problema por voz o por texto.' },
+        { n: ['guard'], t: 'Prompt Shields y el clasificador frenan ataques y temas fuera de lugar.' },
+        { n: ['sw','cost'], t: 'Los 5 agentes debaten; el código calcula costos y objeciones.' },
+        { n: ['dg','qr'], t: 'Diagrama y one-pager en PDF, con QR firmado.' },
+        { n: ['pa','files','ai'], t: 'Correo con el PDF, lead guardado y todo trazado en Azure.' } ] },
   ]
 
   const $ = (id) => document.getElementById(id)
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
   const KV = { in: 'var(--k-in)', ai: 'var(--k-ai)', code: 'var(--k-code)', data: 'var(--k-data)', out: 'var(--k-out)', human: 'var(--k-human)', sec: 'var(--k-sec)' }
-  let cur = 0, step = 0, timer = null, paused = false
+  const KN = { in: 'Entrada', ai: 'IA en Azure / Foundry', code: 'Código y reglas', data: 'Datos', out: 'Salida e integración', human: 'Persona', sec: 'Seguridad' }
+  let cur = 0, step = -1  // step -1 = vista general (todo encendido)
 
-  $('tabs').innerHTML = DATA.map((d, i) => `<button style="--c:${d.c}" data-i="${i}">${i ? 'Caso ' + i : 'La demo'}</button>`).join('')
+  $('tabs').innerHTML = DATA.map((d, i) => `<button style="--c:${d.c}" data-i="${i}">${d.key === 'demo' ? '' : 'Caso ' + (i + 1) + ' · '}${d.tab}</button>`).join('')
   $('tabs').onclick = (e) => { const b = e.target.closest('button'); if (b) go(+b.dataset.i) }
 
   function render() {
@@ -254,27 +387,35 @@ h1 em { font-style: normal; color: var(--c); }
     document.documentElement.style.setProperty('--c', d.c)
     $('aurora').style.background = `radial-gradient(40% 40% at 20% 20%, ${d.c}55, transparent 70%), radial-gradient(40% 40% at 85% 70%, #397ef640, transparent 70%)`
     $('chap').textContent = d.chap; $('title').innerHTML = d.title; $('sub').textContent = d.sub
+    $('base').innerHTML = `<b>Corre sobre</b>${d.base.map((x) => `<span>${esc(x)}</span>`).join('')}`
     document.querySelectorAll('#tabs button').forEach((b, i) => b.classList.toggle('on', i === cur))
     document.querySelector('#tabs button.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-    const narrow = innerWidth <= 900
-    const L = d.lanes.length
+    const narrow = innerWidth <= 900, L = d.lanes.length
+    // en el celular las columnas pasan a filas: la altura depende de cuántas haya
+    document.documentElement.style.setProperty('--mh', `${L * 150}px`)
     let html = '<svg id="svg"></svg>'
     d.lanes.forEach((lane, li) => {
-      // en pantallas angostas las columnas pasan a filas (de arriba hacia abajo)
-      const along = (li + .5) / L * 100
-      html += narrow ? '' : `<div class="lane-t" style="left:${along}%">${lane.t}</div>`
-      lane.n.forEach((n, ni) => {
-        const across = (ni + .5) / lane.n.length
-        const [x, y] = narrow ? [across * 100, along] : [along, 54 + (ni - (lane.n.length - 1) / 2) * 31]
-        const w = narrow ? `min(calc(${100 / lane.n.length}% - 8px), 320px)` : `min(${88 / L}vw, 290px)`
-        html += `<div class="node" id="n-${n.id}" style="left:${x}%;top:${y}%;--k:${KV[n.k]};--w:${w}">${n.tag ? `<span class="tag">${n.tag}</span>` : ''}<span class="ic">${n.ic}</span><b>${n.t}</b><small>${n.s}</small></div>`
+      const along = (li + .5) / L * 100, n = lane.n.length
+      if (!narrow) html += `<div class="lane-t" style="left:${along}%">${lane.t}</div>`
+      lane.n.forEach((nd, ni) => {
+        const across = (ni + .5) / n
+        const gap = Math.min(30, 84 / n)
+        const [x, y] = narrow ? [across * 100, along] : [along, 54 + (ni - (n - 1) / 2) * gap]
+        const w = narrow ? `min(calc(${100 / n}% - 8px), 320px)` : `min(${88 / L}vw, 280px)`
+        html += `<button class="node" id="n-${nd.id}" data-id="${nd.id}" style="left:${x}%;top:${y}%;--k:${KV[nd.k]};--w:${w}">${nd.tag ? `<span class="tag">${nd.tag}</span>` : ''}<span class="ic">${nd.ic}</span><b>${esc(nd.t)}</b><small>${esc(nd.s)}</small>${nd.d ? '<span class="more">ⓘ</span>' : ''}</button>`
       })
     })
     dia.innerHTML = html
-    $('steps').innerHTML = d.steps.map((s, i) => `<button data-i="${i}"><b>PASO ${i + 1}</b>${s.t}</button>`).join('')
-    $('steps').onclick = (e) => { const b = e.target.closest('button'); if (b) { setStep(+b.dataset.i); restart() } }
+    $('steps').innerHTML = `<button class="nav" data-i="-1" title="Vista general">◎</button>` +
+      d.steps.map((s, i) => `<button data-i="${i}"><b>PASO ${i + 1}</b>${esc(s.t)}</button>`).join('') +
+      `<button class="nav next" id="bNext"></button>`
+    $('steps').onclick = (e) => {
+      const b = e.target.closest('button'); if (!b) return
+      if (b.id === 'bNext') next(); else setStep(+b.dataset.i)
+    }
+    closeDetail()
     requestAnimationFrame(edges)
-    setStep(0); restart()
+    setStep(-1)
   }
 
   function edges() {
@@ -284,17 +425,23 @@ h1 em { font-style: normal; color: var(--c); }
     let out = ''
     d.e.forEach(([a, b, dash]) => {
       const A = box(a), B = box(b)
-      const sameLane = narrow ? Math.abs(A.y - B.y) < 10 : Math.abs(A.x - B.x) < 10
+      const sameLane = narrow ? Math.abs(A.y + A.h / 2 - (B.y + B.h / 2)) < 30 : Math.abs(A.x - B.x) < 10
       let p, ex, ey, ang
-      if (sameLane && !narrow) { // misma columna: de abajo hacia arriba del siguiente
-        const x = A.x + A.w / 2, y1 = A.y + A.h, y2 = B.y; p = `M${x},${y1} L${x},${y2 - 6}`; ex = x; ey = y2; ang = 90
-        if (y2 < y1) { p = `M${x},${A.y} L${x},${B.y + B.h + 6}`; ey = B.y + B.h; ang = -90 }
+      if (sameLane && !narrow) { // misma columna: vertical
+        const x = A.x + A.w / 2
+        if (B.y > A.y) { p = `M${x},${A.y + A.h} L${x},${B.y - 6}`; ex = x; ey = B.y; ang = 90 }
+        else { p = `M${x},${A.y} L${x},${B.y + B.h + 6}`; ex = x; ey = B.y + B.h; ang = -90 }
+      } else if (sameLane) { // celular, misma fila: horizontal
+        if (B.x > A.x) { p = `M${A.x + A.w},${A.y + A.h / 2} L${B.x - 6},${B.y + B.h / 2}`; ex = B.x; ey = B.y + B.h / 2; ang = 0 }
+        else { p = `M${A.x},${A.y + A.h / 2} L${B.x + B.w + 6},${B.y + B.h / 2}`; ex = B.x + B.w; ey = B.y + B.h / 2; ang = 180 }
       } else if (narrow) {
-        const x1 = A.x + A.w / 2, y1 = A.y + A.h, x2 = B.x + B.w / 2, y2 = B.y, m = (y1 + y2) / 2
-        p = `M${x1},${y1} C${x1},${m} ${x2},${m} ${x2},${y2 - 6}`; ex = x2; ey = y2; ang = 90
+        const down = B.y > A.y
+        const x1 = A.x + A.w / 2, y1 = down ? A.y + A.h : A.y, x2 = B.x + B.w / 2, y2 = down ? B.y : B.y + B.h, m = (y1 + y2) / 2
+        p = `M${x1},${y1} C${x1},${m} ${x2},${m} ${x2},${down ? y2 - 6 : y2 + 6}`; ex = x2; ey = y2; ang = down ? 90 : -90
       } else {
-        const x1 = A.x + A.w, y1 = A.y + A.h / 2, x2 = B.x, y2 = B.y + B.h / 2, m = (x1 + x2) / 2
-        p = `M${x1},${y1} C${m},${y1} ${m},${y2} ${x2 - 6},${y2}`; ex = x2; ey = y2; ang = 0
+        const fwd = B.x > A.x
+        const x1 = fwd ? A.x + A.w : A.x, y1 = A.y + A.h / 2, x2 = fwd ? B.x : B.x + B.w, y2 = B.y + B.h / 2, m = (x1 + x2) / 2
+        p = `M${x1},${y1} C${m},${y1} ${m},${y2} ${fwd ? x2 - 6 : x2 + 6},${y2}`; ex = x2; ey = y2; ang = fwd ? 0 : 180
       }
       out += `<path class="edge${dash ? ' dash' : ''}" data-a="${a}" data-b="${b}" d="${p}"/>`
       out += `<path class="arrow" data-a="${a}" data-b="${b}" transform="translate(${ex},${ey}) rotate(${ang})" d="M0,0 L-9,-5 L-9,5 Z"/>`
@@ -304,40 +451,56 @@ h1 em { font-style: normal; color: var(--c); }
   }
 
   function paint() {
-    const s = DATA[cur].steps[step], hot = new Set(s.n)
-    const prev = new Set(step ? DATA[cur].steps[step - 1].n : [])
-    $('dia').classList.add('playing')
-    document.querySelectorAll('.node').forEach((n) => n.classList.toggle('hot', hot.has(n.id.slice(2))))
+    const steps = DATA[cur].steps
+    $('dia').classList.toggle('playing', step >= 0)
+    const hot = new Set(step >= 0 ? steps[step].n : [])
+    const prev = new Set(step > 0 ? steps[step - 1].n : [])
+    document.querySelectorAll('.node').forEach((n) => n.classList.toggle('hot', hot.has(n.dataset.id)))
     // se enciende la conexión que entra a un nodo activo desde otro activo o desde el paso anterior
-    document.querySelectorAll('#svg [data-a]').forEach((p) => {
-      const a = p.dataset.a, b = p.dataset.b
-      p.classList.toggle('hot', hot.has(b) && (hot.has(a) || prev.has(a)))
-    })
-    document.querySelectorAll('#steps button').forEach((b, i) => b.classList.toggle('on', i === step))
+    document.querySelectorAll('#svg [data-a]').forEach((p) => p.classList.toggle('hot', hot.has(p.dataset.b) && (hot.has(p.dataset.a) || prev.has(p.dataset.a))))
+    document.querySelectorAll('#steps button[data-i]').forEach((b) => b.classList.toggle('on', +b.dataset.i === step))
+    const last = step === steps.length - 1
+    $('bNext').textContent = step < 0 ? 'Empezar ▶' : last ? (cur < DATA.length - 1 ? `${DATA[cur + 1].tab} ▶` : 'Volver al inicio ▶') : 'Siguiente ▶'
   }
-  function setStep(i) { step = i; paint() }
-  function restart() {
-    clearTimeout(timer); if (paused) return
-    timer = setTimeout(() => {
-      const d = DATA[cur]
-      if (step < d.steps.length - 1) { setStep(step + 1); restart() }
-      else timer = setTimeout(() => go((cur + 1) % DATA.length), 2500)
-    }, 3800)
-  }
-  function go(i) { cur = (i + DATA.length) % DATA.length; history.replaceState(null, '', '#' + cur); render() }
+  function setStep(i) { step = i; closeDetail(); paint() }
+  function next() { if (step < DATA[cur].steps.length - 1) setStep(step + 1); else go(cur + 1) }
+  function prev() { if (step > -1) setStep(step - 1); else go(cur - 1) }
+  function go(i) { cur = (i + DATA.length) % DATA.length; history.replaceState(null, '', '#' + DATA[cur].key); render() }
+
+  // ---------- Ficha de cada pieza ----------
+  $('dia').addEventListener('click', (e) => {
+    const b = e.target.closest('.node'); if (!b) return
+    const nd = DATA[cur].lanes.flatMap((l) => l.n).find((x) => x.id === b.dataset.id)
+    if (b.classList.contains('sel')) return closeDetail()
+    document.querySelectorAll('.node.sel').forEach((x) => x.classList.remove('sel')); b.classList.add('sel')
+    const el = $('detail')
+    el.style.setProperty('--k', KV[nd.k])
+    el.innerHTML = `<button class="x" aria-label="Cerrar">×</button><div class="k">${nd.tag ? esc(nd.tag) : KN[nd.k]}</div>
+      <h3>${nd.ic} ${esc(nd.t)}</h3><p class="s">${esc(nd.s)}</p>${nd.d ? `<ul>${nd.d.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`
+    el.classList.add('on')
+  })
+  $('detail').addEventListener('click', (e) => { if (e.target.closest('.x')) closeDetail() })
+  function closeDetail() { $('detail').classList.remove('on'); document.querySelectorAll('.node.sel').forEach((x) => x.classList.remove('sel')) }
 
   addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' || e.key === 'PageDown') go(cur + 1)
-    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(cur - 1)
-    else if (e.key === ' ') { e.preventDefault(); paused = !paused; paused ? clearTimeout(timer) : restart() }
+    // flechas y Av Pág / Re Pág: también sirven con un control remoto de presentaciones
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next() }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prev() }
+    else if (e.key === 'Escape') closeDetail()
     else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.()
   })
-  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(render, 150) })
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { const s = step; render(); setStep(s) }, 150) })
   $('bPrint').onclick = () => print()
-  addEventListener('hashchange', () => { const i = parseInt(location.hash.slice(1), 10); if (i >= 0 && i < DATA.length && i !== cur) go(i) })
-  const h = parseInt(location.hash.slice(1), 10)
-  cur = h >= 0 && h < DATA.length ? h : 0
-  document.fonts?.ready.then(render); render()
+  // #caso1 … #caso5 y #demo; también #1 … #5 (casos) y #0 (demo), como en /casos
+  const fromHash = () => {
+    const h = location.hash.slice(1), k = DATA.findIndex((d) => d.key === h)
+    if (k >= 0) return k
+    const n = parseInt(h, 10)
+    return n >= 1 && n <= 5 ? n - 1 : n === 0 ? DATA.length - 1 : 0
+  }
+  addEventListener('hashchange', () => { const i = fromHash(); if (i !== cur) go(i) })
+  cur = fromHash()
+  render(); document.fonts?.ready.then(() => { const s = step; render(); setStep(s) })
 })()
 </script>
 </body>
