@@ -19,7 +19,7 @@ MAX_COST_ROWS = 6
 FIT_JS = """() => {
   const page = document.getElementById('page'), fit = document.getElementById('fit');
   let z = 1;
-  while (page.scrollHeight > page.clientHeight + 1 && z > 0.62) {
+  while (page.scrollHeight > page.clientHeight + 1 && z > 0.55) {
     z = Math.round((z - 0.02) * 100) / 100;
     fit.style.setProperty('--z', z);
   }
@@ -48,9 +48,21 @@ def _env() -> Environment:
 
 
 @lru_cache
-def _logo_data_uri() -> str:
-    data = (HERE / "assets" / "readymind-logo.png").read_bytes()
+def _icon_data_uri() -> str:
+    """Ícono del logo ampliado (el PNG oficial mide 168×40 px y se veía borroso impreso); la palabra va en texto."""
+    data = (HERE / "assets" / "readymind-icon.png").read_bytes()
     return "data:image/png;base64," + base64.b64encode(data).decode()
+
+
+@lru_cache
+def _fonts_css() -> str:
+    """Inter incrustada (subset latino, OFL): el contenedor no trae Satoshi ni Segoe UI y con la fuente de respaldo el
+    texto salía más ancho, se achicaba la hoja y se cortaba. Así el PDF sale igual en cualquier máquina."""
+    css = []
+    for weight, name in ((400, "Regular"), (600, "SemiBold"), (700, "Bold"), (800, "ExtraBold")):
+        data = base64.b64encode((HERE / "assets" / "fonts" / f"Inter-{name}.woff2").read_bytes()).decode()
+        css.append(f"@font-face {{ font-family: 'Inter'; font-weight: {weight}; src: url(data:font/woff2;base64,{data}) format('woff2'); }}")
+    return "\n".join(css)
 
 
 def render_html(payload: dict) -> str:
@@ -76,7 +88,8 @@ def render_html(payload: dict) -> str:
         diagrama=diagrama,
         riesgo=payload.get("riesgo") or {},
         objeciones=payload.get("objeciones") or [],
-        logo=_logo_data_uri(),
+        icon=_icon_data_uri(),
+        fonts_css=_fonts_css(),
         fecha=dt.date.today().strftime("%d/%m/%Y"),
     )
 
@@ -93,6 +106,7 @@ async def render_pdf(payload: dict, out: Path, settings: Settings) -> Path:
         try:
             page = await browser.new_page(viewport={"width": 816, "height": 1056})  # carta a 96 dpi
             await page.set_content(html, wait_until="load")
+            await page.evaluate("document.fonts.ready.then(() => true)")
             z = await page.evaluate(FIT_JS)
             if z < 1:
                 log.info("One-pager ajustado a escala %.2f para que entre en una hoja", z)

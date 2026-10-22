@@ -15,6 +15,9 @@ import { useVoice } from './voice/useVoice'
 // Versión del logo para fondo oscuro (la palabra "Ready" en blanco); se puede reemplazar por VITE_BRAND_LOGO_URL.
 const LOGO_URL = (import.meta.env.VITE_BRAND_LOGO_URL as string | undefined) ?? '/brand/readymind-logo-dark.png'
 
+// En las tablets del evento por ahora solo se escribe (hay mucho ruido): poner en true para volver a ofrecer la voz.
+const TABLET_VOICE = false
+
 // Modo tablet (tecla M): solo el universo y un subtítulo. Se recuerda entre recargas;
 // la primera vez, las salas de tablet arrancan en modo tablet.
 const TABLET_KEY = 'aitour.tablet'
@@ -103,9 +106,11 @@ export default function App() {
             <button className="btn primary big" onClick={() => setShowText(true)}>
               ✍️ Escribe tu problema
             </button>
-            <button className="btn big" onClick={() => void voice.start()}>
-              🎙 Prefiero hablar
-            </button>
+            {TABLET_VOICE && (
+              <button className="btn big" onClick={() => void voice.start()}>
+                🎙 Prefiero hablar
+              </button>
+            )}
           </div>
         )}
         {/* sin micrófono hace falta la entrada de texto; con micrófono basta el núcleo que escucha */}

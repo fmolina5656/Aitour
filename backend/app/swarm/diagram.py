@@ -144,6 +144,25 @@ def _zone_names(cols: list[list[_Node]]) -> list[str]:
     return names
 
 
+def _order_column(col: list[_Node], edges: list[tuple[str, str, str]]) -> list[_Node]:
+    """Ordena una zona para que los nodos conectados entre sí queden pegados: así ninguna flecha (ni su etiqueta)
+    pasa por encima de otro nodo. Zonas chicas (≤ 6 nodos): se prueba cada orden y gana el de menos saltos,
+    desempatando por el orden original."""
+    from itertools import permutations
+
+    ids = [n.id for n in col]
+    inner = [(a, b) for a, b, _ in edges if a in ids and b in ids]
+    if len(col) < 3 or not inner or len(col) > 6:
+        return col
+    best, best_key = col, None
+    for perm in permutations(range(len(col))):
+        row = {col[i].id: r for r, i in enumerate(perm)}
+        key = (sum(abs(row[a] - row[b]) - 1 for a, b in inner), sum(r != i for r, i in enumerate(perm)))
+        if best_key is None or key < best_key:
+            best, best_key = [col[i] for i in perm], key
+    return best
+
+
 def layout(componentes: list[dict], conexiones: list[dict], cats: dict[str, str], spec: dict | None = None):
     nodes = {
         c["id"]: _Node(c["id"], c.get("servicio", ""), c.get("nombre", c["id"]), cats.get(c["id"], ""), c.get("clave", ""))
@@ -186,6 +205,8 @@ def layout(componentes: list[dict], conexiones: list[dict], cats: dict[str, str]
             cols.append([nodes[i] for i in main_ids if lv[i] == k])
         titles = _zone_names(cols)
 
+    for k, col in enumerate(cols):
+        cols[k] = _order_column(col, edges)
     col_of = {n.id: k for k, col in enumerate(cols) for n in col}
     skips = any(abs(col_of[a] - col_of[b]) >= 2 for a, b, _ in main_edges)
     rows = max((len(c) for c in cols), default=1)
@@ -226,7 +247,7 @@ def build_svg(componentes: list[dict], conexiones: list[dict], cats: dict[str, s
     if not componentes:
         return ""
     nodes, cols, titles, edges, band, band_y, lane_top, lane_h, width, height = layout(componentes, conexiones, cats, spec)
-    font = "Satoshi, 'Segoe UI', Arial, sans-serif"
+    font = "Satoshi, Inter, 'Segoe UI', Arial, sans-serif"  # Inter va incrustada en el PDF
     out = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width:.0f} {height:.0f}" font-family="{font}" role="img" aria-label="Arquitectura en Azure">',
         f'<defs><marker id="ah-{theme}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">'
