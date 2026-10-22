@@ -17,6 +17,10 @@ Todo se ve en una escena 3D (Three.js) pensada para una pantalla de 1920×1080 v
 > - Guion de 5 minutos: [docs/GUION_STAND.md](docs/GUION_STAND.md)
 > - **Recorrido para ventas, contado por Glitch:** `https://<app>/story` (`frontend/public/story/index.html`)
 > - **Casos de éxito con muestras animadas, contados por Glitch:** `https://<app>/casos` (`frontend/public/casos/index.html`)
+> - **Copiloto del vendedor (celular):** `https://<app>/vendedor` — ficha rápida del visitante, guion por industria
+>   (con el caso de éxito y la demo para mostrar), objeciones y la lista de leads del día sin duplicados (QR + fichas),
+>   descargable en CSV para Excel. Pide el PIN del stand (`SELLER_PIN`; sin PIN configurado no funciona).
+>   Ver [Configurar el PIN del vendedor](docs/CHECKLIST_EVENTO.md#pin-del-vendedor).
 > - **Lector de documentos en vivo:** `https://<app>/ocr` — la cámara lee un documento y Glitch dice qué es, qué datos tiene
 >   y si algo no cuadra (`POST /api/ocr`, `backend/app/ocr.py`). Kit de documentos ficticios para imprimir:
 >   `https://<app>/ocr/muestras`.

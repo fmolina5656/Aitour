@@ -28,6 +28,7 @@ from .onepager.render import _env as templates
 from .onepager.render import render_pdf
 from .onepager.store import OnePagerStore
 from .session import SessionManager
+from .seller import build_router as seller_router
 from .swarm.schemas import Brief
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -107,6 +108,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="Readymind · AI Tour demo", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.include_router(seller_router(lambda: settings, lambda: store))
 
 
 class TextSessionRequest(BaseModel):

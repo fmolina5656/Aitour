@@ -25,6 +25,12 @@
   - Bocina **orientada hacia el visitante**, no hacia el micrófono.
 - [ ] **Red:** cable si hay. Si no, hotspot de respaldo ya probado.
 - [ ] Abrir `https://<app>/accesos` en una tablet o un celular del equipo: tiene todos los links del stand y su QR.
+- [ ] <a id="pin-del-vendedor"></a>**PIN del vendedor** (una vez, sin redeploy): definir un PIN de 6+ dígitos y cargarlo en la app:
+  ```
+  az containerapp update -n <app> -g <grupo> --set-env-vars SELLER_PIN=<pin>
+  ```
+  Cada vendedor abre `https://<app>/vendedor` en su celular, pone el PIN y su nombre. El PIN no se escribe en el repo
+  ni se comparte por chat abierto. Al cerrar cada día: pestaña **Leads → Descargar Excel (CSV)**.
 - [ ] **Navegador:**
   - Chrome con `https://<app>/?quality=high` y luego `F` para pantalla completa.
   - Tablets: `https://<app>/?sala=tablet1` y `https://<app>/?sala=tablet2` (cada una con su propia sesión).

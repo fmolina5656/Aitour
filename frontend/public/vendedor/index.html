@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#050a12" />
+<title>Copiloto del vendedor</title>
+<meta name="description" content="Herramienta interna del stand: fichas de visitantes, guion por industria, objeciones y leads del día." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+/* Copiloto del vendedor: pensado para el celular, con una mano. API en backend/app/seller.py (PIN del stand). */
+:root {
+  --green: #66de7f; --blue: #397ef6; --gradient: linear-gradient(90deg, #66de7f 0%, #53b6ad 50%, #397ef6 100%);
+  --bg: #050a12; --card: #0c1626; --line: #1f3150; --line-2: #2a4268;
+  --text: #f3f6fa; --text-2: #b7c2d2; --text-3: #7d8ca2; --alert: #ffb547; --bad: #ff7a7a;
+  --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
+body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+header { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(5,10,18,.94); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+header img { width: 34px; }
+header b { font-size: 16px; }
+header small { display: block; color: var(--text-3); font-size: 12px; }
+header .who { margin-left: auto; font-size: 12px; color: var(--text-2); border: 1px solid var(--line-2); border-radius: 99px; padding: 4px 10px; }
+main { max-width: 640px; margin: 0 auto; padding: 14px 16px; }
+.view { display: none; } .view.on { display: block; }
+h2 { font-size: 20px; margin: 6px 0 12px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+label { display: block; font-size: 13px; color: var(--text-2); margin: 10px 0 5px; }
+input, textarea, select { width: 100%; font: inherit; font-size: 16px; color: var(--text); background: #08111f; border: 1px solid var(--line-2); border-radius: 12px; padding: 12px; }
+textarea { min-height: 80px; resize: vertical; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--green); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 15px; color: var(--text); background: #08111f; border: 1px solid var(--line-2); border-radius: 99px; padding: 9px 14px; cursor: pointer; }
+.chip.on { background: var(--green); color: #04121b; border-color: var(--green); font-weight: 700; }
+.btn { width: 100%; font: inherit; font-size: 17px; font-weight: 700; color: #04121b; background: var(--gradient); border: 0; border-radius: 14px; padding: 15px; margin-top: 14px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line-2); font-weight: 600; }
+.btn:disabled { opacity: .5; }
+.toast { position: fixed; left: 16px; right: 16px; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 9; padding: 12px 14px; border-radius: 12px; background: #0f2a1a; border: 1px solid var(--green); color: #c8f5d2; font-weight: 600; text-align: center; transform: translateY(20px); opacity: 0; transition: .25s; }
+.toast.show { opacity: 1; transform: none; }
+.toast.err { background: #2a1010; border-color: var(--bad); color: #ffc2c2; }
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(8,14,26,.97); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+nav.tabs button { font: inherit; font-size: 12px; color: var(--text-3); background: none; border: 0; padding: 9px 4px 10px; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+nav.tabs button i { font-style: normal; font-size: 21px; }
+nav.tabs button.on { color: var(--green); }
+.muted { color: var(--text-3); font-size: 13px; line-height: 1.45; }
+/* guion */
+.case { border-left: 4px solid var(--c, var(--green)); }
+.case .k { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--c, var(--green)); font-weight: 700; }
+.case h3 { margin: 4px 0 8px; font-size: 18px; }
+.say { font-size: 16px; line-height: 1.5; padding: 12px; border-radius: 12px; background: rgba(102,222,127,.08); border: 1px solid rgba(102,222,127,.3); margin: 8px 0; }
+.say b { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: 4px; }
+ul.q { margin: 6px 0 0; padding-left: 18px; color: var(--text-2); line-height: 1.6; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.links a { font-size: 14px; font-weight: 600; color: var(--text); text-decoration: none; border: 1px solid var(--line-2); border-radius: 10px; padding: 9px 12px; }
+.links a.live { border-color: rgba(102,222,127,.6); }
+/* objeciones */
+details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; }
+summary { list-style: none; cursor: pointer; padding: 14px; font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; gap: 10px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: '+'; color: var(--green); font-size: 20px; line-height: 1; }
+details[open] summary::after { content: '−'; }
+details .a { padding: 0 14px 14px; font-size: 15px; line-height: 1.55; color: var(--text-2); }
+details .a b { color: var(--text); }
+/* leads */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.stat { text-align: center; padding: 10px 6px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); }
+.stat b { display: block; font-size: 24px; }
+.stat span { font-size: 12px; color: var(--text-3); }
+.lead { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.lead b { font-size: 15px; }
+.lead .tag { align-self: start; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: #13233c; color: var(--text-2); white-space: nowrap; }
+.lead .tag.t { background: var(--green); color: #04121b; } .lead .tag.p { background: var(--blue); color: #fff; }
+.lead small { grid-column: 1 / -1; color: var(--text-3); font-size: 13px; line-height: 1.4; }
+.toggle { display: flex; gap: 8px; margin-bottom: 10px; }
+/* login */
+.login { max-width: 360px; margin: 12vh auto 0; text-align: center; }
+.login img { width: 96px; }
+.login input { text-align: center; font-size: 26px; letter-spacing: .4em; }
+</style>
+</head>
+<body>
+<header>
+  <img src="/brand/glitch-open.webp" alt="" />
+  <div><b>Copiloto del vendedor</b><small>Readymind · AI Tour</small></div>
+  <span class="who" id="who" hidden></span>
+</header>
+
+<main>
+  <!-- Login -->
+  <section class="view login" id="vLogin">
+    <img src="/brand/glitch-open.webp" alt="Glitch" />
+    <h2>Solo para el equipo del stand</h2>
+    <p class="muted">Ingresa el PIN del stand. Se recuerda en este celular hasta cerrar la pestaña.</p>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="••••" />
+    <label for="me" style="text-align:left">Tu nombre (queda en las fichas que cargues)</label>
+    <input id="me" type="text" maxlength="60" autocomplete="name" placeholder="Ej. Karem" />
+    <button class="btn" id="bLogin">Entrar</button>
+  </section>
+
+  <!-- Ficha -->
+  <section class="view" id="vFicha">
+    <h2>Nueva ficha</h2>
+    <div class="card">
+      <label for="fNombre">Nombre *</label><input id="fNombre" maxlength="80" autocomplete="off" />
+      <div class="row2">
+        <div><label for="fEmpresa">Empresa</label><input id="fEmpresa" maxlength="100" autocomplete="off" /></div>
+        <div><label for="fCargo">Cargo</label><input id="fCargo" maxlength="80" autocomplete="off" /></div>
+      </div>
+      <label for="fCorreo">Correo</label><input id="fCorreo" type="email" inputmode="email" maxlength="120" autocomplete="off" />
+      <label>Industria</label><div class="chips" id="fInd"></div>
+      <label>Interés</label>
+      <div class="chips" id="fInt">
+        <button type="button" class="chip" data-v="taller">🗓 Taller</button>
+        <button type="button" class="chip" data-v="piloto">🚀 Piloto</button>
+        <button type="button" class="chip" data-v="propuesta">📄 Propuesta</button>
+        <button type="button" class="chip on" data-v="info">ℹ️ Info</button>
+        <button type="button" class="chip" data-v="curioso">👀 Curioso</button>
+      </div>
+      <label for="fNota">Nota</label><textarea id="fNota" maxlength="600" placeholder="Qué problema contó, qué le interesó, próximo paso…"></textarea>
+      <p class="muted">Pide permiso antes de anotar sus datos. Si dejó sus datos con el QR, igual puedes cargar la ficha: se unen solas por correo.</p>
+      <button class="btn" id="bGuardar">Guardar ficha</button>
+    </div>
+  </section>
+
+  <!-- Guion -->
+  <section class="view" id="vGuion">
+    <h2>¿De qué industria es?</h2>
+    <div class="chips" id="gInd" style="margin-bottom:12px"></div>
+    <div id="gOut"></div>
+  </section>
+
+  <!-- Objeciones -->
+  <section class="view" id="vObj">
+    <h2>Preguntas difíciles</h2>
+    <p class="muted" style="margin-top:-4px">Respuestas cortas, con lo que la demo ya muestra. Ante la duda: "lo vemos en el taller con tus datos".</p>
+    <div id="objs"></div>
+  </section>
+
+  <!-- Leads -->
+  <section class="view" id="vLeads">
+    <h2>Leads</h2>
+    <div class="toggle"><button class="chip on" data-hoy="1">Hoy</button><button class="chip" data-hoy="0">Todo el evento</button></div>
+    <div class="stats"><div class="stat"><b id="sTot">0</b><span>leads</span></div><div class="stat"><b id="sTal">0</b><span>taller o piloto</span></div><div class="stat"><b id="sQr">0</b><span>vía QR</span></div></div>
+    <div class="card" style="padding:0" id="lList"></div>
+    <a class="btn" id="bCsv" style="display:block;text-align:center;text-decoration:none">⬇️ Descargar Excel (CSV)</a>
+    <button class="btn ghost" id="bSalir">Cerrar sesión en este celular</button>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs" hidden>
+  <button data-v="vFicha" class="on"><i>📝</i>Ficha</button>
+  <button data-v="vGuion"><i>🎯</i>Guion</button>
+  <button data-v="vObj"><i>💬</i>Objeciones</button>
+  <button data-v="vLeads"><i>📋</i>Leads</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+  const ss = { get: (k) => { try { return sessionStorage.getItem(k) || '' } catch { return '' } }, set: (k, v) => { try { sessionStorage.setItem(k, v) } catch {} } }
+  const ls = { get: (k) => { try { return localStorage.getItem(k) || '' } catch { return '' } }, set: (k, v) => { try { localStorage.setItem(k, v) } catch {} } }
+  let pin = ss.get('vend.pin'), me = ls.get('vend.me')
+
+  // Industria → caso de éxito, apertura, preguntas y demos en vivo. Sin nombres de clientes.
+  const IND = [
+    { k: 'Finanzas', i: '🏦', c: '#3b82f6', caso: 1, titulo: 'FinancialOCR · conciliación contable', apertura: 'Una empresa financiera recibía extractos en PDF de 9 brokers, cada uno con su formato, y los pasaba a mano a SAP. Ahora la IA los interpreta y entrega el Excel listo para SAP: los 9 en minutos y con cero errores de ingreso.', preguntas: ['¿Qué documentos reciben de terceros y hoy se capturan a mano?', '¿Cuánto tarda su cierre contable o la conciliación?', '¿En qué sistema terminan esos datos (SAP, ERP, CRM)?'], demos: [['📷 Lector de documentos en vivo', '/ocr/']] },
+    { k: 'Energía / Industria', i: '🏭', c: '#fb6a3c', caso: 2, titulo: 'Smart Maintenance · planes de mantenimiento', apertura: 'En una planta de energía armaban los planes de mantenimiento leyendo manuales de cientos de páginas en varios idiomas. Ahora la IA lee el manual y genera el plan y la lista de repuestos para SAP en minutos.', preguntas: ['¿Cómo arman hoy los planes de mantenimiento preventivo?', '¿Qué pasa cuando se jubila o se va un técnico con experiencia?', '¿Tienen un CMMS o ERP donde cargan los planes?'], demos: [['🛠 Recorrido por la plataforma real', '/mantenimiento/']] },
+    { k: 'Retail', i: '🛍', c: '#ec4899', caso: 3, titulo: 'Store Intelligence · visión en tiendas', apertura: 'Una cadena de moda mide en tiempo real filas, tiempos de atención y permanencia con las cámaras que ya tenía, y decide cuánta gente poner en cada turno con datos, no a ojo.', preguntas: ['¿Cómo miden hoy filas y tiempos de atención en tienda?', '¿Cuántas tiendas y qué cámaras tienen?', '¿Qué decisión tomarían si tuvieran ese dato en vivo?'], demos: [['📹 Visión del stand en vivo', '/vision/']] },
+    { k: 'Seguros / Salud', i: '🩺', c: '#facc15', caso: 4, titulo: 'API documental · trámites', apertura: 'En pensiones, cada trámite trae de 3 a 15 documentos distintos. La API reconoce cada uno, lo manda a la herramienta que mejor lo lee y devuelve los datos listos: cero carga manual y todo trazado.', preguntas: ['¿Cuántos documentos trae un trámite típico?', '¿Cuánto tiempo pasa entre que llega y que queda capturado?', '¿Qué errores de captura les cuestan más?'], demos: [['📷 Lector de documentos en vivo', '/ocr/']] },
+    { k: 'Legal / Seguridad / TI', i: '🛡', c: '#a855f7', caso: 5, titulo: 'SOC Classifier · triage de alertas', apertura: 'Un equipo recibía decenas de alertas de seguridad al día en un solo correo y las leía una por una. Un agente las clasifica en tiempo real, descarta las falsas y avisa en Teams solo lo crítico: de horas a segundos.', preguntas: ['¿Cuántas alertas o tickets reciben por día?', '¿Quién las revisa y cuánto tarda?', '¿Usan Teams o ServiceNow para escalar?'], demos: [] },
+    { k: 'Otra', i: '✨', c: '#66de7f', caso: 0, titulo: 'Arranca con la demo', apertura: 'Cuéntale tu problema a nuestra recepcionista de IA y en tres minutos un equipo de agentes te arma la solución en Azure, con costo y riesgos incluidos.', preguntas: ['¿Qué proceso de tu empresa es lento, manual o caro?', '¿Cuántas personas y horas se le van a eso cada mes?', '¿Qué datos tienen hoy de ese proceso?'], demos: [['🎙 La demo principal', '/?sala=pc']] },
+  ]
+  const OBJ = [
+    ['¿Y la seguridad de mis datos?', 'Todo corre en <b>Azure</b>, en la suscripción del cliente, con identidades administradas y sin llaves en el código. En la demo viste a <b>Riesgo</b> pedir enmascarar datos personales y a <b>Prompt Shields</b> bloquear un ataque antes del modelo. Contemplamos la <b>LFPDPPP</b> desde el diseño.'],
+    ['¿Cuánto cuesta?', 'El one-pager trae un <b>costo mensual estimado</b> calculado con la tabla de precios de Azure, no inventado por la IA. Es referencial: el número fino sale del <b>taller de 2 horas</b> con sus volúmenes reales.'],
+    ['¿Cuánto tarda en estar funcionando?', 'Los casos que mostramos tomaron <b>entre 8 y 13 semanas</b>. El camino es: taller de 2 horas → piloto de 4 semanas con sus datos → decisión de escalar.'],
+    ['Ya tenemos Copilot', '¡Perfecto, se complementan! <b>Copilot</b> ayuda a cada persona en su trabajo diario; lo que mostramos son <b>agentes a medida</b> que automatizan un proceso completo y se conectan con sus sistemas (SAP, ServiceNow, Teams).'],
+    ['¿Y si la IA se equivoca?', 'Por diseño: las cuentas y validaciones las hace el <b>código</b> (costos, RFC, que cuadre una factura), la IA marca cuando <b>requiere revisión</b> y una persona aprueba las excepciones. Cada decisión queda <b>trazada</b>.'],
+    ['Nuestros documentos son un desastre (escaneados, a mano…)', 'Es justo el caso: <b>Document Intelligence</b> lee PDF escaneados e imágenes, y en mantenimiento procesamos manuales en varios idiomas. Pruébalo ahora con el <b>lector de documentos</b>.'],
+    ['¿Funciona en español y con documentos de México?', 'Sí: la demo entera es en español de México, y el lector reconoce facturas CFDI, constancias del SAT, INE y comprobantes de domicilio.'],
+    ['¿Por qué Readymind?', 'Ya lo hicimos: <b>14 proyectos de IA en producción</b> en finanzas, energía, retail, salud y seguridad, en Argentina, Colombia y Perú. Y somos partners de Microsoft.'],
+  ]
+
+  // ---------- Navegación ----------
+  const show = (id) => {
+    document.querySelectorAll('.view').forEach((v) => v.classList.toggle('on', v.id === id))
+    document.querySelectorAll('#tabs button').forEach((b) => b.classList.toggle('on', b.dataset.v === id))
+    if (id === 'vLeads') loadLeads()
+    scrollTo(0, 0)
+  }
+  $('tabs').onclick = (e) => { const b = e.target.closest('button'); if (b) show(b.dataset.v) }
+  let tt
+  const toast = (msg, err) => { const t = $('toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => (t.className = 'toast'), 2600) }
+
+  async function api(path, opts = {}) {
+    const r = await fetch('/api/vendedor' + path, { ...opts, headers: { 'Content-Type': 'application/json', 'X-Seller-Pin': pin, ...(opts.headers || {}) } })
+    const body = await r.json().catch(() => ({}))
+    if (r.status === 401) { logout(); throw new Error('PIN incorrecto') }
+    if (!r.ok) throw new Error(typeof body.detail === 'string' ? body.detail : 'Revisa los datos e intenta otra vez')
+    return body
+  }
+
+  // ---------- Login ----------
+  function enter() {
+    $('vLogin').classList.remove('on'); $('tabs').hidden = false
+    $('who').hidden = !me; $('who').textContent = me
+    show('vFicha')
+  }
+  function logout() { pin = ''; ss.set('vend.pin', ''); $('tabs').hidden = true; $('who').hidden = true; document.querySelectorAll('.view').forEach((v) => v.classList.remove('on')); $('vLogin').classList.add('on') }
+  $('me').value = me
+  $('bLogin').onclick = async () => {
+    pin = $('pin').value.trim(); me = $('me').value.trim()
+    try { await api('/login', { method: 'POST' }); ss.set('vend.pin', pin); ls.set('vend.me', me); enter() }
+    catch (e) { toast(e.message, true) }
+  }
+  $('pin').onkeydown = (e) => { if (e.key === 'Enter') $('bLogin').click() }
+  $('bSalir').onclick = logout
+
+  // ---------- Ficha ----------
+  const chipGroup = (el, single = true) => el.addEventListener('click', (e) => {
+    const c = e.target.closest('.chip'); if (!c) return
+    if (single) el.querySelectorAll('.chip').forEach((x) => x !== c && x.classList.remove('on'))
+    c.classList.toggle('on')
+  })
+  $('fInd').innerHTML = IND.map((x) => `<button type="button" class="chip" data-v="${esc(x.k)}">${x.i} ${esc(x.k)}</button>`).join('')
+  chipGroup($('fInd')); chipGroup($('fInt'))
+  const val = (el) => el.querySelector('.chip.on')?.dataset.v || ''
+  $('bGuardar').onclick = async () => {
+    const b = $('bGuardar')
+    const data = { nombre: $('fNombre').value.trim(), empresa: $('fEmpresa').value.trim(), cargo: $('fCargo').value.trim(), correo: $('fCorreo').value.trim(),
+                   industria: val($('fInd')), interes: val($('fInt')) || 'info', nota: $('fNota').value.trim(), vendedor: me }
+    if (data.nombre.length < 2) return toast('Falta el nombre', true)
+    b.disabled = true
+    try {
+      await api('/visita', { method: 'POST', body: JSON.stringify(data) })
+      toast('✅ Ficha guardada')
+      ;['fNombre', 'fEmpresa', 'fCargo', 'fCorreo', 'fNota'].forEach((id) => ($(id).value = ''))
+      $('fInd').querySelectorAll('.chip').forEach((c) => c.classList.remove('on'))
+      $('fInt').querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c.dataset.v === 'info'))
+    } catch (e) { toast(e.message, true) } finally { b.disabled = false }
+  }
+  // al elegir industria en la ficha, el guion queda listo en esa industria
+  $('fInd').addEventListener('click', () => { const v = val($('fInd')); if (v) guion(v) })
+
+  // ---------- Guion ----------
+  $('gInd').innerHTML = IND.map((x) => `<button class="chip" data-v="${esc(x.k)}">${x.i} ${esc(x.k)}</button>`).join('')
+  $('gInd').onclick = (e) => { const c = e.target.closest('.chip'); if (c) guion(c.dataset.v) }
+  function guion(k) {
+    const x = IND.find((i) => i.k === k); if (!x) return
+    $('gInd').querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c.dataset.v === k))
+    const links = [...(x.caso ? [[`🏆 Mostrar el caso en la tablet`, `/casos/#${x.caso}`]] : []), ...x.demos]
+    $('gOut').innerHTML = `<div class="card case" style="--c:${x.c}">
+      <div class="k">${x.caso ? 'Caso de éxito más parecido' : 'Para empezar'}</div><h3>${esc(x.titulo)}</h3>
+      <div class="say"><b>💬 Apertura</b>${esc(x.apertura)}</div>
+      <div class="muted" style="margin-top:10px">❓ Preguntas para calificar</div>
+      <ul class="q">${x.preguntas.map((q) => `<li>${esc(q)}</li>`).join('')}</ul>
+      <div class="links">${links.map(([t, h], i) => `<a href="${h}" target="_blank" rel="noopener" class="${i && x.caso ? 'live' : ''}">${t} ↗</a>`).join('')}</div>
+      <div class="say" style="margin-top:12px"><b>➡️ Cierre</b>Esto lo armamos en minutos. En un taller de 2 horas lo aterrizamos con tus datos, y con un piloto de 4 semanas lo ves funcionando. ¿Agendamos?</div>
+    </div>`
+  }
+  guion('Otra')
+
+  // ---------- Objeciones ----------
+  $('objs').innerHTML = OBJ.map(([q, a]) => `<details><summary>${esc(q)}</summary><div class="a">${a}</div></details>`).join('')
+
+  // ---------- Leads ----------
+  let hoy = true
+  document.querySelector('.toggle').onclick = (e) => {
+    const c = e.target.closest('.chip'); if (!c) return
+    hoy = c.dataset.hoy === '1'
+    document.querySelectorAll('.toggle .chip').forEach((x) => x.classList.toggle('on', x === c)); loadLeads()
+  }
+  const INT = { taller: ['🗓 Taller', 't'], piloto: ['🚀 Piloto', 'p'], propuesta: ['📄 Propuesta', 'p'], info: ['ℹ️ Info', ''], curioso: ['👀 Curioso', ''] }
+  async function loadLeads() {
+    $('bCsv').href = `/api/vendedor/leads.csv?hoy=${hoy}&pin=${encodeURIComponent(pin)}`
+    try {
+      const { leads } = await api(`/leads?hoy=${hoy}`)
+      $('sTot').textContent = leads.length
+      $('sTal').textContent = leads.filter((l) => l.interes === 'taller' || l.interes === 'piloto').length
+      $('sQr').textContent = leads.filter((l) => String(l.origen).includes('QR')).length
+      $('lList').innerHTML = leads.length ? leads.map((l) => {
+        const [lab, cls] = INT[l.interes] || (String(l.origen).includes('QR') ? ['📄 Pidió el PDF', ''] : ['—', ''])
+        const hora = String(l.fecha).slice(11, 16), dia = hoy ? '' : String(l.fecha).slice(5, 10).split('-').reverse().join('/') + ' '
+        return `<div class="lead"><b>${esc(l.nombre)}${l.empresa ? ' · ' + esc(l.empresa) : ''}</b><span class="tag ${cls}">${lab}</span>
+          <small>${dia}${hora} · ${esc(l.origen)}${l.industria ? ' · ' + esc(l.industria) : ''}${l.correo ? ' · ' + esc(l.correo) : ''}${l.solucion ? '<br>📄 ' + esc(l.solucion) : ''}${l.nota ? '<br>📝 ' + esc(l.nota) : ''}${l.vendedor ? ' — ' + esc(l.vendedor) : ''}</small></div>`
+      }).join('') : '<p class="muted" style="padding:14px;margin:0">Todavía no hay leads. ¡A buscarlos! 💪</p>'
+    } catch (e) { toast(e.message, true) }
+  }
+
+  if (pin) api('/login', { method: 'POST' }).then(enter).catch(() => logout())
+  else $('vLogin').classList.add('on')
+})()
+</script>
+</body>
+</html>

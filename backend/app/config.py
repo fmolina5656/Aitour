@@ -57,13 +57,15 @@ class Settings(BaseSettings):
     power_automate_url: str = ""  # vacío = no se envía; los leads quedan en la bandeja de salida
     power_automate_timeout_s: float = 15.0
 
-    @field_validator("power_automate_url")
+    @field_validator("power_automate_url", "seller_pin")
     @classmethod
     def _sin_power_automate(cls, v: str) -> str:
         # Container Apps no admite secretos vacíos: el Bicep guarda 'none' cuando no hay flujo configurado
         return "" if v.strip().lower() == "none" else v
 
     max_leads_per_session: int = 3
+    # PIN del copiloto del vendedor (/vendedor). Vacío = la página no funciona (no expone los leads).
+    seller_pin: str = ""
     # Aviso de privacidad (PENDIENTE: validar con el área legal de Readymind)
     privacy_responsable: str = "Readymind (razón social y domicilio pendientes de validar por el área legal)"
     privacy_contacto: str = "privacidad@readymind.ms (pendiente de confirmar)"

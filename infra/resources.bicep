@@ -9,6 +9,8 @@ param modelDeployments array
 param leadSecret string
 @secure()
 param powerAutomateUrl string
+@secure()
+param sellerPin string
 param modelArquitecto string
 param modelFinanciero string
 param modelRiesgo string
@@ -285,6 +287,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
       secrets: [
         { name: 'lead-secret', value: leadSecret }
         { name: 'power-automate-url', value: empty(powerAutomateUrl) ? 'none' : powerAutomateUrl }
+        { name: 'seller-pin', value: empty(sellerPin) ? 'none' : sellerPin }
       ]
     }
     template: {
@@ -309,6 +312,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'PUBLIC_BASE_URL', value: publicUrl }
             { name: 'LEAD_SECRET', secretRef: 'lead-secret' }
             { name: 'POWER_AUTOMATE_URL', secretRef: 'power-automate-url' }
+            { name: 'SELLER_PIN', secretRef: 'seller-pin' }
             { name: 'DATA_DIR', value: '/data' }
             { name: 'RECORDINGS_DIR', value: '/data/recordings' }
           ]

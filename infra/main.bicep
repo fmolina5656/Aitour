@@ -27,6 +27,10 @@ param leadSecret string
 @description('URL del disparador HTTP de Power Automate que envía el correo (vacío = los leads quedan en outbox).')
 param powerAutomateUrl string = ''
 
+@secure()
+@description('PIN del copiloto del vendedor (/vendedor). Vacío = la página no funciona.')
+param sellerPin string = ''
+
 param modelArquitecto string = 'gpt-5.4'
 param modelFinanciero string = 'gpt-5.4-mini'
 param modelRiesgo string = 'gpt-5.4-mini'
@@ -53,6 +57,7 @@ module resources 'resources.bicep' = {
     modelDeployments: modelDeployments
     leadSecret: leadSecret
     powerAutomateUrl: powerAutomateUrl
+    sellerPin: sellerPin
     modelArquitecto: modelArquitecto
     modelFinanciero: modelFinanciero
     modelRiesgo: modelRiesgo
