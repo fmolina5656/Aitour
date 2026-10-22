@@ -24,6 +24,10 @@ def test_api_vendedor(tmp_path, monkeypatch):
 
     s = Settings(demo_mode="mock", data_dir=tmp_path, recordings_dir=tmp_path, seller_pin="4321")
     monkeypatch.setattr(main, "settings", s)
+    from app.onepager.store import OnePagerStore
+    ops = OnePagerStore(s)
+    ops.save("abc", {"brief": {"industria": "Retail"}, "onepager": {"titulo": "Agente X"}})
+    monkeypatch.setattr(main, "store", ops)
     (tmp_path / "leads").mkdir()
     (tmp_path / "leads" / "leads.jsonl").write_text(json.dumps({"fecha": "2099-01-01T09:00:00", "session_id": "abc", "nombre": "Ana Ruiz",
                                                                 "empresa": "ACME", "correo": "ana@acme.com", "titulo": "Agente X"}) + "\n")
@@ -36,6 +40,8 @@ def test_api_vendedor(tmp_path, monkeypatch):
         assert r.status_code == 200
         todos = c.get("/api/vendedor/leads?hoy=false", headers=h).json()
         assert todos["total"] == 1 and todos["leads"][0]["interes"] == "piloto" and todos["leads"][0]["origen"] == "QR + vendedor"
+        link = todos["leads"][0]["onepager"]
+        assert link.endswith(f"/api/pdf/abc?t={ops.token('abc')}") and todos["leads"][0]["industria"] == "Retail"
         assert c.get("/api/vendedor/leads.csv?pin=4321").text.startswith("﻿fecha,origen,nombre")
         assert c.get("/api/vendedor/leads").status_code == 401
 

@@ -346,7 +346,7 @@ details .a b { color: var(--text); }
         const [lab, cls] = INT[l.interes] || (String(l.origen).includes('QR') ? ['📄 Pidió el PDF', ''] : ['—', ''])
         const hora = String(l.fecha).slice(11, 16), dia = hoy ? '' : String(l.fecha).slice(5, 10).split('-').reverse().join('/') + ' '
         return `<div class="lead"><b>${esc(l.nombre)}${l.empresa ? ' · ' + esc(l.empresa) : ''}</b><span class="tag ${cls}">${lab}</span>
-          <small>${dia}${hora} · ${esc(l.origen)}${l.industria ? ' · ' + esc(l.industria) : ''}${l.correo ? ' · ' + esc(l.correo) : ''}${l.solucion ? '<br>📄 ' + esc(l.solucion) : ''}${l.nota ? '<br>📝 ' + esc(l.nota) : ''}${l.vendedor ? ' — ' + esc(l.vendedor) : ''}</small></div>`
+          <small>${dia}${hora} · ${esc(l.origen)}${l.industria ? ' · ' + esc(l.industria) : ''}${l.correo ? ' · ' + esc(l.correo) : ''}${l.solucion ? '<br>📄 ' + (l.onepager ? `<a href="${esc(l.onepager)}" target="_blank" rel="noopener" style="color:var(--green)">${esc(l.solucion)} ↗</a>` : esc(l.solucion)) : ''}${l.nota ? '<br>📝 ' + esc(l.nota) : ''}${l.vendedor ? ' — ' + esc(l.vendedor) : ''}</small></div>`
       }).join('') : '<p class="muted" style="padding:14px;margin:0">Todavía no hay leads. ¡A buscarlos! 💪</p>'
     } catch (e) { toast(e.message, true) }
   }

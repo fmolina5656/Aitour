@@ -26,7 +26,7 @@ from .onepager.leads import EMAIL_RE
 
 INTERESES = ("taller", "piloto", "propuesta", "info", "curioso")
 CSV_FIELDS = ["fecha", "origen", "nombre", "empresa", "correo", "cargo", "industria", "interes", "acepta_contacto",
-              "solucion", "nota", "vendedor"]
+              "solucion", "onepager", "nota", "vendedor"]
 
 
 class Visita(BaseModel):
@@ -132,17 +132,24 @@ def build_router(get_settings, get_onepagers) -> APIRouter:
             fails[client] = recent + [time.time()]
             raise HTTPException(401, "PIN incorrecto")
 
-    def qr_leads() -> list[dict]:
+    def qr_leads(base: str) -> list[dict]:
         rows = []
+        onepagers = get_onepagers()
         for r in _read_jsonl(Path(get_settings().data_dir) / "leads" / "leads.jsonl"):
-            payload = get_onepagers().get(r.get("session_id", "")) or {}
+            sid = r.get("session_id", "")
+            payload = onepagers.get(sid) or {}
             r = {**r, "industria": (payload.get("brief") or {}).get("industria", ""),
-                 "solucion": r.get("titulo") or (payload.get("onepager") or {}).get("titulo", "")}
+                 "solucion": r.get("titulo") or (payload.get("onepager") or {}).get("titulo", ""),
+                 # link firmado al PDF que se armó la persona (el mismo que recibió por correo)
+                 "onepager": f"{base}/api/pdf/{sid}?t={onepagers.token(sid)}" if payload else ""}
             rows.append(r)
         return rows
 
-    def all_leads(solo_hoy: bool) -> list[dict]:
-        rows = merge(qr_leads(), seller_store().fichas())
+    def base_url(request: Request) -> str:
+        return get_settings().public_base_url.rstrip("/") or str(request.base_url).rstrip("/")
+
+    def all_leads(solo_hoy: bool, request: Request) -> list[dict]:
+        rows = merge(qr_leads(base_url(request)), seller_store().fichas())
         if solo_hoy:
             hoy = dt.date.today().isoformat()
             rows = [r for r in rows if str(r.get("fecha", "")).startswith(hoy)]
@@ -161,7 +168,7 @@ def build_router(get_settings, get_onepagers) -> APIRouter:
     @router.get("/leads")
     async def leads(request: Request, hoy: bool = True, x_seller_pin: str | None = Header(default=None)) -> dict:
         check(x_seller_pin, request)
-        rows = all_leads(hoy)
+        rows = all_leads(hoy, request)
         return {"total": len(rows), "leads": [{k: r.get(k, "") for k in CSV_FIELDS} for r in rows]}
 
     @router.get("/leads.csv")
@@ -170,7 +177,7 @@ def build_router(get_settings, get_onepagers) -> APIRouter:
         buf = io.StringIO()
         w = csv.DictWriter(buf, fieldnames=CSV_FIELDS, extrasaction="ignore")
         w.writeheader()
-        for r in all_leads(hoy):
+        for r in all_leads(hoy, request):
             row = {k: r.get(k, "") for k in CSV_FIELDS}
             if isinstance(row["acepta_contacto"], bool):
                 row["acepta_contacto"] = "sí" if row["acepta_contacto"] else "no"
