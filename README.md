@@ -17,6 +17,9 @@ Todo se ve en una escena 3D (Three.js) pensada para una pantalla de 1920×1080 v
 > - Guion de 5 minutos: [docs/GUION_STAND.md](docs/GUION_STAND.md)
 > - **Recorrido para ventas, contado por Glitch:** `https://<app>/story` (`frontend/public/story/index.html`)
 > - **Casos de éxito con muestras animadas, contados por Glitch:** `https://<app>/casos` (`frontend/public/casos/index.html`)
+> - **En las tablets:** botón **🏆 Casos de éxito** (abajo a la izquierda) y, en /casos, **🎙 Ir al orquestador** para volver a la
+>   misma sala. Botón flotante **💼 Lead rápido** (abajo a la derecha, en la tablet y en /casos): un chat que guarda la
+>   ficha del visitante con el PIN del stand (`frontend/public/vendedor/fab.js`). Solo guarda: la lista está en /vendedor.
 > - **Arquitectura en diagramas animados:** `https://<app>/arquitectura` — los 5 casos de éxito y al final la demo, paso a paso con clic,
 >   con qué pieza de Azure y Foundry hace cada cosa y la ficha de cada pieza al hacer clic (`frontend/public/arquitectura/index.html`; `#caso1` a `#caso5` y `#demo`).
 > - **Copiloto del vendedor (celular):** `https://<app>/vendedor` — ficha rápida del visitante, guion por industria

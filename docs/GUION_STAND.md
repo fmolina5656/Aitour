@@ -74,7 +74,7 @@ Datos para mencionar si preguntan:
 > cuatro semanas lo ves funcionando."
 
 - Agenda el taller o toma la tarjeta.
-- En el celular, **/vendedor → Ficha**: nombre, empresa, industria, interés y una nota (30 segundos). Si dejó sus
+- En la tablet, **💼 Lead rápido** (abajo a la derecha) o en el celular **/vendedor → Ficha**: nombre, empresa, industria, interés y una nota (30 segundos). Si dejó sus
   datos con el QR, no se duplica: la ficha se une a su lead. **Guion** y **Objeciones** tienen qué decir por industria.
 - Presiona **R** para dejar la pantalla lista para el siguiente visitante.
 

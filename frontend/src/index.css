@@ -173,6 +173,7 @@ kbd { font-family: var(--mono); font-size: 13px; border: 1px solid var(--line-st
 .tablet-bottom > * { pointer-events: auto; }
 .tablet-reset { position: fixed !important; left: 16px; top: 16px; z-index: 5; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
 .tablet-reset.small { opacity: .75; font-size: 15px; }
+.tablet-casos { position: fixed !important; left: 16px; bottom: 20px; z-index: 5; text-decoration: none; background: rgba(7, 14, 26, .85); backdrop-filter: blur(14px); box-shadow: 0 8px 30px rgba(0,0,0,.45); }
 .tablet-share { position: fixed !important; top: 16px; right: 16px; width: 380px; max-width: calc(100vw - 32px); }
 .tablet-share .share { margin: 0; padding: 12px; gap: 12px; background: rgba(7, 14, 26, .85); backdrop-filter: blur(14px); }
 .tablet-share .share-qr { width: 120px; height: 120px; }

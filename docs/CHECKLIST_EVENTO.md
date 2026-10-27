@@ -31,6 +31,8 @@
   ```
   Cada vendedor abre `https://<app>/vendedor` en su celular, pone el PIN y su nombre. El PIN no se escribe en el repo
   ni se comparte por chat abierto. Al cerrar cada día: pestaña **Leads → Descargar Excel (CSV)**.
+- [ ] En cada tablet: tocar **💼** (abajo a la derecha), poner el PIN y el nombre de quien atiende. Queda guardado en la
+  tablet; desde ahí cualquiera del equipo carga un lead en 30 segundos sin salir de la demo.
 - [ ] **Navegador:**
   - Chrome con `https://<app>/?quality=high` y luego `F` para pantalla completa.
   - Tablets: `https://<app>/?sala=tablet1` y `https://<app>/?sala=tablet2` (cada una con su propia sesión).

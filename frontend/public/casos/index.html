@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es-MX">
+<html lang="es-MX" data-fab="1" style="--fab-bottom: 92px">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -40,7 +40,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); -web
 .progress button.done::after { transform: scaleX(1); }
 .progress button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 
-.scenes { position: relative; min-height: 0; }
+.scenes { position: relative; min-height: 0; overflow-x: clip; } /* las escenas ocultas se corren 40px: sin esto ensanchan la página en tablets */
 .scene { position: absolute; inset: 0; padding: 8px 32px 0; display: grid; grid-template-columns: minmax(360px, 5fr) 7fr; grid-template-rows: 1fr auto; gap: 18px 36px;
   opacity: 0; visibility: hidden; transform: translateX(40px) scale(.985); transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1), visibility 0s .55s; }
 .scene.on { opacity: 1; visibility: visible; transform: none; transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1); }
@@ -346,6 +346,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
     <img src="/brand/readymind-logo-dark.png" alt="Readymind" />
     <span class="t">Casos de éxito · <b>contados por Glitch</b></span>
     <nav class="progress" id="progress" aria-label="Casos"></nav>
+    <a class="btn primary" id="toOrq" href="/">🎙 Ir al orquestador</a>
   </header>
 
   <main class="scenes" id="scenes">
@@ -653,7 +654,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         </div>
         <p class="others"><b>Otros proyectos de Readymind:</b> help desk de TI con Copilot Studio (banca) · recetas médicas por lotes (salud) · documentos fiscales y societarios (compliance) · auditoría clínica automática (seguros) · búsqueda técnica con RAG (energía) · validación de citas legales (sector público) · priorización de alertas vehiculares (movilidad) · auditoría del uso de IA (legal) · detección de daños en buses (transporte)</p>
         <div class="ctas">
-          <a class="btn primary" href="/">🎙 Contarle mi problema a la demo</a>
+          <a class="btn primary orq" href="/">🎙 Contarle mi problema a la demo</a>
           <a class="btn" href="/ocr/">📷 Probar el lector de documentos</a>
           <a class="btn" href="/vision/">📹 Ver el stand en vivo</a>
           <a class="btn" href="/story/">Cómo funciona la demo</a>
@@ -672,7 +673,15 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   </footer>
 </div>
 
+<script src="/vendedor/fab.js" defer></script>
 <script>
+// "Ir al orquestador": vuelve a la demo en la misma sala de la que se vino (?sala= o la que recuerda el dispositivo)
+;(() => {
+  let sala = new URLSearchParams(location.search).get('sala') || ''
+  try { sala = sala || localStorage.getItem('aitour.sala') || '' } catch {}
+  const href = sala ? `/?sala=${encodeURIComponent(sala)}` : '/'
+  document.querySelectorAll('#toOrq, a.orq').forEach((a) => (a.href = href))
+})();
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
   const scenes = [...document.querySelectorAll('.scene')]

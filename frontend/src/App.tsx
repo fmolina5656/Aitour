@@ -7,7 +7,7 @@ import { OnePagerOverlay } from './components/OnePagerOverlay'
 import { Subtitle } from './components/Subtitle'
 import { TextInput } from './components/TextInput'
 import { BriefCard, VoiceBar } from './components/VoiceUI'
-import { SALA } from './sala'
+import { SALA, withSala } from './sala'
 import { Scene } from './scene/Scene'
 import { api, useStage } from './useStage'
 import { useVoice } from './voice/useVoice'
@@ -65,6 +65,11 @@ export default function App() {
   useEffect(() => {
     setShowOnePager(false)
   }, [s.sessionId])
+
+  // el botón flotante "Lead rápido" del equipo (public/vendedor/fab.js) solo aparece en modo tablet
+  useEffect(() => {
+    document.documentElement.dataset.fab = tablet ? '1' : ''
+  }, [tablet])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -145,6 +150,10 @@ export default function App() {
             ↺ Reiniciar
           </button>
         )}
+        {/* de la tablet a los casos de éxito; /casos tiene el botón para volver a esta misma sala */}
+        <a className="btn tablet-casos" href={withSala('/casos/')}>
+          🏆 Casos de éxito
+        </a>
         {/* el QR va a la esquina: abajo al centro tapaba a los mundos */}
         <div className="tablet-share">
           <ShareCard s={s} onOpenOnePager={() => setShowOnePager(true)} />
