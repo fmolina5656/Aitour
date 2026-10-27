@@ -41,17 +41,39 @@ puedes mirar `frontend/public/casos/index.html` de ese repo.
 - **Tipografía:** Satoshi (Fontshare, pesos 400/500/700/900), con `Segoe UI` y `system-ui` de respaldo, y una mono
   (Cascadia Mono o Consolas) para los rótulos chicos en mayúsculas.
 - **Colores por familia** (proponer otra combinación si queda mejor): App Modernization en azul, Microsoft 365 Copilot
-  en teal y Copilot Studio en verde.
+  en teal y Copilot Studio en verde. Dentro de App Modernization, una etiqueta visible distingue "Agente con Foundry"
+  de "Modernización".
 
 ## Contenido del catálogo
 Dos familias de agentes:
-1. **App Modernization.** Agentes que modernizan aplicaciones. Por ejemplo:
-   - evaluación del portafolio de aplicaciones;
-   - migración de .NET Framework a .NET moderno, y de versiones de Java, con GitHub Copilot app modernization;
-   - contenedorización hacia Azure Container Apps o AKS;
-   - documentación de código legado;
-   - generación de pruebas;
-   - migración de bases de datos a Azure SQL.
+1. **App Modernization (pro-code).** Es la familia **más importante y crítica** del catálogo. Abarca dos líneas, y las
+   dos tienen que lucirse por igual:
+   - **Agentes de IA a medida con Microsoft Foundry.** Es el corazón de la familia. Son agentes construidos con código
+     sobre:
+     - Foundry Agent Service y Microsoft Agent Framework (un agente solo o varios que colaboran entre sí);
+     - modelos del catálogo de Foundry (GPT y otros);
+     - conocimiento con Azure AI Search / Foundry IQ;
+     - herramientas como Document Intelligence, Content Understanding, Vision y agentes de voz;
+     - guardrails (Content Safety, Prompt Shields), evaluaciones y observabilidad con Application Insights;
+     - integración con los sistemas del cliente (SAP, ERP, CRM, Teams, APIs).
+
+     Ejemplos reales de Readymind, que hay que cargar **sin nombres de clientes**:
+
+     | Agente | Qué hace | Piezas | Dato |
+     |---|---|---|---|
+     | Conciliación contable | Extractos PDF de 9 brokers a Excel para SAP HANA | Document Intelligence, GPT-4o, .NET, Cosmos DB | 10 semanas |
+     | Planes de mantenimiento industrial | De manuales técnicos multiidioma al plan preventivo y los repuestos para SAP | Foundry, Document Intelligence, App Service | 13 semanas |
+     | Visión en tiendas | Filas, atención y permanencia con las cámaras existentes | Azure AI Vision | 12 semanas |
+     | API documental de trámites | Enruta cada documento a Document Intelligence prebuilt, Content Understanding o GPT-4o | .NET, 15 endpoints | 10 semanas |
+     | Triage de alertas de seguridad | Clasifica alertas y escala lo crítico a Teams | GPT-4o, Python | 9 semanas |
+     | Equipo de agentes que diseña soluciones | Recepcionista de voz y 5 agentes que debaten | Microsoft Agent Framework, gpt-5.4, Prompt Shields, Container Apps | Demo del AI Tour |
+
+   - **Modernización de aplicaciones con IA.** Por ejemplo:
+     - evaluación del portafolio;
+     - migración de .NET Framework a .NET moderno y de versiones de Java con GitHub Copilot app modernization;
+     - contenedorización hacia Azure Container Apps o AKS;
+     - documentación de código legado y generación de pruebas;
+     - migración de bases de datos a Azure SQL.
 2. **Low code**, dividida en:
    - **Microsoft 365 Copilot:** agentes declarativos y escenarios dentro de Teams, Outlook, Word y Excel.
    - **Copilot Studio:** agentes de help desk de TI, RR. HH., onboarding, ventas o atención a clientes, con conectores
@@ -61,13 +83,19 @@ Dos familias de agentes:
 
 ### 1. Catálogo público
 - **Portada con Glitch.** Glitch presenta el catálogo en 2–3 frases y hay accesos rápidos a cada familia.
-- **Filtros.** Chips de familia, industria y nivel de madurez (demo, piloto, en producción), más un buscador por texto.
+- **Filtros.** Chips de familia (con un subfiltro "Agentes con Foundry" / "Modernización" dentro de App
+  Modernization), plataforma, industria y nivel de madurez (demo, piloto, en producción), más un buscador por texto.
   Los filtros se reflejan en la URL para poder compartir una vista filtrada.
 - **Tarjetas.** Imagen, nombre, familia (con su color), una línea de valor y 2–3 etiquetas.
 - **Detalle del agente** (URL propia, compartible):
   - Glitch lo presenta con su frase.
   - Problema → qué hace → cómo funciona (pasos numerados) → beneficios.
   - Tecnologías, integraciones, requisitos y licencias, seguridad y gobierno, y tiempo estimado de implementación.
+  - Si la ficha tiene `arquitectura`, se muestra un **diagrama de arquitectura** generado desde esos datos:
+    - columnas de entrada → IA → código → salida, con un color por tipo de pieza;
+    - un recorrido paso a paso que se avanza con clic;
+    - una ficha con el detalle al tocar cada pieza.
+    En el back se carga con un editor simple de componentes y conexiones, con vista previa en vivo.
   - Galería de imágenes y un QR para abrirlo en el celular.
   - Botón de contacto (CTA).
 - **Modo presentación.** Pantalla completa para una TV o tablet. Avanza **solo con clic, flechas o control remoto de
@@ -106,7 +134,9 @@ Dos familias de agentes:
   | Narrativa | `glitch_dice` (la frase con la que Glitch lo presenta), `problema`, `que_hace`, `pasos[]` |
   | Público | `para_quien` (roles), `industrias[]` |
   | Valor | `beneficios[]`, cada uno con `{texto, tipo: "medido" \| "estimado"}` |
-  | Técnica | `tecnologias[]`, `integraciones[]`, `requisitos_licencias`, `seguridad_gobierno` |
+  | Técnica | `plataforma` (Microsoft Foundry, GitHub Copilot, M365 Copilot o Copilot Studio), `tecnologias[]`, `integraciones[]`, `requisitos_licencias`, `seguridad_gobierno` |
+  | IA (para los agentes de Foundry) | `modelos[]`, `tipo_agente` (uno solo / varios que colaboran), `conocimiento[]` (fuentes y búsqueda), `herramientas[]`, `guardrails[]`, `evaluacion_observabilidad` |
+  | Arquitectura (opcional, muy recomendada en pro-code) | `arquitectura`: `{componentes: [{id, nombre, tipo: entrada \| ia \| codigo \| datos \| salida \| persona \| seguridad, detalle}], conexiones: [[desde, hasta]], pasos: [{texto, componentes[]}]}` |
   | Entrega | `tiempo_implementacion`, `madurez`, `demo_url` (opcional) |
   | Imágenes | `imagenes[]`, cada una con `{archivo, alt, etiqueta}` |
   | Publicación | `cta`, `estado`, `orden`, `destacado`, `creado`, `actualizado`, `actualizado_por` |
@@ -114,8 +144,11 @@ Dos familias de agentes:
 - **Marca en un solo archivo de configuración:** nombre del catálogo, paleta, logo, textos de Glitch de la portada,
   familias y sus colores, y datos de contacto. Replicar el catálogo para otra unidad, evento o cliente tiene que ser
   cambiar ese archivo y cargar otros agentes.
-- **Semilla.** **2 o 3 agentes de ejemplo por familia**, marcados con un aviso visible "Ejemplo: validar con el equipo"
-  hasta que alguien los edite.
+- **Semilla.**
+  - Los **6 agentes de Foundry** de la tabla de arriba, con su arquitectura cargada.
+  - **2 o 3 ejemplos** de modernización, M365 Copilot y Copilot Studio.
+  - Los ejemplos inventados llevan un aviso visible "Ejemplo: validar con el equipo" hasta que alguien los edite. Los
+    6 de Foundry son proyectos reales: no llevan ese aviso, pero sí la madurez y el tiempo de implementación.
 
 ## Stack sugerido (proponer cambios si hay algo mejor)
 - **Backend:** Python 3.12 + FastAPI + Pydantic, con Pillow para las imágenes.
