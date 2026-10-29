@@ -49,11 +49,15 @@ Sin redeploy y sin `azd provision`, en cmd:
 
 ```
 az containerapp secret set -n rm-aitour-mwsx5jmp -g rg-readymind-aitour --secrets "power-automate-url=<URL del disparador HTTP>"
-az containerapp update -n rm-aitour-mwsx5jmp -g rg-readymind-aitour --set-env-vars "POWER_AUTOMATE_URL=secretref:power-automate-url"
+az containerapp revision list -n rm-aitour-mwsx5jmp -g rg-readymind-aitour --query "[?properties.active].name" -o tsv
+az containerapp revision restart -n rm-aitour-mwsx5jmp -g rg-readymind-aitour --revision <nombre de la revisión activa>
 ```
 
-El segundo comando crea una revisión nueva para que la app lea el secreto actualizado (tarda ~1 minuto). La URL va
-entre comillas porque tiene `&`.
+- **Hay que reiniciar la revisión.** La variable `POWER_AUTOMATE_URL` ya apunta al secreto desde el deploy, pero el
+  contenedor solo lee el valor nuevo del secreto al reiniciarse. Un `az containerapp update` con la misma variable
+  **no** crea una revisión nueva, y la app sigue sin flujo.
+- El reinicio deja la app sin responder ~30–60 s.
+- La URL va entre comillas, y en cmd (no en PowerShell), porque tiene `&`.
 
 Desde la máquina de deploy original, que tiene el `LEAD_SECRET` real, también sirve
 `azd env set POWER_AUTOMATE_URL "<URL>"` + `azd provision`.
