@@ -71,7 +71,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 
 /* ---------- Escenario de la muestra ---------- */
 .visual { position: relative; min-height: 0; display: grid; place-items: center; border-radius: 26px; background: linear-gradient(160deg, rgba(15,27,46,.55), rgba(7,14,26,.35)); border: 1px solid rgba(36,57,90,.6); overflow: hidden; padding: 44px 20px 70px; }
-.visual::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(36,57,90,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(36,57,90,.25) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent); }
+.visual::before { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(36,57,90,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(36,57,90,.25) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent); }
 .visual > * { position: relative; }
 .tag-ej { position: absolute !important; top: 14px; right: 16px; font-size: 12px; color: var(--text-3); border: 1px dashed var(--line-2); border-radius: 99px; padding: 3px 10px; }
 .demo-title { position: absolute !important; top: 14px; left: 18px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); display: flex; align-items: center; gap: 8px; }
@@ -186,7 +186,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .steps .chips span.on::after { animation: fill var(--dur, 3.8s) linear forwards; }
 @keyframes fill { to { width: 100%; } }
 .visual:has(.steps) { align-content: center; gap: 10px; }
-.visual:has(.steps) .more { position: static !important; justify-self: center; }
+.visual:has(.steps) .more { position: relative !important; right: auto; top: auto; justify-self: center; } /* static quedaba debajo de .visual::before y no recibía el clic */
 
 /* Store Intelligence: detecciones dibujadas sobre la imagen (coordenadas en % de la imagen) */
 .tag-ej.ia { color: #fff; background: #a855f7; border: 0; font-weight: 700; }
