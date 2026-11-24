@@ -11,6 +11,19 @@ el botón **💰 Ver ROI y business case**, que calcula solo:
 Los datos se cargan en el bloque `IMPACTO`, al final de `frontend/public/casos/index.html`. Para ver el diseño con
 datos **ficticios**, abre `/casos/?borrador`.
 
+## Estado
+
+| Caso | Business case |
+|---|---|
+| 1 · FinancialOCR | ✅ Cargado como **escenario ilustrativo** (24/11/2026), no validado por el cliente |
+| 2 · Smart Maintenance | Pendiente |
+| 3 · Store Intelligence | Pendiente |
+| 4 · API documental | ✅ Cargado como **escenario ilustrativo** (24/11/2026), no validado por el cliente |
+| 5 · SOC Classifier | Pendiente |
+
+Un escenario ilustrativo (`ilustrativo: true`) se muestra con un aviso visible de que los datos son supuestos de
+Readymind. Cuando el cliente valide los números, cambiar a `t: 'medido'`, quitar `ilustrativo` y actualizar la fuente.
+
 ## Reglas
 - **Sin datos que identifiquen al cliente:** ni nombre, ni volúmenes que lo delaten si son muy conocidos.
 - **Etiqueta de cada cifra.** "Medido" = sale de un registro del proyecto (sistema, reporte, acta). "Estimado" = un

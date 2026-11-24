@@ -97,6 +97,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .bc .x { position: absolute; top: 12px; right: 14px; font: inherit; font-size: 26px; color: var(--text-3); background: none; border: 0; cursor: pointer; }
 .bc .ch { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--c); }
 .bc h3 { margin: 4px 0 4px; font-size: clamp(22px, 2.2vw, 30px); font-weight: 900; }
+.bc .warn.ilus { border-color: var(--alert); color: #ffe2b0; }
 .bc .warn { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--crit); color: #ffc2c2; font-size: 13.5px; }
 .bc .big { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
 .bc .big div { padding: 12px; border-radius: 14px; background: rgba(15,27,46,.8); border: 1px solid var(--line-2); text-align: center; }
@@ -716,10 +717,18 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 //   costo_hora_usd: costo cargado de una hora de esa persona · otros_ahorros_mes_usd: errores, multas, horas extra evitadas
 //   inversion_usd: implementación (una vez) · costo_mensual_usd: Azure + soporte · fuente / fecha / t ('medido' | 'estimado')
 const IMPACTO = {
-  c1: { semanas: 10, kpis: [['9', 'brokers conciliados sin tipear', 'medido'], ['0', 'errores de ingreso', 'medido'], ['Minutos', 'por cierre, antes eran horas', 'medido']], roi: null },
+  c1: { semanas: 10, kpis: [['9', 'brokers conciliados sin tipear', 'medido'], ['0', 'errores de ingreso', 'medido'], ['Minutos', 'por cierre, antes eran horas', 'medido']],
+    roi: { unidad: 'extractos', nota_unidad: 'Extracto de cuenta corriente completo (p. ej. ~60 páginas), sin importar cuántas operaciones tenga',
+      volumen_mes: 20, min_antes: 240, min_despues: 30, costo_hora_usd: 20, otros_ahorros_mes_usd: 0, inversion_usd: 10000, costo_mensual_usd: 350,
+      nota: 'Antes, el operador recorría el extracto y transcribía fecha, descripción, referencia, moneda e importe de cada operación. Ahora la plataforma los extrae y genera el Excel estandarizado; la persona valida. Los 30 min incluyen procesamiento, revisión y correcciones. El menor retrabajo y los errores evitados no se suman (no están cuantificados).',
+      fuente: 'Escenario ilustrativo con supuestos del equipo de Readymind, basado en el historial del proyecto; no validado por el cliente', fecha: '24/11/2026', t: 'estimado', ilustrativo: true } },
   c2: { semanas: 13, kpis: [['10–30 s', 'para generar un plan; antes, semanas por equipo', 'medido'], ['15', 'tareas por plan, con calendario anual', 'medido']], roi: null },
   c3: { semanas: 12, kpis: [['Tiempo real', 'filas, atención y permanencia por zona', 'medido'], ['0', 'cámaras nuevas: usa las existentes', 'medido']], roi: null },
-  c4: { semanas: 10, kpis: [['3–15', 'documentos por trámite, leídos solos', 'medido'], ['5', 'tipos de documento, cada uno con su lector', 'medido'], ['0', 'carga manual', 'medido']], roi: null },
+  c4: { semanas: 10, kpis: [['3–15', 'documentos por trámite, leídos solos', 'medido'], ['5', 'tipos de documento, cada uno con su lector', 'medido'], ['0', 'carga manual', 'medido']],
+    roi: { unidad: 'documentos', nota_unidad: 'Cada documento del afiliado o beneficiario (identidad, informes médicos, partidas, declaraciones juradas), no el expediente completo',
+      volumen_mes: 1000, min_antes: 12, min_despues: 3, costo_hora_usd: 20, otros_ahorros_mes_usd: 0, inversion_usd: 15000, costo_mensual_usd: 600,
+      nota: 'Antes: leer, identificar y transcribir los datos de cada documento. Los 3 min incluyen procesamiento, revisión y eventuales correcciones. La reducción de errores y retrabajo no se suma, para no duplicar beneficios.',
+      fuente: 'Escenario ilustrativo con supuestos del equipo de Readymind, basado en la documentación técnica del proyecto; volúmenes, tiempos y costos no validados por el cliente', fecha: '24/11/2026', t: 'estimado', ilustrativo: true } },
   c5: { semanas: 9, kpis: [['Segundos', 'por alerta; antes, horas', 'medido'], ['0', 'alertas graves sin atender', 'medido']], roi: null },
 }
 // Solo para ver el diseño con ?borrador: datos FICTICIOS, nunca se muestran sin ese parámetro.
@@ -747,7 +756,7 @@ const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, mi
     el.innerHTML = '<h4>📊 Impacto medible</h4>' +
       d.kpis.slice(0, 3).map(([v, l, t]) => `<div class="k"><b>${esc(v)}</b><span>${esc(l)}${tag(t)}</span></div>`).join('') +
       `<div class="k"><b>${d.semanas} sem</b><span>de implementación</span></div>` +
-      (roi ? `<button class="roi-btn" type="button">💰 Ver ROI y business case${roi.ejemplo ? ' <span class="tag-m ej">ejemplo</span>' : ''}</button>` : '')
+      (roi ? `<button class="roi-btn" type="button">💰 Ver ROI ${roi.t === 'estimado' ? 'estimado' : 'y business case'}${roi.ejemplo ? ' <span class="tag-m ej">ejemplo</span>' : ''}</button>` : '')
     el.querySelector('.roi-btn')?.addEventListener('click', () => open(el, d, roi))
   })
 
@@ -759,8 +768,9 @@ const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, mi
       <div class="ch">${esc(scene.dataset.title)} · business case</div>
       <h3>${k.payback === Infinity ? 'Ahorro' : 'Se paga en ' + num(k.payback, 1) + ' meses'}</h3>
       ${r.ejemplo ? '<p class="warn">⚠️ EJEMPLO con datos ficticios: solo para revisar el diseño. Completar con los datos reales del proyecto.</p>' : ''}
+      ${r.ilustrativo ? '<p class="warn ilus">📐 Escenario ilustrativo: los volúmenes, tiempos y costos son supuestos del equipo de Readymind para mostrar el orden de magnitud. No son datos del cliente.</p>' : ''}
       <div class="big">
-        <div><b>${num(k.menos * 100)}%</b><span>menos tiempo por ${esc(r.unidad.replace(/s$/, ''))}</span></div>
+        <div><b>${num(k.menos * 100, 1)}%</b><span>menos tiempo por ${esc(r.unidad.replace(/s$/, ''))}</span></div>
         <div><b>${num(k.horas)} h</b><span>liberadas por mes (≈ ${num(k.fte, 1)} personas)</span></div>
         <div><b>${usd(k.neto)}</b><span>ahorro neto por mes</span></div>
         <div><b>${num(k.roi12 * 100)}%</b><span>ROI a 12 meses</span></div>
@@ -768,12 +778,14 @@ const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, mi
       <div class="h">Supuestos ${tag(r.t)}</div>
       <table>
         <tr><td>Volumen</td><td>${num(r.volumen_mes)} ${esc(r.unidad)} / mes</td></tr>
+        ${r.nota_unidad ? `<tr><td colspan="2" style="text-align:left;font-weight:400;color:var(--text-3);font-size:13px">Unidad: ${esc(r.nota_unidad)}</td></tr>` : ''}
         <tr><td>Tiempo por unidad: antes → después</td><td>${num(r.min_antes, 1)} min → ${num(r.min_despues, 1)} min</td></tr>
         <tr><td>Costo por hora de trabajo</td><td>${usd(r.costo_hora_usd)}</td></tr>
         ${r.otros_ahorros_mes_usd ? `<tr><td>Otros ahorros (errores, retrabajo, horas extra)</td><td>${usd(r.otros_ahorros_mes_usd)} / mes</td></tr>` : ''}
         <tr><td>Inversión de implementación</td><td>${usd(r.inversion_usd)}</td></tr>
         <tr><td>Operación mensual (Azure + soporte)</td><td>${usd(r.costo_mensual_usd || 0)}</td></tr>
       </table>
+      ${r.nota ? `<p class="src" style="margin-top:8px">${esc(r.nota)}</p>` : ''}
       <div class="h">Resultado</div>
       <table>
         <tr><td>Ahorro bruto mensual</td><td>${usd(k.ahorro)}</td></tr>
