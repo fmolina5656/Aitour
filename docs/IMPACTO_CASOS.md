@@ -15,11 +15,14 @@ datos **ficticios**, abre `/casos/?borrador`.
 
 | Caso | Business case |
 |---|---|
-| 1 · FinancialOCR | ✅ Cargado como **escenario ilustrativo** (24/11/2026), no validado por el cliente |
-| 2 · Smart Maintenance | Pendiente |
-| 3 · Store Intelligence | Pendiente |
-| 4 · API documental | ✅ Cargado como **escenario ilustrativo** (24/11/2026), no validado por el cliente |
-| 5 · SOC Classifier | Pendiente |
+| 1 · FinancialOCR | ✅ Escenario ilustrativo (24/11/2026), no validado por el cliente |
+| 2 · Smart Maintenance | ✅ Escenario ilustrativo (nov-2026): "después" e inversión medidos; Azure de Cost Management |
+| 3 · Store Intelligence | ✅ Escenario ilustrativo (nov-2026): "después" (piloto de 2 semanas) e inversión medidos |
+| 4 · API documental | ✅ Escenario ilustrativo (24/11/2026), no validado por el cliente |
+| 5 · SOC Classifier | ✅ Escenario ilustrativo (24/11/2026), no validado por el cliente |
+
+La escena final de /casos suma los cinco (horas, ahorro neto, recuperación y ROI combinados) y aclara que son
+escenarios ilustrativos.
 
 Un escenario ilustrativo (`ilustrativo: true`) se muestra con un aviso visible de que los datos son supuestos de
 Readymind. Cuando el cliente valide los números, cambiar a `t: 'medido'`, quitar `ilustrativo` y actualizar la fuente.

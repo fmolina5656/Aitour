@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es-MX" data-fab="1" style="--fab-bottom: 300px">
+<html lang="es-MX" data-fab="1" style="--fab-bottom: 12px">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -29,7 +29,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); -web
 @keyframes drift { to { transform: translate(4%, -3%) rotate(6deg); } }
 
 /* ---------- Marco ---------- */
-.app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; }
+.app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: minmax(0, 1fr); }
 .top { display: flex; align-items: center; gap: 24px; padding: 16px 32px 10px; }
 .top img { height: 30px; }
 .top .t { font-size: 16px; color: var(--text-2); white-space: nowrap; }
@@ -102,11 +102,41 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .bc .big { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
 .bc .big div { padding: 12px; border-radius: 14px; background: rgba(15,27,46,.8); border: 1px solid var(--line-2); text-align: center; }
 .bc .big b { display: block; font-size: clamp(20px, 2vw, 30px); font-weight: 900; color: var(--c); }
-.bc .big span { font-size: 12.5px; color: var(--text-2); }
+.bc .big > div > span { font-size: 12.5px; color: var(--text-2); }
 .bc table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 .bc td { padding: 7px 4px; border-bottom: 1px solid var(--line); color: var(--text-2); } .bc td:last-child { text-align: right; color: var(--text); font-weight: 600; }
 .bc .h { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin: 14px 0 4px; }
 .bc .src { margin-top: 14px; font-size: 12.5px; color: var(--text-3); line-height: 1.5; }
+.impact .hl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.impact .hl div { padding: 8px 10px; border-radius: 12px; background: color-mix(in srgb, var(--c, var(--green)) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c, var(--green)) 35%, transparent); }
+.impact .hl b { display: block; font-size: clamp(24px, 2.3vw, 36px); line-height: 1; font-weight: 900; color: var(--c, var(--green)); }
+.impact .hl span { font-size: 12px; color: var(--text-2); line-height: 1.25; display: block; margin-top: 4px; }
+.impact .hl2 { font-size: 13.5px; color: var(--text-2); } .impact .hl2 b { color: var(--text); }
+.tag-m.med { border-color: rgba(102,222,127,.5); color: var(--green); }
+.bc .box { width: min(980px, 100%); }
+.bc h3 { font-size: clamp(28px, 3vw, 44px); letter-spacing: -.02em; } .bc h3 span { color: var(--c); }
+.bc .big b { font-size: clamp(24px, 2.5vw, 38px); letter-spacing: -.02em; white-space: nowrap; }
+.bc .big div { padding: 16px 10px; background: linear-gradient(160deg, color-mix(in srgb, var(--c) 14%, transparent), rgba(15,27,46,.8)); border-color: color-mix(in srgb, var(--c) 35%, transparent); }
+.bc .charts { display: grid; grid-template-columns: 1fr 1.25fr; gap: 14px; margin-bottom: 6px; }
+.bc .charts > div { padding: 10px 12px; border-radius: 14px; background: rgba(15,27,46,.6); border: 1px solid var(--line); }
+.bc .charts .h { margin-top: 0; }
+.chart { width: 100%; height: auto; display: block; font-family: var(--font); }
+.chart .lb { font-size: 13px; fill: var(--text-2); } .chart .big-t { font-size: 30px; font-weight: 900; fill: var(--c); } .chart .val { font-size: 12.5px; font-weight: 700; fill: var(--text); } .chart .ax { font-size: 11px; fill: var(--text-3); }
+.chart .b-antes { fill: #4a5a72; } .chart .b-desp { fill: var(--c); }
+.chart .zero { stroke: var(--line-2); stroke-width: 1; } .chart .be { stroke: var(--c); stroke-dasharray: 3 4; }
+.chart .ln { fill: none; stroke: var(--c); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.2s .2s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.chart .a-pos { fill: color-mix(in srgb, var(--c) 22%, transparent); } .chart .a-neg { fill: rgba(255,93,93,.16); }
+.chart .dot { fill: var(--c); stroke: #0a1526; stroke-width: 2; }
+.bc tr.sub td { font-size: 13px; color: var(--text-3); font-weight: 400; padding-top: 3px; padding-bottom: 3px; } .bc tr.sub td:first-child { padding-left: 14px; }
+.combo { min-width: 0; max-width: 100%; margin: 18px 0 6px; padding: 14px 16px; border-radius: 18px; background: linear-gradient(160deg, rgba(102,222,127,.1), rgba(9,18,33,.66)); border: 1px solid rgba(102,222,127,.35); }
+.combo .ct { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+.combo .cg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.combo b { display: block; font-size: clamp(24px, 2.6vw, 40px); font-weight: 900; line-height: 1.05; background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.combo span { font-size: 13px; color: var(--text-2); }
+@media (max-width: 760px) { .combo .cg { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bc .charts { grid-template-columns: 1fr; } .combo b { font-size: 24px; } .combo { padding: 12px; } }
+@media (max-width: 480px) { #auto { display: none; } } /* en el celular no entra junto a "Volver a empezar" */
+@media (prefers-reduced-motion: reduce) { .chart .ln { animation: none; stroke-dashoffset: 0; } }
 @media (max-width: 700px) { .bc .big { grid-template-columns: 1fr 1fr; } .bc .box { padding: 18px 16px; } }
 .card { background: var(--glass); border: 1px solid rgba(36,57,90,.7); border-radius: 16px; padding: 14px 18px; backdrop-filter: blur(12px); }
 .card h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
@@ -121,7 +151,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 @keyframes up { to { opacity: 1; transform: none; } }
 
 /* ---------- Navegación ---------- */
-.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 32px 16px; }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 100px 16px 32px; } /* a la derecha va el 💼 (vendedor/fab.js) */
 .btn { font: inherit; font-size: 15px; color: var(--text); background: rgba(15,27,46,.8); border: 1px solid var(--line-2); border-radius: 12px; padding: 9px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: border-color .2s, transform .1s; }
 .btn:hover { border-color: var(--green); }
 .btn:active { transform: scale(.97); }
@@ -134,7 +164,8 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .nav .right { display: flex; gap: 10px; }
 
 /* ---------- Portada y cierre ---------- */
-.scene.hero { grid-template-columns: 1fr; grid-template-rows: 1fr; text-align: center; }
+.scene.hero { grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; text-align: center; }
+.hero .story { min-width: 0; }
 .hero .story { align-items: center; }
 .hero h1 { font-size: clamp(34px, min(5vw, 8.5vh), 80px); line-height: 1; letter-spacing: -.03em; margin: 16px 0 10px; font-weight: 900; max-width: 16ch; }
 .hero h1 span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -338,7 +369,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   .sales { grid-template-columns: 1fr; }
   .card.impact .roi-btn { align-self: stretch; }
   .bubble { min-height: 0; margin-bottom: 40px; }
-  .nav { padding: 12px 16px 18px; position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 30%); }
+  .nav { padding: 12px 86px 18px 16px; position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 30%); }
   .nav .mid { display: none; }
   .nav .btn { font-size: 14px; padding: 9px 12px; white-space: nowrap; }
   .hero .glitch-row { flex-direction: column; }
@@ -685,6 +716,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
           <div class="bubble" data-say="Estos son solo cinco de catorce proyectos. Todos empezaron igual: alguien contó un problema lento, manual o caro. ¿Me cuentas el tuyo? En tres minutos te armo la solución en la pantalla de al lado."><span class="who">Glitch</span><span class="txt"></span></div>
         </div>
         <p class="others"><b>Otros proyectos de Readymind:</b> help desk de TI con Copilot Studio (banca) · recetas médicas por lotes (salud) · documentos fiscales y societarios (compliance) · auditoría clínica automática (seguros) · búsqueda técnica con RAG (energía) · validación de citas legales (sector público) · priorización de alertas vehiculares (movilidad) · auditoría del uso de IA (legal) · detección de daños en buses (transporte)</p>
+        <div class="combo" id="combo"></div>
         <div class="ctas">
           <a class="btn primary orq" href="/">🎙 Contarle mi problema a la demo</a>
           <a class="btn" href="/ocr/">📷 Probar el lector de documentos</a>
@@ -709,27 +741,41 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 <script src="/vendedor/fab.js" defer></script>
 <script>
 // ---------- Impacto medible y business case de cada caso ----------
-// kpis: cifras publicadas del proyecto. t: 'medido' (dato del proyecto) o 'estimado' (cálculo o supuesto).
-// roi: datos para calcular el business case. Mientras sea null, no se muestra el botón (con ?borrador se ve un
-// EJEMPLO con datos ficticios para revisar el diseño). Completar con la planilla docs/IMPACTO_CASOS.md.
-//   volumen_mes: unidades procesadas por mes · unidad: qué se cuenta (extractos, planes, trámites, alertas…)
-//   min_antes / min_despues: minutos de trabajo de una persona por unidad, antes y después
-//   costo_hora_usd: costo cargado de una hora de esa persona · otros_ahorros_mes_usd: errores, multas, horas extra evitadas
-//   inversion_usd: implementación (una vez) · costo_mensual_usd: Azure + soporte · fuente / fecha / t ('medido' | 'estimado')
+// kpis: cifras publicadas del proyecto. roi: datos del business case (ver docs/IMPACTO_CASOS.md); con roi null no hay
+// botón (?borrador muestra un EJEMPLO ficticio). medidos: qué campos del roi salen de un registro del proyecto (el resto
+// se marca "estimado"). otros_detalle / operacion_detalle: desglose en [texto, USD/mes]. ilustrativo: aviso visible.
 const IMPACTO = {
   c1: { semanas: 10, kpis: [['9', 'brokers conciliados sin tipear', 'medido'], ['0', 'errores de ingreso', 'medido'], ['Minutos', 'por cierre, antes eran horas', 'medido']],
     roi: { unidad: 'extractos', nota_unidad: 'Extracto de cuenta corriente completo (p. ej. ~60 páginas), sin importar cuántas operaciones tenga',
       volumen_mes: 20, min_antes: 240, min_despues: 30, costo_hora_usd: 20, otros_ahorros_mes_usd: 0, inversion_usd: 10000, costo_mensual_usd: 350,
       nota: 'Antes, el operador recorría el extracto y transcribía fecha, descripción, referencia, moneda e importe de cada operación. Ahora la plataforma los extrae y genera el Excel estandarizado; la persona valida. Los 30 min incluyen procesamiento, revisión y correcciones. El menor retrabajo y los errores evitados no se suman (no están cuantificados).',
       fuente: 'Escenario ilustrativo con supuestos del equipo de Readymind, basado en el historial del proyecto; no validado por el cliente', fecha: '24/11/2026', t: 'estimado', ilustrativo: true } },
-  c2: { semanas: 13, kpis: [['10–30 s', 'para generar un plan; antes, semanas por equipo', 'medido'], ['15', 'tareas por plan, con calendario anual', 'medido']], roi: null },
-  c3: { semanas: 12, kpis: [['Tiempo real', 'filas, atención y permanencia por zona', 'medido'], ['0', 'cámaras nuevas: usa las existentes', 'medido']], roi: null },
+  c2: { semanas: 13, kpis: [['15', 'tareas por plan, con calendario anual', 'medido'], ['10–30 s', 'para generar un plan; antes, semanas por equipo', 'medido']],
+    roi: { unidad: 'planes', unidad_1: 'plan', nota_unidad: 'Plan de mantenimiento de un equipo: tareas, frecuencias y repuestos codificados en Excel',
+      volumen_mes: 15, min_antes: 480, min_despues: 60, costo_hora_usd: 35, inversion_usd: 15000, costo_mensual_usd: 310,
+      otros_ahorros_mes_usd: 800, otros_detalle: [['Repuestos mal codificados evitados', 800]],
+      operacion_detalle: [['Azure (dato de Cost Management)', 60], ['Soporte', 250]],
+      medidos: ['min_despues', 'inversion_usd'],
+      nota: 'Los 60 min de "después" salen de una prueba piloto con 3 manuales e incluyen la revisión del técnico. La inversión sale de las horas registradas del proyecto (480 h × USD 30).',
+      fuente: 'Escenario ilustrativo: Cost Management de Azure, piloto y registro de horas del equipo de Readymind; volumen y costo por hora estimados', fecha: 'nov-2026', t: 'estimado', ilustrativo: true } },
+  c3: { semanas: 12, kpis: [['Tiempo real', 'filas, atención y permanencia por zona', 'medido'], ['0', 'cámaras nuevas: usa las existentes', 'medido']],
+    roi: { unidad: 'reportes', nota_unidad: 'Reporte diario de filas de una tienda piloto con 3 cámaras: tiempo de espera, de atención y clientes atendidos por caja',
+      volumen_mes: 30, min_antes: 150, min_despues: 10, costo_hora_usd: 6, inversion_usd: 12000, costo_mensual_usd: 420,
+      otros_ahorros_mes_usd: 2300, otros_detalle: [['Ventas recuperadas: ~5 clientes/día que ya no abandonan la fila × ticket USD 30 × margen 45%', 2000], ['Horas extra de cajeros evitadas al reasignar personal en horas pico', 300]],
+      operacion_detalle: [['Container App de inferencia 24/7', 130], ['Cosmos DB', 20], ['App Service y Functions', 15], ['Container Registry', 5], ['Tokens del agente de IA', 20], ['Power BI Pro (2 licencias)', 30], ['Soporte', 200]],
+      medidos: ['min_despues', 'inversion_usd'],
+      nota: 'Antes, el supervisor cronometraba la fila ~2 h al día por muestreo y pasaba los datos a Excel (~30 min). Ahora revisa el tablero o le pregunta al agente de IA: 10 min, medido en un piloto de 2 semanas. La inversión sale de las horas registradas (~400 h × USD 30); las cámaras ya existían.',
+      fuente: 'Escenario ilustrativo: métricas del piloto, registro de horas del equipo y entrevista con el jefe de tienda; ventas recuperadas y costos de operación estimados', fecha: 'nov-2026', t: 'estimado', ilustrativo: true } },
   c4: { semanas: 10, kpis: [['3–15', 'documentos por trámite, leídos solos', 'medido'], ['5', 'tipos de documento, cada uno con su lector', 'medido'], ['0', 'carga manual', 'medido']],
     roi: { unidad: 'documentos', nota_unidad: 'Cada documento del afiliado o beneficiario (identidad, informes médicos, partidas, declaraciones juradas), no el expediente completo',
       volumen_mes: 1000, min_antes: 12, min_despues: 3, costo_hora_usd: 20, otros_ahorros_mes_usd: 0, inversion_usd: 15000, costo_mensual_usd: 600,
       nota: 'Antes: leer, identificar y transcribir los datos de cada documento. Los 3 min incluyen procesamiento, revisión y eventuales correcciones. La reducción de errores y retrabajo no se suma, para no duplicar beneficios.',
       fuente: 'Escenario ilustrativo con supuestos del equipo de Readymind, basado en la documentación técnica del proyecto; volúmenes, tiempos y costos no validados por el cliente', fecha: '24/11/2026', t: 'estimado', ilustrativo: true } },
-  c5: { semanas: 9, kpis: [['Segundos', 'por alerta; antes, horas', 'medido'], ['0', 'alertas graves sin atender', 'medido']], roi: null },
+  c5: { semanas: 9, kpis: [['Segundos', 'por alerta; antes, horas', 'medido'], ['0', 'alertas graves sin atender', 'medido']],
+    roi: { unidad: 'alertas', nota_unidad: 'Cada correo de alerta de seguridad que llega a la casilla del SOC y la IA clasifica (~135 por semana)',
+      volumen_mes: 585, min_antes: 10, min_despues: 2, costo_hora_usd: 25, otros_ahorros_mes_usd: 0, inversion_usd: 12000, costo_mensual_usd: 600,
+      nota: 'Antes: 10 min por correo para leerlo, identificar el tipo de alerta y clasificarlo. Ahora el analista valida o corrige la clasificación de la IA en 2 min. La inversión incluye desarrollo, integración con Outlook y pruebas.',
+      fuente: 'Escenario ilustrativo: proyección del equipo de Readymind a partir del flujo de clasificación de alertas en Outlook', fecha: '24/11/2026', t: 'estimado', ilustrativo: true } },
 }
 // Solo para ver el diseño con ?borrador: datos FICTICIOS, nunca se muestran sin ese parámetro.
 const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, min_despues: 2, costo_hora_usd: 15, otros_ahorros_mes_usd: 500, inversion_usd: 40000, costo_mensual_usd: 1200, fuente: 'Datos ficticios para revisar el diseño', fecha: '', t: 'estimado', ejemplo: true }
@@ -737,9 +783,10 @@ const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, mi
 ;(() => {
   const borrador = new URLSearchParams(location.search).has('borrador')
   const esc = (x) => String(x ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
-  const usd = (n) => 'USD ' + Math.round(n).toLocaleString('es-MX')
   const num = (n, d = 0) => n.toLocaleString('es-MX', { maximumFractionDigits: d })
-  const tag = (t) => t === 'estimado' ? '<span class="tag-m est">estimado</span>' : ''
+  const usd = (n) => 'USD ' + num(Math.round(n))
+  const k$ = (n) => n >= 10000 ? 'USD ' + num(n / 1000, 1) + 'k' : usd(n)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
 
   function calc(r) {
     const horas = r.volumen_mes * (r.min_antes - r.min_despues) / 60
@@ -749,41 +796,95 @@ const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, mi
       roi12: (neto * 12 - r.inversion_usd) / r.inversion_usd, roi36: (neto * 36 - r.inversion_usd) / r.inversion_usd,
       menos: r.min_antes ? 1 - r.min_despues / r.min_antes : 0 }
   }
+  const mt = (r, campo) => r.ejemplo ? '' : (r.medidos || []).includes(campo) ? '<span class="tag-m med">medido</span>' : r.t === 'estimado' ? '<span class="tag-m est">estimado</span>' : ''
+  const dur = (m) => m >= 60 ? num(m / 60, 1) + ' h' : num(m, 1) + ' min'
 
+  // números que cuentan hacia arriba (data-to, data-fmt)
+  function countUp(root) {
+    root.querySelectorAll('[data-to]').forEach((el) => {
+      const to = +el.dataset.to, fmt = (v) => el.dataset.fmt === 'usd' ? usd(v) : el.dataset.fmt === 'pct' ? num(v, to % 1 ? 1 : 0) + '%' : el.dataset.fmt === 'm' ? num(v, 1) : num(v)
+      if (reduced) { el.textContent = fmt(to); return }
+      const t0 = performance.now(), D = 1100
+      const step = (t) => { const x = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - x, 3); el.textContent = fmt(to * e); if (x < 1) requestAnimationFrame(step) }
+      requestAnimationFrame(step)
+    })
+  }
+
+  // ---------- tarjeta de cada caso ----------
   document.querySelectorAll('.card.impact').forEach((el) => {
     const d = IMPACTO[el.dataset.case]; if (!d) return el.remove()
-    const roi = d.roi || (borrador ? EJEMPLO_ROI : null)
+    const r = d.roi || (borrador ? EJEMPLO_ROI : null)
+    const k = r && calc(r)
     el.innerHTML = '<h4>📊 Impacto medible</h4>' +
-      d.kpis.slice(0, 3).map(([v, l, t]) => `<div class="k"><b>${esc(v)}</b><span>${esc(l)}${tag(t)}</span></div>`).join('') +
-      `<div class="k"><b>${d.semanas} sem</b><span>de implementación</span></div>` +
-      (roi ? `<button class="roi-btn" type="button">💰 Ver ROI ${roi.t === 'estimado' ? 'estimado' : 'y business case'}${roi.ejemplo ? ' <span class="tag-m ej">ejemplo</span>' : ''}</button>` : '')
-    el.querySelector('.roi-btn')?.addEventListener('click', () => open(el, d, roi))
+      (k ? `<div class="hl"><div><b>${num(k.payback, 1)}</b><span>meses para recuperar la inversión</span></div><div><b>${num(k.roi36 * 100)}%</b><span>ROI a 3 años</span></div></div>
+             <div class="hl2"><b>${num(k.menos * 100, 1)}%</b> menos tiempo · <b>${num(k.horas)} h</b>/mes liberadas${r.t === 'estimado' ? ' <span class="tag-m est">estimado</span>' : ''}</div>` : '') +
+      d.kpis.slice(0, k ? 1 : 3).map(([v, l]) => `<div class="k"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('') +
+      (k ? '' : `<div class="k"><b>${d.semanas} sem</b><span>de implementación</span></div>`) +
+      (r ? `<button class="roi-btn" type="button">💰 Ver business case${r.ejemplo ? ' <span class="tag-m ej">ejemplo</span>' : ''} →</button>` : '')
+    el.querySelector('.roi-btn')?.addEventListener('click', () => open(el.closest('.scene'), d, r))
   })
 
+  // ---------- gráficos ----------
+  function barras(r) { // minutos por unidad: antes vs después
+    const W = 360, max = r.min_antes, w = (m) => Math.max(4, m / max * (W - 120))
+    return `<svg viewBox="0 0 ${W} 122" class="chart" role="img" aria-label="Tiempo por unidad: ${dur(r.min_antes)} antes, ${dur(r.min_despues)} después">
+      <text x="0" y="22" class="lb">Antes</text><rect x="70" y="8" height="22" rx="6" width="${w(r.min_antes)}" class="b-antes"><animate attributeName="width" from="0" to="${w(r.min_antes)}" dur=".9s" fill="freeze"/></rect>
+      <text x="${78 + w(r.min_antes)}" y="24" class="val">${dur(r.min_antes)}</text>
+      <text x="0" y="64" class="lb">Después</text><rect x="70" y="50" height="22" rx="6" width="${w(r.min_despues)}" class="b-desp"><animate attributeName="width" from="0" to="${w(r.min_despues)}" dur=".9s" begin=".3s" fill="freeze"/></rect>
+      <text x="${78 + w(r.min_despues)}" y="66" class="val">${dur(r.min_despues)}</text>
+      <text x="0" y="112" class="big-t">−${num((1 - r.min_despues / r.min_antes) * 100, 1)}%</text><text x="${W}" y="112" text-anchor="end" class="lb">de tiempo por ${esc(r.unidad_1 || r.unidad.replace(/s$/, ''))}</text></svg>`
+  }
+  function curva(r, k) { // ahorro neto acumulado − inversión, 36 meses
+    const W = 360, H = 150, P = { l: 8, r: 8, t: 12, b: 22 }, M = 36
+    const ys = Array.from({ length: M + 1 }, (_, m) => k.neto * m - r.inversion_usd)
+    const lo = Math.min(...ys, 0), hi = Math.max(...ys, 0)
+    const X = (m) => P.l + m / M * (W - P.l - P.r), Y = (v) => P.t + (hi - v) / (hi - lo || 1) * (H - P.t - P.b)
+    const line = ys.map((v, m) => `${m ? 'L' : 'M'}${X(m).toFixed(1)},${Y(v).toFixed(1)}`).join('')
+    const area = `${line}L${X(M)},${Y(0)}L${X(0)},${Y(0)}Z`
+    const be = k.payback <= M ? k.payback : null
+    return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Recuperación de la inversión: se recupera en ${num(k.payback, 1)} meses; a 36 meses el saldo es ${usd(ys[M])}">
+      <defs><clipPath id="cAbove"><rect x="0" y="0" width="${W}" height="${Y(0)}"/></clipPath><clipPath id="cBelow"><rect x="0" y="${Y(0)}" width="${W}" height="${H}"/></clipPath></defs>
+      <path d="${area}" class="a-pos" clip-path="url(#cAbove)"/><path d="${area}" class="a-neg" clip-path="url(#cBelow)"/>
+      <line x1="${P.l}" x2="${W - P.r}" y1="${Y(0)}" y2="${Y(0)}" class="zero"/>
+      <path d="${line}" class="ln" pathLength="1"/>
+      ${be ? `<line x1="${X(be)}" x2="${X(be)}" y1="${P.t}" y2="${H - P.b}" class="be"/><circle cx="${X(be)}" cy="${Y(0)}" r="5" class="dot"/>
+        <text x="${Math.min(X(be) + 6, W - 120)}" y="${P.t + 10}" class="val">recupera en ${num(be, 1)} meses</text>` : ''}
+      <text x="${X(M)}" y="${Math.max(Y(ys[M]) - 6, 12)}" text-anchor="end" class="val">+${k$(ys[M])}</text>
+      ${[0, 12, 24, 36].map((m) => `<text x="${X(m)}" y="${H - 6}" text-anchor="${m ? m === 36 ? 'end' : 'middle' : 'start'}" class="ax">${m ? m + ' m' : 'hoy'}</text>`).join('')}
+    </svg>`
+  }
+
+  // ---------- business case ----------
   const bc = document.getElementById('bc'), box = document.getElementById('bcBox')
-  function open(el, d, r) {
-    const scene = el.closest('.scene'), k = calc(r)
+  function open(scene, d, r) {
+    const k = calc(r)
     bc.style.setProperty('--c', getComputedStyle(scene).getPropertyValue('--c'))
+    const det = (rows) => rows.map(([t, v]) => `<tr class="sub"><td>· ${esc(t)}</td><td>${usd(v)}</td></tr>`).join('')
     box.innerHTML = `<button class="x" aria-label="Cerrar">×</button>
       <div class="ch">${esc(scene.dataset.title)} · business case</div>
-      <h3>${k.payback === Infinity ? 'Ahorro' : 'Se paga en ' + num(k.payback, 1) + ' meses'}</h3>
+      <h3>Se paga en <span data-to="${k.payback}" data-fmt="m">0</span> meses</h3>
       ${r.ejemplo ? '<p class="warn">⚠️ EJEMPLO con datos ficticios: solo para revisar el diseño. Completar con los datos reales del proyecto.</p>' : ''}
-      ${r.ilustrativo ? '<p class="warn ilus">📐 Escenario ilustrativo: los volúmenes, tiempos y costos son supuestos del equipo de Readymind para mostrar el orden de magnitud. No son datos del cliente.</p>' : ''}
+      ${r.ilustrativo ? '<p class="warn ilus">📐 Escenario ilustrativo: parte de los volúmenes, tiempos y costos son supuestos del equipo de Readymind para mostrar el orden de magnitud; cada dato indica si es medido o estimado. No son datos validados por el cliente.</p>' : ''}
       <div class="big">
-        <div><b>${num(k.menos * 100, 1)}%</b><span>menos tiempo por ${esc(r.unidad.replace(/s$/, ''))}</span></div>
-        <div><b>${num(k.horas)} h</b><span>liberadas por mes (≈ ${num(k.fte, 1)} personas)</span></div>
-        <div><b>${usd(k.neto)}</b><span>ahorro neto por mes</span></div>
-        <div><b>${num(k.roi12 * 100)}%</b><span>ROI a 12 meses</span></div>
+        <div><b data-to="${+(k.menos * 100).toFixed(1)}" data-fmt="pct">0</b><span>menos tiempo por ${esc((r.unidad_1 || r.unidad.replace(/s$/, '')))}</span></div>
+        <div><b><span data-to="${Math.round(k.horas)}">0</span> h</b><span>liberadas por mes (≈ ${num(k.fte, 1)} personas)</span></div>
+        <div><b data-to="${Math.round(k.neto)}" data-fmt="usd">0</b><span>ahorro neto por mes</span></div>
+        <div><b data-to="${Math.round(k.roi36 * 100)}" data-fmt="pct">0</b><span>ROI a 3 años (${num(k.roi12 * 100)}% a 12 meses)</span></div>
       </div>
-      <div class="h">Supuestos ${tag(r.t)}</div>
+      <div class="charts">
+        <div><div class="h">Tiempo por ${esc((r.unidad_1 || r.unidad.replace(/s$/, '')))}</div>${barras(r)}</div>
+        <div><div class="h">Recuperación de la inversión (36 meses)</div>${curva(r, k)}</div>
+      </div>
+      <div class="h">Supuestos</div>
       <table>
-        <tr><td>Volumen</td><td>${num(r.volumen_mes)} ${esc(r.unidad)} / mes</td></tr>
-        ${r.nota_unidad ? `<tr><td colspan="2" style="text-align:left;font-weight:400;color:var(--text-3);font-size:13px">Unidad: ${esc(r.nota_unidad)}</td></tr>` : ''}
-        <tr><td>Tiempo por unidad: antes → después</td><td>${num(r.min_antes, 1)} min → ${num(r.min_despues, 1)} min</td></tr>
-        <tr><td>Costo por hora de trabajo</td><td>${usd(r.costo_hora_usd)}</td></tr>
-        ${r.otros_ahorros_mes_usd ? `<tr><td>Otros ahorros (errores, retrabajo, horas extra)</td><td>${usd(r.otros_ahorros_mes_usd)} / mes</td></tr>` : ''}
-        <tr><td>Inversión de implementación</td><td>${usd(r.inversion_usd)}</td></tr>
-        <tr><td>Operación mensual (Azure + soporte)</td><td>${usd(r.costo_mensual_usd || 0)}</td></tr>
+        <tr><td>Volumen ${mt(r, 'volumen_mes')}</td><td>${num(r.volumen_mes)} ${esc(r.unidad)} / mes</td></tr>
+        ${r.nota_unidad ? `<tr class="sub"><td colspan="2">Unidad: ${esc(r.nota_unidad)}</td></tr>` : ''}
+        <tr><td>Tiempo por unidad antes ${mt(r, 'min_antes')}</td><td>${dur(r.min_antes)}</td></tr>
+        <tr><td>Tiempo por unidad después ${mt(r, 'min_despues')}</td><td>${dur(r.min_despues)}</td></tr>
+        <tr><td>Costo por hora de trabajo ${mt(r, 'costo_hora_usd')}</td><td>${usd(r.costo_hora_usd)}</td></tr>
+        ${r.otros_ahorros_mes_usd ? `<tr><td>Otros ahorros ${mt(r, 'otros_ahorros_mes_usd')}</td><td>${usd(r.otros_ahorros_mes_usd)} / mes</td></tr>${det(r.otros_detalle || [])}` : ''}
+        <tr><td>Inversión de implementación ${mt(r, 'inversion_usd')}</td><td>${usd(r.inversion_usd)}</td></tr>
+        <tr><td>Operación mensual ${mt(r, 'costo_mensual_usd')}</td><td>${usd(r.costo_mensual_usd || 0)} / mes</td></tr>${det(r.operacion_detalle || [])}
       </table>
       ${r.nota ? `<p class="src" style="margin-top:8px">${esc(r.nota)}</p>` : ''}
       <div class="h">Resultado</div>
@@ -797,11 +898,30 @@ const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, mi
       Cálculo: horas liberadas = volumen × (minutos antes − después) ÷ 60; ahorro neto = horas × costo hora + otros ahorros − operación;
       ROI = (ahorro neto × meses − inversión) ÷ inversión.</p>`
     bc.classList.add('on'); document.documentElement.dataset.fab = '' // el 💼 no tapa el business case
+    box.scrollTop = 0; countUp(box)
     box.querySelector('.x').onclick = close
   }
   function close() { bc.classList.remove('on'); document.documentElement.dataset.fab = '1' }
   bc.addEventListener('click', (e) => { if (e.target === bc) close() })
   addEventListener('keydown', (e) => { if (bc.classList.contains('on')) { if (e.key === 'Escape') close(); e.stopImmediatePropagation() } }, true)
+
+  // ---------- impacto combinado (escena final) ----------
+  const combo = document.getElementById('combo')
+  const conRoi = Object.values(IMPACTO).filter((d) => d.roi)
+  if (combo && conRoi.length) {
+    const t = conRoi.reduce((a, d) => { const k = calc(d.roi); a.h += k.horas; a.n += k.neto; a.i += d.roi.inversion_usd; return a }, { h: 0, n: 0, i: 0 })
+    const ilus = conRoi.some((d) => d.roi.ilustrativo || d.roi.t === 'estimado')
+    combo.innerHTML = `<div class="ct">📊 Impacto combinado de los ${conRoi.length} casos ${ilus ? '<span class="tag-m est">escenarios ilustrativos</span>' : ''}</div>
+      <div class="cg">
+        <div><b data-to="${Math.round(t.h)}">0</b><span>horas liberadas por mes (≈ ${num(t.h / 160, 1)} personas)</span></div>
+        <div><b data-to="${Math.round(t.n)}" data-fmt="usd">0</b><span>ahorro neto por mes</span></div>
+        <div><b data-to="${+(t.i / t.n).toFixed(1)}" data-fmt="m">0</b><span>meses para recuperar la inversión total (${k$(t.i)})</span></div>
+        <div><b data-to="${Math.round((t.n * 36 - t.i) / t.i * 100)}" data-fmt="pct">0</b><span>ROI combinado a 3 años</span></div>
+      </div>`
+    const sc = combo.closest('.scene')
+    new MutationObserver(() => { if (sc.classList.contains('on')) countUp(combo) }).observe(sc, { attributes: true, attributeFilter: ['class'] })
+    if (sc.classList.contains('on')) countUp(combo)
+  }
 })()
 </script>
 <script>
