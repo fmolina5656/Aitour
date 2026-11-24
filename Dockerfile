@@ -21,7 +21,9 @@ COPY backend/scripts ./scripts
 COPY backend/pricing ./pricing
 COPY backend/knowledge ./knowledge
 COPY backend/seed ./seed
-RUN pip install . \
+# libatomic1: el Node que trae Playwright (>= 1.65) la necesita y python:3.12-slim no la incluye
+RUN apt-get update && apt-get install -y --no-install-recommends libatomic1 \
+ && pip install . \
  && python -m playwright install --with-deps chromium \
  && rm -rf /var/lib/apt/lists/*
 COPY --from=web /src/frontend/dist /app/frontend/dist
