@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es-MX" data-fab="1" style="--fab-bottom: 92px">
+<html lang="es-MX" data-fab="1" style="--fab-bottom: 300px">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -81,7 +81,32 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .scene.on .result { animation: up .6s forwards; animation-delay: var(--rd, 3.5s); }
 
 /* ---------- Panel de ventas ---------- */
-.sales { grid-column: 1 / -1; display: grid; grid-template-columns: 1.3fr 1fr 1.25fr; gap: 14px; padding-bottom: 6px; }
+.sales { grid-column: 1 / -1; display: grid; grid-template-columns: 1.2fr .9fr 1.1fr 1.05fr; gap: 14px; padding-bottom: 6px; }
+/* Impacto medible (datos en IMPACTO, al final): cifras del proyecto y business case con ROI calculado */
+.card.impact { border-color: color-mix(in srgb, var(--c, var(--green)) 45%, transparent); display: flex; flex-direction: column; gap: 8px; }
+.impact .k { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 2px 10px; }
+.impact .k b { font-size: clamp(18px, 1.6vw, 26px); font-weight: 900; color: var(--c, var(--green)); white-space: nowrap; }
+.impact .k span { font-size: 13.5px; color: var(--text-2); line-height: 1.3; }
+.impact .roi-btn { margin-top: auto; align-self: flex-start; font: inherit; font-size: 13.5px; font-weight: 700; color: #04121b; background: var(--c, var(--green)); border: 0; border-radius: 10px; padding: 7px 12px; cursor: pointer; }
+.tag-m { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border-radius: 99px; border: 1px solid var(--line-2); color: var(--text-3); vertical-align: 2px; margin-left: 4px; }
+.tag-m.est { border-color: rgba(255,181,71,.5); color: var(--alert); }
+.tag-m.ej { border-color: rgba(255,93,93,.6); color: var(--crit); }
+.bc { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 20px; background: rgba(3,7,14,.72); backdrop-filter: blur(6px); }
+.bc.on { display: grid; }
+.bc .box { width: min(880px, 100%); max-height: calc(100dvh - 40px); overflow: auto; background: #0a1526; border: 1px solid var(--c, var(--line-2)); border-radius: 22px; padding: 22px 24px 20px; position: relative; }
+.bc .x { position: absolute; top: 12px; right: 14px; font: inherit; font-size: 26px; color: var(--text-3); background: none; border: 0; cursor: pointer; }
+.bc .ch { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--c); }
+.bc h3 { margin: 4px 0 4px; font-size: clamp(22px, 2.2vw, 30px); font-weight: 900; }
+.bc .warn { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--crit); color: #ffc2c2; font-size: 13.5px; }
+.bc .big { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+.bc .big div { padding: 12px; border-radius: 14px; background: rgba(15,27,46,.8); border: 1px solid var(--line-2); text-align: center; }
+.bc .big b { display: block; font-size: clamp(20px, 2vw, 30px); font-weight: 900; color: var(--c); }
+.bc .big span { font-size: 12.5px; color: var(--text-2); }
+.bc table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.bc td { padding: 7px 4px; border-bottom: 1px solid var(--line); color: var(--text-2); } .bc td:last-child { text-align: right; color: var(--text); font-weight: 600; }
+.bc .h { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin: 14px 0 4px; }
+.bc .src { margin-top: 14px; font-size: 12.5px; color: var(--text-3); line-height: 1.5; }
+@media (max-width: 700px) { .bc .big { grid-template-columns: 1fr 1fr; } .bc .box { padding: 18px 16px; } }
 .card { background: var(--glass); border: 1px solid rgba(36,57,90,.7); border-radius: 16px; padding: 14px 18px; backdrop-filter: blur(12px); }
 .card h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
 .card p { margin: 0; color: var(--text-2); font-size: 15px; line-height: 1.45; }
@@ -91,7 +116,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 .chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; background: rgba(57,126,246,.12); border: 1px solid rgba(57,126,246,.35); color: #cfe0ff; }
 .sales .card { opacity: 0; transform: translateY(14px); }
 .scene.on .sales .card { animation: up .6s cubic-bezier(.2,.8,.2,1) forwards; }
-.scene.on .sales .card:nth-child(2) { animation-delay: .1s; } .scene.on .sales .card:nth-child(3) { animation-delay: .2s; }
+.scene.on .sales .card:nth-child(2) { animation-delay: .1s; } .scene.on .sales .card:nth-child(3) { animation-delay: .2s; } .scene.on .sales .card:nth-child(4) { animation-delay: .3s; }
 @keyframes up { to { opacity: 1; transform: none; } }
 
 /* ---------- Navegación ---------- */
@@ -310,6 +335,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   .scene.on { display: grid; }
   .visual { padding: 44px 10px 70px; }
   .sales { grid-template-columns: 1fr; }
+  .card.impact .roi-btn { align-self: stretch; }
   .bubble { min-height: 0; margin-bottom: 40px; }
   .nav { padding: 12px 16px 18px; position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 30%); }
   .nav .mid { display: none; }
@@ -433,6 +459,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <div class="card"><h4>⏮ Antes</h4><p>Extractos en PDF de 9 brokers, cada uno con su formato. La conciliación en SAP HANA era manual, con riesgo de error en importes, fechas y signos, y dependía de personal especializado.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Azure Document Intelligence</span><span class="chip">GPT-4o</span><span class="chip">.NET 9</span><span class="chip">SAP HANA</span><span class="chip">Cosmos DB</span></div></div>
         <div class="card now"><h4>🚀 Después</h4><p>Los 9 brokers procesados en minutos, eliminando horas de trabajo manual. Cero errores de ingreso y cierre contable con trazabilidad completa.</p></div>
+        <div class="card impact" data-case="c1"></div>
       </div>
     </section>
 
@@ -469,6 +496,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <div class="card"><h4>⏮ Antes</h4><p>Planes de mantenimiento escritos a mano a partir de manuales de cientos de páginas, de distintos fabricantes e idiomas. Se desactualizaban con cada equipo nuevo y el conocimiento quedaba en los técnicos más antiguos.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Microsoft AI Foundry</span><span class="chip">Document Intelligence</span><span class="chip">OCR multiidioma</span><span class="chip">Integración CMMS/ERP</span></div></div>
         <div class="card now"><h4>🚀 Después</h4><p>Planes siempre alineados a la documentación vigente del fabricante. El conocimiento técnico queda capturado y auditable, sin depender de la rotación del personal.</p></div>
+        <div class="card impact" data-case="c2"></div>
       </div>
     </section>
 
@@ -538,6 +566,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <div class="card"><h4>⏮ Antes</h4><p>Medir filas, tiempos de atención y permanencia de clientes era difícil de capturar en tiempo real. Poca visibilidad sobre el nivel de servicio y los cuellos de botella.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Azure AI Vision</span><span class="chip">Visión computacional</span><span class="chip">People tracking</span><span class="chip">Dashboard en tiempo real</span></div></div>
         <div class="card now"><h4>🚀 Después</h4><p>Identificación automática de puntos de congestión. Decisiones de staffing basadas en datos reales, no en estimaciones subjetivas.</p></div>
+        <div class="card impact" data-case="c3"></div>
       </div>
     </section>
 
@@ -589,6 +618,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <div class="card"><h4>⏮ Antes</h4><p>Cada trámite trae de 3 a 15 documentos distintos (DNI, pasaportes, certificados consulares, informes médicos, Anexo 18). La carga manual generaba demoras, errores en datos de identidad y poca trazabilidad.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">.NET 9 · 15 endpoints</span><span class="chip">Azure Doc Intelligence</span><span class="chip">AI Content Understanding</span><span class="chip">GPT-4o</span></div></div>
         <div class="card now"><h4>🚀 Después</h4><p>Reducción significativa del tiempo de procesamiento por trámite, con trazabilidad completa y auditable por solicitud.</p></div>
+        <div class="card impact" data-case="c4"></div>
       </div>
     </section>
 
@@ -640,6 +670,7 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
         <div class="card"><h4>⏮ Antes</h4><p>Decenas de alertas de seguridad diarias en una sola casilla de correo, sin prioridad. Los analistas leían cada una a mano, con riesgo de dejar pasar un incidente crítico.</p></div>
         <div class="card"><h4>⚙️ Tecnología</h4><div class="chips"><span class="chip">Azure OpenAI GPT-4o</span><span class="chip">Python</span><span class="chip">Microsoft Teams</span><span class="chip">Monitoreo en tiempo real</span></div></div>
         <div class="card now"><h4>🚀 Después</h4><p>Triage de alertas de horas a segundos. Cero alertas graves sin atender. Los falsos positivos se filtran solos.</p></div>
+        <div class="card impact" data-case="c5"></div>
       </div>
     </section>
 
@@ -673,7 +704,94 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
   </footer>
 </div>
 
+<div class="bc" id="bc" role="dialog" aria-modal="true" aria-label="Business case"><div class="box" id="bcBox"></div></div>
 <script src="/vendedor/fab.js" defer></script>
+<script>
+// ---------- Impacto medible y business case de cada caso ----------
+// kpis: cifras publicadas del proyecto. t: 'medido' (dato del proyecto) o 'estimado' (cálculo o supuesto).
+// roi: datos para calcular el business case. Mientras sea null, no se muestra el botón (con ?borrador se ve un
+// EJEMPLO con datos ficticios para revisar el diseño). Completar con la planilla docs/IMPACTO_CASOS.md.
+//   volumen_mes: unidades procesadas por mes · unidad: qué se cuenta (extractos, planes, trámites, alertas…)
+//   min_antes / min_despues: minutos de trabajo de una persona por unidad, antes y después
+//   costo_hora_usd: costo cargado de una hora de esa persona · otros_ahorros_mes_usd: errores, multas, horas extra evitadas
+//   inversion_usd: implementación (una vez) · costo_mensual_usd: Azure + soporte · fuente / fecha / t ('medido' | 'estimado')
+const IMPACTO = {
+  c1: { semanas: 10, kpis: [['9', 'brokers conciliados sin tipear', 'medido'], ['0', 'errores de ingreso', 'medido'], ['Minutos', 'por cierre, antes eran horas', 'medido']], roi: null },
+  c2: { semanas: 13, kpis: [['10–30 s', 'para generar un plan; antes, semanas por equipo', 'medido'], ['15', 'tareas por plan, con calendario anual', 'medido']], roi: null },
+  c3: { semanas: 12, kpis: [['Tiempo real', 'filas, atención y permanencia por zona', 'medido'], ['0', 'cámaras nuevas: usa las existentes', 'medido']], roi: null },
+  c4: { semanas: 10, kpis: [['3–15', 'documentos por trámite, leídos solos', 'medido'], ['5', 'tipos de documento, cada uno con su lector', 'medido'], ['0', 'carga manual', 'medido']], roi: null },
+  c5: { semanas: 9, kpis: [['Segundos', 'por alerta; antes, horas', 'medido'], ['0', 'alertas graves sin atender', 'medido']], roi: null },
+}
+// Solo para ver el diseño con ?borrador: datos FICTICIOS, nunca se muestran sin ese parámetro.
+const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, min_despues: 2, costo_hora_usd: 15, otros_ahorros_mes_usd: 500, inversion_usd: 40000, costo_mensual_usd: 1200, fuente: 'Datos ficticios para revisar el diseño', fecha: '', t: 'estimado', ejemplo: true }
+
+;(() => {
+  const borrador = new URLSearchParams(location.search).has('borrador')
+  const esc = (x) => String(x ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+  const usd = (n) => 'USD ' + Math.round(n).toLocaleString('es-MX')
+  const num = (n, d = 0) => n.toLocaleString('es-MX', { maximumFractionDigits: d })
+  const tag = (t) => t === 'estimado' ? '<span class="tag-m est">estimado</span>' : ''
+
+  function calc(r) {
+    const horas = r.volumen_mes * (r.min_antes - r.min_despues) / 60
+    const ahorro = horas * r.costo_hora_usd + (r.otros_ahorros_mes_usd || 0)
+    const neto = ahorro - (r.costo_mensual_usd || 0)
+    return { horas, fte: horas / 160, ahorro, neto, payback: neto > 0 ? r.inversion_usd / neto : Infinity,
+      roi12: (neto * 12 - r.inversion_usd) / r.inversion_usd, roi36: (neto * 36 - r.inversion_usd) / r.inversion_usd,
+      menos: r.min_antes ? 1 - r.min_despues / r.min_antes : 0 }
+  }
+
+  document.querySelectorAll('.card.impact').forEach((el) => {
+    const d = IMPACTO[el.dataset.case]; if (!d) return el.remove()
+    const roi = d.roi || (borrador ? EJEMPLO_ROI : null)
+    el.innerHTML = '<h4>📊 Impacto medible</h4>' +
+      d.kpis.slice(0, 3).map(([v, l, t]) => `<div class="k"><b>${esc(v)}</b><span>${esc(l)}${tag(t)}</span></div>`).join('') +
+      `<div class="k"><b>${d.semanas} sem</b><span>de implementación</span></div>` +
+      (roi ? `<button class="roi-btn" type="button">💰 Ver ROI y business case${roi.ejemplo ? ' <span class="tag-m ej">ejemplo</span>' : ''}</button>` : '')
+    el.querySelector('.roi-btn')?.addEventListener('click', () => open(el, d, roi))
+  })
+
+  const bc = document.getElementById('bc'), box = document.getElementById('bcBox')
+  function open(el, d, r) {
+    const scene = el.closest('.scene'), k = calc(r)
+    bc.style.setProperty('--c', getComputedStyle(scene).getPropertyValue('--c'))
+    box.innerHTML = `<button class="x" aria-label="Cerrar">×</button>
+      <div class="ch">${esc(scene.dataset.title)} · business case</div>
+      <h3>${k.payback === Infinity ? 'Ahorro' : 'Se paga en ' + num(k.payback, 1) + ' meses'}</h3>
+      ${r.ejemplo ? '<p class="warn">⚠️ EJEMPLO con datos ficticios: solo para revisar el diseño. Completar con los datos reales del proyecto.</p>' : ''}
+      <div class="big">
+        <div><b>${num(k.menos * 100)}%</b><span>menos tiempo por ${esc(r.unidad.replace(/s$/, ''))}</span></div>
+        <div><b>${num(k.horas)} h</b><span>liberadas por mes (≈ ${num(k.fte, 1)} personas)</span></div>
+        <div><b>${usd(k.neto)}</b><span>ahorro neto por mes</span></div>
+        <div><b>${num(k.roi12 * 100)}%</b><span>ROI a 12 meses</span></div>
+      </div>
+      <div class="h">Supuestos ${tag(r.t)}</div>
+      <table>
+        <tr><td>Volumen</td><td>${num(r.volumen_mes)} ${esc(r.unidad)} / mes</td></tr>
+        <tr><td>Tiempo por unidad: antes → después</td><td>${num(r.min_antes, 1)} min → ${num(r.min_despues, 1)} min</td></tr>
+        <tr><td>Costo por hora de trabajo</td><td>${usd(r.costo_hora_usd)}</td></tr>
+        ${r.otros_ahorros_mes_usd ? `<tr><td>Otros ahorros (errores, retrabajo, horas extra)</td><td>${usd(r.otros_ahorros_mes_usd)} / mes</td></tr>` : ''}
+        <tr><td>Inversión de implementación</td><td>${usd(r.inversion_usd)}</td></tr>
+        <tr><td>Operación mensual (Azure + soporte)</td><td>${usd(r.costo_mensual_usd || 0)}</td></tr>
+      </table>
+      <div class="h">Resultado</div>
+      <table>
+        <tr><td>Ahorro bruto mensual</td><td>${usd(k.ahorro)}</td></tr>
+        <tr><td>Ahorro neto mensual (menos la operación)</td><td>${usd(k.neto)}</td></tr>
+        <tr><td>Recuperación de la inversión</td><td>${k.payback === Infinity ? '—' : num(k.payback, 1) + ' meses'}</td></tr>
+        <tr><td>ROI a 12 meses · a 3 años</td><td>${num(k.roi12 * 100)}% · ${num(k.roi36 * 100)}%</td></tr>
+      </table>
+      <p class="src">Fuente: ${esc(r.fuente || '—')}${r.fecha ? ' · ' + esc(r.fecha) : ''}. Sin datos que identifiquen al cliente.
+      Cálculo: horas liberadas = volumen × (minutos antes − después) ÷ 60; ahorro neto = horas × costo hora + otros ahorros − operación;
+      ROI = (ahorro neto × meses − inversión) ÷ inversión.</p>`
+    bc.classList.add('on'); document.documentElement.dataset.fab = '' // el 💼 no tapa el business case
+    box.querySelector('.x').onclick = close
+  }
+  function close() { bc.classList.remove('on'); document.documentElement.dataset.fab = '1' }
+  bc.addEventListener('click', (e) => { if (e.target === bc) close() })
+  addEventListener('keydown', (e) => { if (bc.classList.contains('on')) { if (e.key === 'Escape') close(); e.stopImmediatePropagation() } }, true)
+})()
+</script>
 <script>
 // "Ir al orquestador": vuelve a la demo en la misma sala de la que se vino (?sala= o la que recuerda el dispositivo)
 ;(() => {
