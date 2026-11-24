@@ -747,29 +747,27 @@ h2 em { font-style: normal; color: var(--c, var(--green)); }
 const IMPACTO = {
   c1: { semanas: 10, kpis: [['9', 'brokers conciliados sin tipear', 'medido'], ['0', 'errores de ingreso', 'medido'], ['Minutos', 'por cierre, antes eran horas', 'medido']],
     roi: { unidad: 'extractos', nota_unidad: 'Extracto de cuenta corriente completo (p. ej. ~60 páginas), sin importar cuántas operaciones tenga',
-      volumen_mes: 50, min_antes: 240, min_despues: 30, costo_hora_usd: 20, inversion_usd: 10000, costo_mensual_usd: 350,
-      otros_ahorros_mes_usd: 200, otros_detalle: [['Ajustes y errores de conciliación evitados', 200]],
-      nota: 'Antes, el operador recorría el extracto y transcribía fecha, descripción, referencia, moneda e importe de cada operación. Ahora la plataforma los extrae y genera el Excel estandarizado; la persona valida. Los 30 min incluyen procesamiento, revisión y correcciones. Volumen: los 9 brokers con varias cuentas y extractos en el mes.',
+      volumen_mes: 52, min_antes: 240, min_despues: 30, costo_hora_usd: 20, inversion_usd: 10000, costo_mensual_usd: 350, otros_ahorros_mes_usd: 0,
+      nota: 'Antes, el operador recorría el extracto y transcribía fecha, descripción, referencia, moneda e importe de cada operación. Ahora la plataforma los extrae y genera el Excel estandarizado; la persona valida. Los 30 min incluyen procesamiento, revisión y correcciones. Volumen: los 9 brokers con varias cuentas y extractos en el mes. Solo se cuentan horas de trabajo; los errores evitados no se suman.',
       fuente: 'Escenario ilustrativo con supuestos del equipo de Readymind, basado en el historial del proyecto; no validado por el cliente', fecha: '24/11/2026', t: 'estimado', ilustrativo: true } },
   c2: { semanas: 13, kpis: [['15', 'tareas por plan, con calendario anual', 'medido'], ['10–30 s', 'para generar un plan; antes, semanas por equipo', 'medido']],
     roi: { unidad: 'planes', unidad_1: 'plan', nota_unidad: 'Plan de mantenimiento de un equipo: tareas, frecuencias y repuestos codificados en Excel',
-      volumen_mes: 25, min_antes: 480, min_despues: 60, costo_hora_usd: 35, inversion_usd: 15000, costo_mensual_usd: 310,
-      otros_ahorros_mes_usd: 800, otros_detalle: [['Repuestos mal codificados evitados', 800]],
+      volumen_mes: 20, min_antes: 480, min_despues: 60, costo_hora_usd: 35, inversion_usd: 15000, costo_mensual_usd: 310, otros_ahorros_mes_usd: 0,
       operacion_detalle: [['Azure (dato de Cost Management)', 60], ['Soporte', 250]],
       medidos: ['min_despues', 'inversion_usd'],
-      nota: 'Los 60 min de "después" salen de una prueba piloto con 3 manuales e incluyen la revisión del técnico. La inversión sale de las horas registradas del proyecto (480 h × USD 30).',
+      nota: 'Los 60 min de "después" salen de una prueba piloto con 3 manuales e incluyen la revisión del técnico. La inversión sale de las horas registradas del proyecto (480 h × USD 30). Los repuestos mal codificados evitados no se suman.',
       fuente: 'Escenario ilustrativo: Cost Management de Azure, piloto y registro de horas del equipo de Readymind; volumen y costo por hora estimados', fecha: 'nov-2026', t: 'estimado', ilustrativo: true } },
   c3: { semanas: 12, kpis: [['Tiempo real', 'filas, atención y permanencia por zona', 'medido'], ['0', 'cámaras nuevas: usa las existentes', 'medido']],
     roi: { unidad: 'reportes', nota_unidad: 'Reporte diario de filas de una tienda piloto con 3 cámaras: tiempo de espera, de atención y clientes atendidos por caja',
       volumen_mes: 30, min_antes: 150, min_despues: 10, costo_hora_usd: 6, inversion_usd: 12000, costo_mensual_usd: 420,
-      otros_ahorros_mes_usd: 3740, otros_detalle: [['Ventas recuperadas: ~8 clientes/día que ya no abandonan la fila × ticket USD 30 × margen 45%', 3240], ['Horas extra de cajeros evitadas al reasignar personal en horas pico', 500]],
+      otros_ahorros_mes_usd: 2830, otros_detalle: [['Ventas recuperadas: ~6 clientes/día que ya no abandonan la fila × ticket USD 30 × margen 45%', 2430], ['Horas extra de cajeros evitadas al reasignar personal en horas pico', 400]],
       operacion_detalle: [['Container App de inferencia 24/7', 130], ['Cosmos DB', 20], ['App Service y Functions', 15], ['Container Registry', 5], ['Tokens del agente de IA', 20], ['Power BI Pro (2 licencias)', 30], ['Soporte', 200]],
       medidos: ['min_despues', 'inversion_usd'],
       nota: 'Antes, el supervisor cronometraba la fila ~2 h al día por muestreo y pasaba los datos a Excel (~30 min). Ahora revisa el tablero o le pregunta al agente de IA: 10 min, medido en un piloto de 2 semanas. La inversión sale de las horas registradas (~400 h × USD 30); las cámaras ya existían.',
       fuente: 'Escenario ilustrativo: métricas del piloto, registro de horas del equipo y entrevista con el jefe de tienda; ventas recuperadas y costos de operación estimados', fecha: 'nov-2026', t: 'estimado', ilustrativo: true } },
   c4: { semanas: 10, kpis: [['3–15', 'documentos por trámite, leídos solos', 'medido'], ['5', 'tipos de documento, cada uno con su lector', 'medido'], ['0', 'carga manual', 'medido']],
     roi: { unidad: 'documentos', nota_unidad: 'Cada documento del afiliado o beneficiario (identidad, informes médicos, partidas, declaraciones juradas), no el expediente completo',
-      volumen_mes: 2500, min_antes: 12, min_despues: 3, costo_hora_usd: 20, otros_ahorros_mes_usd: 0, inversion_usd: 15000, costo_mensual_usd: 600,
+      volumen_mes: 1500, min_antes: 12, min_despues: 3, costo_hora_usd: 20, otros_ahorros_mes_usd: 0, inversion_usd: 15000, costo_mensual_usd: 600,
       nota: 'Antes: leer, identificar y transcribir los datos de cada documento. Los 3 min incluyen procesamiento, revisión y eventuales correcciones. La reducción de errores y retrabajo no se suma, para no duplicar beneficios.',
       fuente: 'Escenario ilustrativo con supuestos del equipo de Readymind, basado en la documentación técnica del proyecto; volúmenes, tiempos y costos no validados por el cliente', fecha: '24/11/2026', t: 'estimado', ilustrativo: true } },
   c5: { semanas: 9, kpis: [['Segundos', 'por alerta; antes, horas', 'medido'], ['0', 'alertas graves sin atender', 'medido']],
@@ -865,7 +863,7 @@ const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, mi
       <div class="ch">${esc(scene.dataset.title)} · business case</div>
       <h3>Se paga en <span data-to="${k.payback}" data-fmt="m">0</span> meses</h3>
       ${r.ejemplo ? '<p class="warn">⚠️ EJEMPLO con datos ficticios: solo para revisar el diseño. Completar con los datos reales del proyecto.</p>' : ''}
-      ${r.ilustrativo ? '<p class="warn ilus">📐 Escenario ilustrativo: parte de los volúmenes, tiempos y costos son supuestos del equipo de Readymind para mostrar el orden de magnitud; cada dato indica si es medido o estimado. No son datos validados por el cliente.</p>' : ''}
+      ${r.ilustrativo ? '<p class="warn ilus">📐 Escenario conservador e ilustrativo: supuestos prudentes del equipo de Readymind, centrados en horas de trabajo que se pueden medir; cada dato indica si es medido o estimado. No son datos validados por el cliente.</p>' : ''}
       <div class="big">
         <div><b data-to="${+(k.menos * 100).toFixed(1)}" data-fmt="pct">0</b><span>menos tiempo por ${esc((r.unidad_1 || r.unidad.replace(/s$/, '')))}</span></div>
         <div><b><span data-to="${Math.round(k.horas)}">0</span> h</b><span>liberadas por mes (≈ ${num(k.fte, 1)} personas)</span></div>
@@ -912,7 +910,7 @@ const EJEMPLO_ROI = { unidad: 'documentos', volumen_mes: 2000, min_antes: 12, mi
   if (combo && conRoi.length) {
     const t = conRoi.reduce((a, d) => { const k = calc(d.roi); a.h += k.horas; a.n += k.neto; a.i += d.roi.inversion_usd; return a }, { h: 0, n: 0, i: 0 })
     const ilus = conRoi.some((d) => d.roi.ilustrativo || d.roi.t === 'estimado')
-    combo.innerHTML = `<div class="ct">📊 Impacto combinado de los ${conRoi.length} casos ${ilus ? '<span class="tag-m est">escenarios ilustrativos</span>' : ''}</div>
+    combo.innerHTML = `<div class="ct">📊 Impacto combinado de los ${conRoi.length} casos ${ilus ? '<span class="tag-m est">escenarios conservadores · ilustrativos</span>' : ''}</div>
       <div class="cg">
         <div><b data-to="${Math.round(t.h)}">0</b><span>horas liberadas por mes (≈ ${num(t.h / 160, 1)} personas)</span></div>
         <div><b data-to="${Math.round(t.n)}" data-fmt="usd">0</b><span>ahorro neto por mes</span></div>
